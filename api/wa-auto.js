@@ -4,7 +4,7 @@ module.exports = async (req, res) => {
   // ==============================================
   // KONFIGURASI
   // ==============================================
-  const TOKEN_FONNTE = "ATNj8R4x7cZ4URHzcwWz";
+  const TOKEN_FONNTE = "gmPdJaM9UV9QDteqLhFT";
   const NOMOR_ADMIN = "6281339165625";
   // ==============================================
 
