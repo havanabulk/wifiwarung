@@ -5,7 +5,7 @@ const { createClient } = require('@supabase/supabase-js'); // Import Supabase cl
 const TOKEN_FONNTE = "gmPdJaM9UV9QDteqLhFT";
 const TOKEN_TELEGRAM = "8261918164:AAG_SblTlyCb4_uAIncrQKifprYKatU5QmY";
 const CHAT_ID = 8788191179;
-const IP_MODEM = "192.168.1.1";
+const IP_MODEM = "192.168.101.1";
 const NOMOR_ISP = "6281808885550";
 const NOMOR_PELANGGAN_INFO = "628132839834"; // Nomor untuk notifikasi kembali online
 
