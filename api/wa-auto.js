@@ -5,7 +5,7 @@ module.exports = async (req, res) => {
   // KONFIGURASI
   // ==============================================
   const TOKEN_FONNTE = "gmPdJaM9UV9QDteqLhFT";
-  const NOMOR_ADMIN = "6281339165625";
+  const NOMOR_ADMIN = "628132839834";
   // ==============================================
 
   try {
