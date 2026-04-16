@@ -1,193 +1,333 @@
 <!DOCTYPE html>
-<html class="dark" lang="id">
-<head>
+
+<html class="dark" lang="id"><head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>BaliLocalTrip Wifi | High-Speed Connectivity Bali</title>
-
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-
-<script>
-tailwind.config = { darkMode: "class" }
-</script>
-
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "on-error": "#690005",
+                "inverse-surface": "#dae2fd",
+                "surface-dim": "#0b1326",
+                "tertiary-fixed-dim": "#ffb692",
+                "tertiary-fixed": "#ffdbcb",
+                "outline-variant": "#3b494c",
+                "inverse-primary": "#004ee8",
+                "surface": "#0b1326",
+                "on-primary": "#002780",
+                "on-surface-variant": "#bac9cc",
+                "tertiary-container": "#ffc3a7",
+                "surface-bright": "#31394d",
+                "error-container": "#93000a",
+                "surface-tint": "#b6c4ff",
+                "on-primary-fixed": "#001550",
+                "surface-container-highest": "#2d3449",
+                "on-primary-fixed-variant": "#003ab3",
+                "secondary-container": "#4635a7",
+                "on-secondary-container": "#b8afff",
+                "on-background": "#dae2fd",
+                "error": "#ffb4ab",
+                "primary-fixed": "#dce1ff",
+                "on-tertiary": "#562000",
+                "secondary": "#c7bfff",
+                "tertiary": "#ffe8de",
+                "surface-variant": "#2d3449",
+                "inverse-on-surface": "#283044",
+                "on-secondary-fixed-variant": "#4433a4",
+                "surface-container-low": "#131b2e",
+                "on-tertiary-container": "#963d00",
+                "primary": "#eaebff",
+                "on-tertiary-fixed-variant": "#7a3000",
+                "on-secondary": "#2c148e",
+                "primary-container": "#c4ceff",
+                "surface-container": "#171f33",
+                "surface-container-lowest": "#060e20",
+                "on-primary-container": "#0049dc",
+                "outline": "#849396",
+                "secondary-fixed": "#e5deff",
+                "primary-fixed-dim": "#b6c4ff",
+                "on-secondary-fixed": "#180065",
+                "on-tertiary-fixed": "#341100",
+                "surface-container-high": "#222a3d",
+                "secondary-fixed-dim": "#c7bfff",
+                "on-surface": "#dae2fd",
+                "on-error-container": "#ffdad6",
+                "background": "#0b1326"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+            },
+            "fontFamily": {
+                "headline": ["Space Grotesk"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
 <style>
-html { scroll-behavior:smooth; }
-
-.glass-card {
-  background: rgba(45, 52, 73, 0.2);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(186, 201, 204, 0.15);
-}
-
-.hero-gradient {
-  background: linear-gradient(135deg, rgba(11,19,38,0.85), rgba(11,19,38,0.3));
-}
-
-.primary-gradient-btn {
-  background: linear-gradient(135deg,#ffdbcb,#963d00);
-}
-</style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(45, 52, 73, 0.2);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(186, 201, 204, 0.15);
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(11, 19, 38, 0.85) 0%, rgba(11, 19, 38, 0.3) 100%);
+        }
+        .primary-gradient-btn {
+            background: linear-gradient(135deg, #ffdbcb 0%, #963d00 100%);
+        }
+    </style>
 </head>
-
-<body class="bg-[#0b1326] text-white font-[Inter]">
-
-<!-- NAVBAR -->
-<nav class="fixed top-0 w-full z-50 bg-[#0b1326]/80 backdrop-blur-xl">
+<body class="bg-surface font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#0b1326]/80 backdrop-blur-xl shadow-2xl shadow-[#0b1326]/50">
 <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-
-<div class="text-2xl font-bold uppercase font-[Space_Grotesk]">
-BALILOCALTRIP <span class="text-[#00E5FF]">WIFI</span>
+<div class="text-2xl font-bold tracking-tighter text-white uppercase font-['Space_Grotesk']">BALILOCALTRIP <span class="text-[#00E5FF]">WIFI</span></div>
+<div class="hidden md:flex items-center space-gap-8 gap-8 font-['Space_Grotesk'] tracking-tight">
+<a class="text-[#00E5FF] border-b-2 border-[#00E5FF] pb-1" href="#">Home</a>
+<a class="text-gray-400 hover:text-white transition-colors" href="#">About Us</a>
+<a class="text-gray-400 hover:text-white transition-colors" href="#">Packages</a>
+<a class="text-gray-400 hover:text-white transition-colors" href="#">FAQ</a>
+<a class="text-gray-400 hover:text-white transition-colors" href="#">Contact</a>
 </div>
-
-<div class="hidden md:flex gap-8 font-[Space_Grotesk]">
-<a href="#home" class="text-[#00E5FF] border-b-2 border-[#00E5FF]">Home</a>
-<a href="#about" class="text-gray-400 hover:text-white">About</a>
-<a href="#packages" class="text-gray-400 hover:text-white">Packages</a>
-<a href="#faq" class="text-gray-400 hover:text-white">FAQ</a>
-<a href="#contact" class="text-gray-400 hover:text-white">Contact</a>
+<button class="bg-[#0b1326] text-[#00E5FF] px-6 py-2 border border-[#00E5FF]/30 rounded-lg font-bold hover:scale-95 active:scale-90 transition-transform">
+            Connect Now
+        </button>
 </div>
-
-<a href="https://wa.me/6281328390834?text=Saya%20mau%20WiFi"
-class="border border-[#00E5FF] text-[#00E5FF] px-5 py-2 rounded-lg">
-Connect Now
-</a>
-
-</div>
+<div class="bg-gradient-to-r from-transparent via-[#00E5FF]/20 to-transparent h-[1px] w-full"></div>
 </nav>
-
 <main>
-
-<!-- HERO -->
-<section id="home" class="relative min-h-screen flex items-center pt-20">
-<div class="absolute inset-0">
-<img class="w-full h-full object-cover opacity-60"
-src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e">
+<!-- Hero Section -->
+<section class="relative min-h-screen flex items-center pt-20 overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img alt="Luxury Bali Coworking Space" class="w-full h-full object-cover opacity-60" data-alt="Interior of a luxury modern tropical coworking space in Bali with lush greenery, warm wood accents, and high-tech workstations under a setting sun" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7_C3OS_hg8Afnpk9A-0orcWMrtFHQVYXqLSiaDoRhuY9S0E9iCGgPWAF-b7fEyP5ioFUNQjYzuJ14HsXb9KZhw4woHkcrFYd_PH_zOLzW7NiXv4LkYMmQWKHBxiKyWR9b7hNjx2VOO-mWzKk6QYtB8pdDfTWmBFeRLuUVUHLGi8WzkGSb_UQdXRQ94HceaDpG6cWBcMv8-5MZaZzrztDIgWrYG8ujhoxilvns1AEVnEW3ZlQybQdJQ8srLQGz_RBeUKiaiUM4Ty4p"/>
 <div class="absolute inset-0 hero-gradient"></div>
 </div>
-
-<div class="relative z-10 max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
-
-<div>
-<h1 class="text-6xl font-bold mb-6">
-Internet Cepat <br>
-<span class="text-[#00E5FF]">200 Mbps</span>
-</h1>
-
-<p class="text-gray-300 mb-8">
-WiFi stabil untuk kerja, gaming & streaming di Bali.
-</p>
-
-<a href="#packages"
-class="primary-gradient-btn px-8 py-4 rounded-lg font-bold">
-Lihat Paket
-</a>
+<div class="relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+<div class="lg:col-span-7">
+<span class="text-[#00E5FF] font-headline font-bold tracking-widest text-sm uppercase mb-4 block">PREMIUM TROPICAL CONNECTIVITY</span>
+<h1 class="text-6xl md:text-8xl font-headline font-bold text-white tracking-tighter mb-6 leading-none">
+                    Internet Cepat <br/>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] to-secondary">200 mbps</span> <br/>
+                    di Bali
+                </h1>
+<p class="text-lg text-on-surface-variant max-w-xl mb-10 leading-relaxed">
+                    Experience the ultimate fusion of Bali vibes and high-velocity digital infrastructure. Low latency, high bandwidth, and premium comfort in the heart of Kelan.
+                </p>
+<div class="flex flex-wrap gap-4">
+<a class="primary-gradient-btn text-on-tertiary-container px-8 py-4 rounded-md font-bold text-lg shadow-lg shadow-tertiary-container/20 hover:brightness-110 transition-all" href="#packages">
+                        Lihat Paket Voucher
+                    </a>
+<div class="flex items-center gap-3 glass-card px-6 py-4 rounded-md">
+<span class="material-symbols-outlined text-[#00E5FF]">speed</span>
+<span class="font-bold text-white">Verified 200Mbps</span>
 </div>
-
+</div>
+</div>
+<div class="lg:col-span-5 hidden lg:block">
+<div class="glass-card p-8 rounded-xl border-l-4 border-[#00E5FF]">
+<div class="flex items-center justify-between mb-8">
+<h3 class="text-xl font-bold text-white">Live Performance</h3>
+<div class="flex items-center gap-2 px-3 py-1 bg-secondary-container rounded-full">
+<div class="w-2 h-2 bg-[#00E5FF] rounded-full animate-pulse"></div>
+<span class="text-[10px] text-on-secondary-container font-bold uppercase tracking-wider">Network Active</span>
+</div>
+</div>
+<div class="space-y-6">
+<div class="flex justify-between items-end border-b border-outline-variant/30 pb-4">
+<span class="text-on-surface-variant text-sm">Download Speed</span>
+<span class="text-4xl font-headline font-bold text-white">214.2<span class="text-sm font-normal text-[#00E5FF]">Mbps</span></span>
+</div>
+<div class="flex justify-between items-end border-b border-outline-variant/30 pb-4">
+<span class="text-on-surface-variant text-sm">Upload Speed</span>
+<span class="text-4xl font-headline font-bold text-white">189.5<span class="text-sm font-normal text-[#00E5FF]">Mbps</span></span>
+</div>
+<div class="flex justify-between items-end">
+<span class="text-on-surface-variant text-sm">Latency (Ping)</span>
+<span class="text-4xl font-headline font-bold text-white">4<span class="text-sm font-normal text-[#00E5FF]">ms</span></span>
+</div>
+</div>
+</div>
+</div>
 </div>
 </section>
-
-<!-- ABOUT -->
-<section id="about" class="py-24 text-center">
-<div class="max-w-4xl mx-auto px-6">
-<h2 class="text-4xl font-bold mb-6">Tentang Kami</h2>
-<p class="text-gray-400">
-WiFi BaliLocalTrip menyediakan koneksi cepat, stabil, dan premium di Bali.
-</p>
-</div>
-</section>
-
-<!-- PACKAGES -->
-<section id="packages" class="py-24">
+<!-- Bento Grid Info Section -->
+<section class="py-24 bg-surface-container-low">
 <div class="max-w-7xl mx-auto px-6">
-
-<h2 class="text-5xl mb-12">Paket Voucher</h2>
-
-<div class="grid md:grid-cols-3 gap-8">
-
-<div class="glass-card p-8 text-center rounded-xl">
-<h3>1 Hari</h3>
-<p class="text-4xl my-4">Rp25K</p>
-
-<a href="https://wa.me/6281328390834?text=Paket%201%20Hari"
-class="block py-3 rounded bg-white/10">
-Beli
-</a>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Location Card -->
+<div class="md:col-span-2 glass-card rounded-2xl p-8 flex flex-col justify-between min-h-[300px] overflow-hidden relative">
+<div class="relative z-10">
+<h4 class="text-secondary font-bold text-sm uppercase tracking-widest mb-2">Prime Location</h4>
+<p class="text-3xl font-headline font-bold text-white mb-4">Jl. Uluwatu Gg. Seruni 28 <br/>Kelan, Tuban, Kuta, Bali</p>
 </div>
-
-<div class="glass-card p-8 text-center rounded-xl border border-[#00E5FF]">
-<h3>7 Hari</h3>
-<p class="text-4xl my-4">Rp150K</p>
-
-<a href="https://wa.me/6281328390834?text=Paket%207%20Hari"
-class="block py-3 rounded primary-gradient-btn">
-Beli
-</a>
+<div class="relative z-10 flex items-center gap-4">
+<a class="text-[#00E5FF] flex items-center gap-2 hover:underline font-bold" href="#">
+<span class="material-symbols-outlined">map</span> View on Google Maps
+                        </a>
 </div>
-
-<div class="glass-card p-8 text-center rounded-xl">
-<h3>30 Hari</h3>
-<p class="text-4xl my-4">Rp500K</p>
-
-<a href="https://wa.me/6281328390834?text=Paket%2030%20Hari"
-class="block py-3 rounded bg-white/10">
-Beli
-</a>
+<div class="absolute right-0 top-0 h-full w-2/5 opacity-40">
+<img alt="Tropical Cafe Atmosphere" class="w-full h-full object-cover" data-alt="Close up of a premium espresso machine and tropical greenery in a high-end Bali cafe" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbz6f06bClOsleQ2deABlkjrRPBU8-ZisfBnv66qid9Ry2i3UuB6pexHcmtRu3O87mHzjVaNu4y1nBI2xqJ6L8Zbi7PbrApTYOyFb5-2v5icaRehuj2o021dhVkklwIUMEGo4DWcqUQ727wj5h_cvrn2BchQJYVb7m3CLH_oK_5EThvo6hP8h-KL1WOq0Lc1UJfa7_oBnxpRVt4wfqA8KXHtik7kolGgeJp6EwvBQvYMlmYbTkf_jkba0RtoJHSRtvibW9ROLBOxeH"/>
 </div>
-
 </div>
-
+<!-- Contact Card -->
+<div class="bg-surface-container-highest rounded-2xl p-8 flex flex-col items-start justify-between border-t-2 border-tertiary-fixed-dim">
+<div class="w-12 h-12 rounded-full bg-tertiary-container flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-on-tertiary-container">phone_iphone</span>
 </div>
-</section>
-
-<!-- FAQ -->
-<section id="faq" class="py-24 bg-black/20">
-<div class="max-w-4xl mx-auto px-6">
-
-<h2 class="text-4xl mb-8 text-center">FAQ</h2>
-
-<div class="space-y-6 text-gray-300">
-
 <div>
-<b>Cara beli?</b>
-<p>Klik paket → lanjut WhatsApp</p>
+<h4 class="text-on-surface-variant font-bold text-sm uppercase tracking-widest mb-1">WhatsApp Support</h4>
+<p class="text-2xl font-headline font-bold text-white mb-6">+62 813 2839 8343</p>
 </div>
-
+<a class="w-full text-center py-3 rounded-md bg-white/5 hover:bg-white/10 text-white font-bold transition-colors" href="https://wa.me/628132839834">
+                        Chat Now
+                    </a>
+</div>
+</div>
+</div>
+</section>
+<!-- Pricing Section -->
+<section class="py-24" id="packages">
+<div class="max-w-7xl mx-auto px-6">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
 <div>
-<b>Kapan aktif?</b>
-<p>Langsung setelah pembayaran</p>
+<h2 class="text-5xl font-headline font-bold text-white tracking-tight mb-4">Pilihan Paket Voucher</h2>
+<p class="text-on-surface-variant max-w-lg">Connectivity tailored to your needs. From quick sessions to month-long deep-work immersion.</p>
 </div>
-
+<div class="flex items-center gap-4 text-sm font-bold text-secondary">
+<span class="material-symbols-outlined">verified</span> Instant Activation
+                </div>
 </div>
-
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Basic Tier -->
+<div class="glass-card p-10 rounded-xl hover:translate-y-[-8px] transition-transform duration-500">
+<h3 class="text-xl font-bold text-white mb-2">Daily Nomad</h3>
+<p class="text-on-surface-variant text-sm mb-8">Perfect for a focused session.</p>
+<div class="mb-8">
+<span class="text-5xl font-headline font-black text-white">Rp 25k</span>
+<span class="text-on-surface-variant text-sm">/ 24 Hours</span>
+</div>
+<ul class="space-y-4 mb-10 text-on-surface-variant">
+<li class="flex items-center gap-3"><span class="material-symbols-outlined text-[#00E5FF] text-sm">check_circle</span> 200Mbps Speed</li>
+<li class="flex items-center gap-3"><span class="material-symbols-outlined text-[#00E5FF] text-sm">check_circle</span> Single Device</li>
+<li class="flex items-center gap-3"><span class="material-symbols-outlined text-[#00E5FF] text-sm">check_circle</span> 24/7 Access</li>
+</ul>
+<button class="w-full py-4 glass-card text-white font-bold rounded-lg hover:bg-white/10 transition-colors">Select Plan</button>
+</div>
+<!-- Pro Tier -->
+<div class="bg-surface-container-highest p-10 rounded-xl relative shadow-2xl border-t-2 border-[#00E5FF] scale-105 z-10">
+<div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#00E5FF] text-[#0b1326] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Most Popular</div>
+<h3 class="text-xl font-bold text-white mb-2">Weekly High-Flyer</h3>
+<p class="text-on-surface-variant text-sm mb-8">For the medium-term resident.</p>
+<div class="mb-8">
+<span class="text-5xl font-headline font-black text-white">Rp 150k</span>
+<span class="text-on-surface-variant text-sm">/ 7 Days</span>
+</div>
+<ul class="space-y-4 mb-10 text-on-surface-variant">
+<li class="flex items-center gap-3"><span class="material-symbols-outlined text-[#00E5FF] text-sm">check_circle</span> 200Mbps Unlimited</li>
+<li class="flex items-center gap-3"><span class="material-symbols-outlined text-[#00E5FF] text-sm">check_circle</span> 2 Devices</li>
+<li class="flex items-center gap-3"><span class="material-symbols-outlined text-[#00E5FF] text-sm">check_circle</span> Priority Support</li>
+</ul>
+<button class="w-full py-4 primary-gradient-btn text-on-tertiary-container font-bold rounded-lg hover:scale-[1.02] transition-transform shadow-xl shadow-tertiary-container/30">Get Started</button>
+</div>
+<!-- Elite Tier -->
+<div class="glass-card p-10 rounded-xl hover:translate-y-[-8px] transition-transform duration-500">
+<h3 class="text-xl font-bold text-white mb-2">Monthly Executive</h3>
+<p class="text-on-surface-variant text-sm mb-8">The ultimate remote office solution.</p>
+<div class="mb-8">
+<span class="text-5xl font-headline font-black text-white">Rp 500k</span>
+<span class="text-on-surface-variant text-sm">/ 30 Days</span>
+</div>
+<ul class="space-y-4 mb-10 text-on-surface-variant">
+<li class="flex items-center gap-3"><span class="material-symbols-outlined text-[#00E5FF] text-sm">check_circle</span> Premium 200Mbps Bandwidth</li>
+<li class="flex items-center gap-3"><span class="material-symbols-outlined text-[#00E5FF] text-sm">check_circle</span> 3 Devices</li>
+<li class="flex items-center gap-3"><span class="material-symbols-outlined text-[#00E5FF] text-sm">check_circle</span> Static IP Available</li>
+</ul>
+<button class="w-full py-4 glass-card text-white font-bold rounded-lg hover:bg-white/10 transition-colors">Select Plan</button>
+</div>
+</div>
 </div>
 </section>
-
-<!-- CONTACT -->
-<section id="contact" class="py-24 text-center">
-<h2 class="text-4xl mb-6">Hubungi Kami</h2>
-
-<a href="https://wa.me/6281328390834?text=Saya%20mau%20WiFi"
-class="primary-gradient-btn px-8 py-4 rounded-lg">
-Chat WhatsApp
-</a>
+<!-- Payment Partners -->
+<section class="py-20 bg-surface-container-lowest">
+<div class="max-w-7xl mx-auto px-6 text-center">
+<p class="text-on-surface-variant text-xs font-black uppercase tracking-[0.3em] mb-10">Secured via Midtrans Payments</p>
+<div class="flex flex-wrap justify-center items-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all">
+<div class="flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-4xl" data-weight="fill">qr_code_2</span>
+<span class="text-[10px] font-bold text-white">QRIS</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-4xl" data-weight="fill">account_balance</span>
+<span class="text-[10px] font-bold text-white">Virtual Accounts</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-4xl" data-weight="fill">account_balance_wallet</span>
+<span class="text-[10px] font-bold text-white">E-Wallets</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-4xl" data-weight="fill">credit_card</span>
+<span class="text-[10px] font-bold text-white">Credit Cards</span>
+</div>
+</div>
+</div>
 </section>
-
 </main>
-
-<!-- FOOTER -->
-<footer class="text-center py-8 text-gray-500">
-© 2026 BaliLocalTrip Wifi
+<!-- Footer -->
+<footer class="bg-[#0b1326] w-full py-12 px-8 border-t border-white/5 font-['Inter'] text-sm text-gray-400">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
+<div class="col-span-1 md:col-span-1">
+<div class="text-xl font-black text-white mb-4">BALILOCALTRIP <span class="text-[#00E5FF]">WIFI</span></div>
+<p class="text-gray-500 leading-relaxed">Where high-velocity internet meets the serene tropical essence of Bali.</p>
+</div>
+<div>
+<h5 class="text-white font-bold mb-4 uppercase tracking-wider">Connect</h5>
+<ul class="space-y-2">
+<li class="hover:text-white transition-colors cursor-pointer">WhatsApp: 628132839834</li>
+<li class="hover:text-white transition-colors cursor-pointer">Email: cafe@balilocaltrip.id</li>
+</ul>
+</div>
+<div>
+<h5 class="text-white font-bold mb-4 uppercase tracking-wider">Address</h5>
+<p class="text-gray-500">Jl. Uluwatu Gg. Seruni 28 Kelan, Tuban, Bali</p>
+</div>
+<div>
+<h5 class="text-white font-bold mb-4 uppercase tracking-wider">Legal</h5>
+<ul class="space-y-2">
+<li class="hover:text-white transition-colors cursor-pointer">Privacy Policy</li>
+<li class="hover:text-white transition-colors cursor-pointer">Terms of Service</li>
+</ul>
+</div>
+</div>
+<div class="max-w-7xl mx-auto mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+<p>© 2024 BaliLocalTrip Wifi Connectivity. All Rights Reserved.</p>
+<div class="flex gap-6">
+<span class="text-[#00E5FF] material-symbols-outlined cursor-pointer hover:scale-110 transition-transform">language</span>
+<span class="text-[#00E5FF] material-symbols-outlined cursor-pointer hover:scale-110 transition-transform">bolt</span>
+<span class="text-[#00E5FF] material-symbols-outlined cursor-pointer hover:scale-110 transition-transform">shield</span>
+</div>
+</div>
 </footer>
-
-<!-- FLOATING WA -->
-<a href="https://wa.me/6281328390834?text=Saya%20mau%20WiFi"
-class="fixed bottom-6 right-6 bg-[#00E5FF] text-black p-4 rounded-full shadow-lg hover:scale-110 transition">
-💬
-</a>
-
-</body>
-</html>
+<!-- SideNavBar (Floating Action) -->
+<div class="fixed bottom-8 right-8 rounded-full h-16 w-16 flex items-center justify-center bg-[#00E5FF] text-[#0b1326] shadow-[0_0_30px_rgba(0,229,255,0.4)] z-[100] cursor-pointer hover:scale-110 hover:rotate-12 transition-all group animate-bounce-slow">
+<span class="material-symbols-outlined text-3xl font-bold">chat</span>
+<div class="absolute right-20 bg-[#00E5FF] text-[#0b1326] px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-bold">
+        WhatsApp Chat <span class="block text-[10px] font-normal">Active 24/7</span>
+</div>
+</div>
+</body></html>
