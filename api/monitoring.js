@@ -1,85 +1,165 @@
 import { createClient } from "@supabase/supabase-js";
 
-// 🔒 PASTIKAN NODE (bukan edge)
-export const config = {
-  runtime: "nodejs",
-};
+// 🔒 init supabase (safe)
+const supabase =
+  process.env.SUPABASE_URL && process.env.SUPABASE_KEY
+    ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
+    : null;
 
-// ✅ SAFE ENV
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
-
-// jangan langsung create kalau env kosong
-let supabase = null;
-if (SUPABASE_URL && SUPABASE_KEY) {
-  supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-}
-
+// ⏱️ delay 3 menit
 const DELAY = 3 * 60 * 1000;
 
-// ✅ SAFE CHECK
+// 🌐 cek koneksi ISP
 async function checkConnection() {
   try {
     const res = await fetch("https://www.google.com", { method: "HEAD" });
     return res.ok;
-  } catch (e) {
-    console.error("checkConnection:", e.message);
+  } catch {
     return false;
   }
 }
 
-// 🚀 MAIN
-export default async function handler(req, res) {
-  const requestId = Date.now();
-
+// 🔌 restart modem (optional)
+async function restartModem() {
   try {
-    console.log("🚀 START:", requestId);
+    if (!process.env.MODEM_RESTART_URL) return;
 
-    // 🔍 DEBUG ENV (penting)
-    if (!SUPABASE_URL || !SUPABASE_KEY) {
-      return res.status(200).json({
-        status: "debug",
-        error: "ENV Supabase belum di set",
-        SUPABASE_URL: !!SUPABASE_URL,
-        SUPABASE_KEY: !!SUPABASE_KEY,
-      });
-    }
+    await fetch(process.env.MODEM_RESTART_URL, {
+      method: "POST",
+    });
+  } catch (err) {
+    console.error("Restart error:", err.message);
+  }
+}
 
+// 📲 WhatsApp
+async function sendWhatsApp(location) {
+  try {
+    if (!process.env.FONNTE_TOKEN) return;
+
+    await fetch("https://api.fonnte.com/send", {
+      method: "POST",
+      headers: {
+        Authorization: process.env.FONNTE_TOKEN,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        target: process.env.ISP_PHONE,
+        message: `🚨 ISP DOWN\nLokasi: ${location}`,
+      }),
+    });
+  } catch (err) {
+    console.error("WA error:", err.message);
+  }
+}
+
+// 📩 Telegram
+async function sendTelegram(location) {
+  try {
+    if (!process.env.TELEGRAM_TOKEN) return;
+
+    await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: process.env.TELEGRAM_CHAT_ID,
+        text: `🚨 ISP DOWN\nLokasi: ${location}`,
+      }),
+    });
+  } catch (err) {
+    console.error("Telegram error:", err.message);
+  }
+}
+
+// 🚀 MAIN API
+export default async function handler(req, res) {
+  try {
+    // 🔍 cek supabase
     if (!supabase) {
-      throw new Error("Supabase init gagal");
+      return res.status(200).json({
+        status: "error",
+        message: "ENV Supabase belum di set",
+      });
     }
 
     const isUp = await checkConnection();
 
-    // 🔍 TEST QUERY DULU
-    const { data, error } = await supabase
+    const { data: rows, error } = await supabase
       .from("monitoring_status")
-      .select("*")
-      .limit(1);
+      .select("*");
 
     if (error) {
       return res.status(200).json({
-        status: "debug",
-        step: "query_error",
-        error: error.message,
+        status: "error",
+        message: error.message,
       });
+    }
+
+    let notifSent = 0;
+    const now = Date.now();
+
+    for (const row of rows || []) {
+      if (!isUp) {
+        // ❌ ISP DOWN
+
+        if (!row.last_offline_timestamp) {
+          // pertama kali down
+          await supabase
+            .from("monitoring_status")
+            .update({
+              last_offline_timestamp: now,
+              notification_sent: false,
+            })
+            .eq("id", row.id);
+
+          await restartModem();
+          continue;
+        }
+
+        const diff = now - row.last_offline_timestamp;
+
+        if (diff >= DELAY && !row.notification_sent) {
+          await sendTelegram(row.location);
+          await sendWhatsApp(row.location);
+
+          await supabase
+            .from("monitoring_status")
+            .update({
+              notification_sent: true,
+            })
+            .eq("id", row.id);
+
+          notifSent++;
+        }
+
+      } else {
+        // ✅ ISP UP
+
+        if (row.last_offline_timestamp) {
+          await supabase
+            .from("monitoring_status")
+            .update({
+              last_offline_timestamp: null,
+              notification_sent: false,
+            })
+            .eq("id", row.id);
+        }
+      }
     }
 
     return res.status(200).json({
       status: "success",
-      requestId,
       isp: isUp ? "UP" : "DOWN",
-      sample_data: data,
+      notifications_sent: notifSent,
+      total_locations: rows?.length || 0,
     });
 
   } catch (err) {
-    console.error("❌ FATAL:", err);
+    console.error("FATAL:", err);
 
-    // ❗ JANGAN langsung 500 dulu
     return res.status(200).json({
-      status: "crash",
+      status: "error",
       message: err.message,
-      stack: err.stack,
     });
   }
 }
