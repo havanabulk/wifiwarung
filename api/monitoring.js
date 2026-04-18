@@ -1,98 +1,105 @@
 import { createClient } from "@supabase/supabase-js";
 
-// 🔗 koneksi Supabase
+// 🔒 pastikan pakai NODE runtime (bukan edge)
+export const config = {
+  runtime: "nodejs",
+};
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_KEY
 );
 
-// ⏱️ delay sebelum kirim notif (ms)
-const DELAY = 3 * 60 * 1000; // 3 menit
+const DELAY = 3 * 60 * 1000;
 
-// 🌐 cek koneksi internet
+// ✅ SAFE CHECK CONNECTION
 async function checkConnection() {
   try {
     const res = await fetch("https://www.google.com", { method: "HEAD" });
     return res.ok;
-  } catch {
+  } catch (err) {
+    console.error("checkConnection error:", err.message);
     return false;
   }
 }
 
-// 🔌 restart modem
+// ✅ SAFE RESTART (tidak bikin crash)
 async function restartModem() {
   try {
+    if (!process.env.MODEM_RESTART_URL) {
+      console.log("⚠️ MODEM_RESTART_URL kosong, skip restart");
+      return;
+    }
+
     console.log("🔁 Restart modem...");
 
     await fetch(process.env.MODEM_RESTART_URL, {
       method: "POST",
-      headers: {
-        Authorization:
-          "Basic " +
-          Buffer.from(
-            `${process.env.MODEM_USER}:${process.env.MODEM_PASS}`
-          ).toString("base64"),
-      },
     });
 
   } catch (err) {
-    console.error("❌ Restart gagal:", err.message);
+    console.error("Restart modem error:", err.message);
   }
 }
 
-// 📲 WhatsApp (Fonnte)
+// ✅ SAFE WA
 async function sendWhatsApp(location) {
-  await fetch("https://api.fonnte.com/send", {
-    method: "POST",
-    headers: {
-      Authorization: process.env.FONNTE_TOKEN,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      target: process.env.ISP_PHONE,
-      message: `🚨 ISP DOWN
+  try {
+    if (!process.env.FONNTE_TOKEN) {
+      console.log("⚠️ FONNTE_TOKEN kosong, skip WA");
+      return;
+    }
 
-Lokasi: ${location}
-Sudah dicoba restart modem
-Masih tidak ada koneksi
+    await fetch("https://api.fonnte.com/send", {
+      method: "POST",
+      headers: {
+        Authorization: process.env.FONNTE_TOKEN,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        target: process.env.ISP_PHONE,
+        message: `🚨 ISP DOWN\nLokasi: ${location}`,
+      }),
+    });
 
-Mohon segera ditindak.`,
-    }),
-  });
+  } catch (err) {
+    console.error("WA error:", err.message);
+  }
 }
 
-// 📩 Telegram
+// ✅ SAFE TELEGRAM
 async function sendTelegram(location) {
-  await fetch(
-    `https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`,
-    {
+  try {
+    if (!process.env.TELEGRAM_TOKEN) {
+      console.log("⚠️ TELEGRAM_TOKEN kosong, skip Telegram");
+      return;
+    }
+
+    await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: process.env.TELEGRAM_CHAT_ID,
-        text: `🚨 ISP DOWN\nLokasi: ${location}\nTidak pulih setelah restart modem.`,
+        text: `🚨 ISP DOWN\nLokasi: ${location}`,
       }),
-    }
-  );
+    });
+
+  } catch (err) {
+    console.error("Telegram error:", err.message);
+  }
 }
 
-// 🧠 update database
-async function updateDB(id, data) {
-  await supabase
-    .from("monitoring_status")
-    .update({
-      ...data,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
-}
-
-// 🚀 MAIN HANDLER
+// 🚀 MAIN
 export default async function handler(req, res) {
   const requestId = Date.now();
 
   try {
-    console.log("🚀 Monitoring start:", requestId);
+    console.log("🚀 START:", requestId);
+
+    // 🔍 cek ENV dulu
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
+      throw new Error("Supabase ENV belum di set");
+    }
 
     const isUp = await checkConnection();
 
@@ -102,21 +109,29 @@ export default async function handler(req, res) {
 
     if (error) throw error;
 
+    if (!rows) {
+      return res.status(200).json({
+        status: "ok",
+        message: "No data",
+      });
+    }
+
     let notifSent = 0;
 
     for (const row of rows) {
       const now = Date.now();
 
       if (!isUp) {
-        // ❌ ISP DOWN
-
         if (!row.last_offline_timestamp) {
-          console.log(`⚠️ ${row.location} DOWN → restart modem`);
+          console.log("DOWN → restart");
 
-          await updateDB(row.id, {
-            last_offline_timestamp: now,
-            notification_sent: false,
-          });
+          await supabase
+            .from("monitoring_status")
+            .update({
+              last_offline_timestamp: now,
+              notification_sent: false,
+            })
+            .eq("id", row.id);
 
           await restartModem();
           continue;
@@ -125,28 +140,32 @@ export default async function handler(req, res) {
         const diff = now - row.last_offline_timestamp;
 
         if (diff >= DELAY && !row.notification_sent) {
-          console.log(`🚨 ${row.location} masih DOWN → kirim notif`);
+          console.log("Kirim notif");
 
           await sendTelegram(row.location);
           await sendWhatsApp(row.location);
 
-          await updateDB(row.id, {
-            notification_sent: true,
-          });
+          await supabase
+            .from("monitoring_status")
+            .update({
+              notification_sent: true,
+            })
+            .eq("id", row.id);
 
           notifSent++;
         }
 
       } else {
-        // ✅ ISP UP
-
         if (row.last_offline_timestamp) {
-          console.log(`✅ ${row.location} RECOVERED`);
+          console.log("RECOVERED");
 
-          await updateDB(row.id, {
-            last_offline_timestamp: null,
-            notification_sent: false,
-          });
+          await supabase
+            .from("monitoring_status")
+            .update({
+              last_offline_timestamp: null,
+              notification_sent: false,
+            })
+            .eq("id", row.id);
         }
       }
     }
@@ -154,16 +173,15 @@ export default async function handler(req, res) {
     return res.status(200).json({
       status: "success",
       requestId,
-      isp_status: isUp ? "UP" : "DOWN",
-      notifications_sent: notifSent,
+      isp: isUp ? "UP" : "DOWN",
+      notifSent,
     });
 
   } catch (err) {
-    console.error("❌ ERROR:", requestId, err);
+    console.error("❌ ERROR:", err);
 
     return res.status(500).json({
       status: "error",
-      requestId,
       message: err.message,
     });
   }
