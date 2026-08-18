@@ -1,0 +1,306 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const menus = [
+  {
+    label: "Overview",
+    href: "/admin",
+    icon: "⌂",
+  },
+  {
+    label: "Pelanggan",
+    href: "/admin/customers",
+    icon: "♙",
+  },
+  {
+    label: "Paket Internet",
+    href: "/admin/packages",
+    icon: "◈",
+  },
+  {
+    label: "Voucher",
+    href: "/admin/vouchers",
+    icon: "◇",
+  },
+  {
+    label: "Transaksi",
+    href: "/admin/transactions",
+    icon: "▤",
+  },
+  {
+    label: "Deposit / Top Up",
+    href: "/admin/topup",
+    icon: "＋",
+  },
+  {
+    label: "MikroTik",
+    href: "/admin/mikrotik",
+    icon: "⌁",
+  },
+  {
+    label: "Customer Service",
+    href: "/admin/support",
+    icon: "◌",
+  },
+  {
+    label: "WARUNG28 AI",
+    href: "/admin/ai",
+    icon: "✦",
+  },
+  {
+    label: "Settings",
+    href: "/admin/settings",
+    icon: "⚙",
+  },
+];
+
+export default function AdminSidebar() {
+  const pathname = usePathname();
+
+  return (
+    <>
+      {/* Mobile Header */}
+
+      <div
+        className="
+          sticky
+          top-0
+          z-40
+          flex
+          h-16
+          items-center
+          justify-between
+          border-b
+          border-white/6
+          bg-[#080808]/95
+          px-5
+          backdrop-blur
+          lg:hidden
+        "
+      >
+        <div>
+          <div className="text-sm font-black">
+            WARUNG28
+          </div>
+
+          <div
+            className="
+              text-[8px]
+              font-bold
+              tracking-[0.25em]
+              text-[#b89b5e]
+            "
+          >
+            HOTSPOT ADMIN
+          </div>
+        </div>
+
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#b89b5e]/20 bg-[#b89b5e]/5 text-[#c8ad72]">
+          W
+        </div>
+      </div>
+
+      {/* Sidebar */}
+
+      <aside
+        className="
+          fixed
+          inset-y-0
+          left-0
+          z-50
+          hidden
+          w-72
+          border-r
+          border-white/6
+          bg-[#0c0c0b]
+          lg:block
+        "
+      >
+        <div className="flex h-full flex-col">
+
+          {/* Brand */}
+
+          <div className="border-b border-white/6 px-7 py-7">
+
+            <div className="flex items-center gap-3">
+
+              <div
+                className="
+                  flex
+                  h-11
+                  w-11
+                  items-center
+                  justify-center
+                  rounded-xl
+                  border
+                  border-[#b89b5e]/30
+                  bg-[#b89b5e]/5
+                  font-black
+                  text-[#c8ad72]
+                "
+              >
+                W
+              </div>
+
+              <div>
+
+                <div className="font-black tracking-tight">
+                  WARUNG28
+                </div>
+
+                <div
+                  className="
+                    mt-1
+                    text-[8px]
+                    font-bold
+                    tracking-[0.3em]
+                    text-[#b89b5e]
+                  "
+                >
+                  HOTSPOT ADMIN
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* Navigation */}
+
+          <nav className="flex-1 overflow-y-auto px-4 py-6">
+
+            <p
+              className="
+                mb-3
+                px-3
+                text-[9px]
+                font-bold
+                tracking-[0.2em]
+                text-white/25
+              "
+            >
+              MANAGEMENT
+            </p>
+
+            <div className="space-y-1">
+
+              {menus.map((menu) => {
+
+                const active =
+                  menu.href === "/admin"
+                    ? pathname === "/admin"
+                    : pathname.startsWith(
+                        menu.href
+                      );
+
+                return (
+                  <Link
+                    key={menu.href}
+                    href={menu.href}
+                    className={`
+                      flex
+                      items-center
+                      gap-3
+                      rounded-xl
+                      px-3
+                      py-3
+                      text-sm
+                      transition
+                      ${
+                        active
+                          ? "border border-[#b89b5e]/15 bg-[#b89b5e]/8 text-[#c8ad72]"
+                          : "text-white/50 hover:bg-white/2 hover:text-white"
+                      }
+                    `}
+                  >
+
+                    <span
+                      className={`
+                        flex
+                        h-8
+                        w-8
+                        items-center
+                        justify-center
+                        rounded-lg
+                        text-sm
+                        ${
+                          active
+                            ? "bg-[#b89b5e]/10 text-[#c8ad72]"
+                            : "bg-white/2 text-white/40"
+                        }
+                      `}
+                    >
+                      {menu.icon}
+                    </span>
+
+                    <span className="font-medium">
+                      {menu.label}
+                    </span>
+
+                  </Link>
+                );
+              })}
+
+            </div>
+
+          </nav>
+
+          {/* Connection */}
+
+          <div className="border-t border-white/6 p-5">
+
+            <div
+              className="
+                rounded-2xl
+                border
+                border-emerald-500/10
+                bg-emerald-500/5
+                p-4
+              "
+            >
+
+              <div className="flex items-center gap-2">
+
+                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+
+                <span className="text-xs font-semibold text-emerald-300">
+                  MikroTik Connected
+                </span>
+
+              </div>
+
+              <p className="mt-2 text-[10px] text-white/35">
+                Monitoring aktif
+              </p>
+
+            </div>
+
+            <Link
+              href="/"
+              className="
+                mt-3
+                block
+                rounded-xl
+                px-3
+                py-3
+                text-center
+                text-xs
+                text-white/40
+                transition
+                hover:bg-white/2
+                hover:text-white
+              "
+            >
+              ← Kembali ke Portal
+            </Link>
+
+          </div>
+
+        </div>
+      </aside>
+    </>
+  );
+}
