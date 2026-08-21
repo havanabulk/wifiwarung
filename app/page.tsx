@@ -578,7 +578,7 @@ export default function HomePage() {
           <div className="mt-3 text-sm text-[#a7a39a]"> 
             <p>📧 karmawayan@gmail.com</p> 
             <p>📱 081328398343</p> 
-            <p>🕒 Layanan 08.00 hingga 22.00 WITA </p> 
+            <p>🕒 Layanan 24 Jam Akses Internet </p> 
           </div> 
         </div> 
       </div> 
