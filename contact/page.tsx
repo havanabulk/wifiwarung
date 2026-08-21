@@ -33,7 +33,7 @@ export default function ContactPage() {
             <div className="rounded-2xl border border-white/10 p-6">
               <h3 className="font-bold">🕒 Jam Operasional</h3>
               <p className="mt-3 text-[#a7a39a]">
-                24 Jam
+                08.00 - 22.00
               </p>
             </div>
 
