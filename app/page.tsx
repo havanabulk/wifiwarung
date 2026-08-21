@@ -542,90 +542,14 @@ export default function HomePage() {
           FOOTER
       ========================= */}
 
-      <footer
-        className="
-          border-t
-          border-white/[0.06]
-          px-4
-          py-10
-          pb-28
-          text-center
-        "
-      >
-
-        <div
-          className="
-            text-sm
-            font-bold
-            tracking-[0.08em]
-            text-[#b89b5e]
-          "
-        >
-          ⚡ WARUNG28 HOTSPOT
-        </div>
-
-
-        <p
-          className="
-            mt-3
-            text-xs
-            text-[#a7a39a]
-          "
-        >
-          Internet cepat & fleksibel untuk kebutuhan Anda.
-        </p>
-
-
-        <p
-          className="
-            mt-4
-            text-[10px]
-            text-white/30
-          "
-        >
-          © 2026 WARUNG28 HOTSPOT
-        </p>
-
-      </footer>
+      <footer className=" border-t border-white/[0.06] px-4 py-10 pb-28 " > <div className="mx-auto max-w-6xl"> <div className="grid gap-8 md:grid-cols-3"> <div> <h3 className="font-bold text-[#b89b5e]"> WARUNG28 HOTSPOT </h3> <p className="mt-3 text-sm text-[#a7a39a]"> Penjualan voucher WiFi MikroTik dengan aktivasi otomatis. </p> </div> <div> <h3 className="font-bold text-[#f2f0ea]"> Informasi </h3> <div className="mt-3 space-y-2 text-sm text-[#a7a39a]"> <a href="/about">Tentang Kami</a><br /> <a href="/contact">Kontak</a><br /> <a href="/faq">FAQ</a><br /> <a href="/privacy-policy">Privasi</a><br /> <a href="/terms-and-conditions">Syarat & Ketentuan</a><br /> <a href="/refund-policy">Refund Policy</a> </div> </div> <div> <h3 className="font-bold text-[#f2f0ea]"> Hubungi Kami </h3> <div className="mt-3 text-sm text-[#a7a39a]"> <p>📧 karmawayan@gmail.com</p> <p>📱 081328398343</p> <p>🕒 Layanan 24 Jam</p> </div> </div> </div> <div className="mt-10 border-t border-white/10 pt-5 text-center text-xs text-white/40"> © 2026 WARUNG28 HOTSPOT </div> </div> </footer>
 
 
       {/* =========================
           FLOATING AI
       ========================= */}
 
-      <button
-        className="
-          fixed
-          bottom-5
-          right-4
-          z-50
-          flex
-          min-h-12
-          items-center
-          gap-2
-          rounded-full
-          border
-          border-[#b89b5e]/35
-          bg-[#11110f]/95
-          px-5
-          text-sm
-          shadow-2xl
-          backdrop-blur-xl
-          transition
-          hover:border-[#b89b5e]
-        "
-      >
-
-        💬
-
-        <span className="text-[#f2f0ea]">
-          <strong className="text-[#c8ad72]">
-            WARUNG28
-          </strong>{" "}
-          AI
-        </span>
-
-      </button>
+      <a href="https://wa.me/6281328398343" target="_blank" rel="noopener noreferrer" className=" fixed bottom-5 right-4 z-50 flex min-h-12 items-center gap-2 rounded-full border border-[#25D366]/30 bg-[#11110f]/95 px-5 text-sm shadow-2xl backdrop-blur-xl " > 💬 <span className="text-[#f2f0ea]"> WhatsApp Support </span> </a>
 
     </main>
   );
