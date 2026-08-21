@@ -405,7 +405,7 @@ export default function LoginPage() {
             >
               {loading
                 ? "Memproses..."
-                : "Masuk ke Portal"}
+                : "LOGIN MEMBER"}
             </button>
 
           </form>
@@ -443,7 +443,7 @@ export default function LoginPage() {
               hover:border-[#b89b5e]/40
             "
           >
-            ← Kembali ke Portal
+            ← Kembali ke Beranda
           </a>
 
         </section>
