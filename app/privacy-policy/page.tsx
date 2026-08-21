@@ -1,40 +1,27 @@
-export default function PrivacyPolicyPage() {
+export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-[#080808] text-[#f2f0ea]">
-      <section className="px-6 py-24">
-        <div className="mx-auto max-w-4xl">
+    <main className="min-h-screen bg-black text-white px-6 py-20">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold text-yellow-500 mb-8">
+          Kebijakan Privasi
+        </h1>
 
-          <h1 className="text-5xl font-black text-[#b89b5e]">
-            Kebijakan Privasi
-          </h1>
+        <p className="mb-4">
+          WARUNG28 HOTSPOT menghargai privasi seluruh pengguna layanan.
+        </p>
 
-          <div className="mt-8 space-y-6 text-[#a7a39a] leading-8">
+        <ul className="list-disc ml-6 space-y-2">
+          <li>Nama pengguna</li>
+          <li>Email</li>
+          <li>Nomor WhatsApp</li>
+          <li>Riwayat transaksi</li>
+        </ul>
 
-            <p>
-              WARUNG28 HOTSPOT menghargai privasi pengguna dan berkomitmen
-              untuk melindungi informasi pribadi yang diberikan.
-            </p>
-
-            <p>
-              Informasi yang dikumpulkan dapat meliputi nama,
-              nomor telepon, email, dan data transaksi.
-            </p>
-
-            <p>
-              Data digunakan untuk keperluan penyediaan layanan,
-              dukungan pelanggan, dan peningkatan kualitas layanan.
-            </p>
-
-            <p>
-              Kami tidak menjual atau membagikan data pribadi pengguna
-              kepada pihak ketiga tanpa persetujuan pengguna,
-              kecuali diwajibkan oleh hukum.
-            </p>
-
-          </div>
-
-        </div>
-      </section>
+        <p className="mt-6">
+          Data digunakan untuk verifikasi transaksi, layanan pelanggan,
+          dan peningkatan kualitas layanan.
+        </p>
+      </div>
     </main>
   );
 }
