@@ -432,7 +432,14 @@ export default function HomePage() {
               "
             >
 
-              <a href="https://wa.me/6281328398343" target="_blank" rel="noopener noreferrer" className=" inline-flex min-h-11 items-center justify-center rounded-xl bg-[#b89b5e] px-5 text-sm font-bold text-[#17130c] transition hover:bg-[#c8ad72] " > 💬 WhatsApp Support </a>
+              <a href="https://wa.me/6281328398343" 
+                target="_blank" rel="noopener noreferrer" 
+                className=" inline-flex min-h-11 items-center
+                justify-center rounded-xl bg-[#b89b5e] 
+                px-5 text-sm font-bold text-[#17130c] 
+                transition hover:bg-[#c8ad72] " >
+                💬 WhatsApp Support
+              </a>
 
 
               <button
@@ -542,7 +549,42 @@ export default function HomePage() {
           FOOTER
       ========================= */}
 
-      <footer className=" border-t border-white/[0.06] px-4 py-10 pb-28 " > <div className="mx-auto max-w-6xl"> <div className="grid gap-8 md:grid-cols-3"> <div> <h3 className="font-bold text-[#b89b5e]"> WARUNG28 HOTSPOT </h3> <p className="mt-3 text-sm text-[#a7a39a]"> Penjualan voucher WiFi MikroTik dengan aktivasi otomatis. </p> </div> <div> <h3 className="font-bold text-[#f2f0ea]"> Informasi </h3> <div className="mt-3 space-y-2 text-sm text-[#a7a39a]"> <a href="/about">Tentang Kami</a><br /> <a href="/contact">Kontak</a><br /> <a href="/faq">FAQ</a><br /> <a href="/privacy-policy">Privasi</a><br /> <a href="/terms-and-conditions">Syarat & Ketentuan</a><br /> <a href="/refund-policy">Refund Policy</a> </div> </div> <div> <h3 className="font-bold text-[#f2f0ea]"> Hubungi Kami </h3> <div className="mt-3 text-sm text-[#a7a39a]"> <p>📧 karmawayan@gmail.com</p> <p>📱 081328398343</p> <p>🕒 Layanan 24 Jam</p> </div> </div> </div> <div className="mt-10 border-t border-white/10 pt-5 text-center text-xs text-white/40"> © 2026 WARUNG28 HOTSPOT </div> </div> </footer>
+      <footer className=" border-t border-white/[0.06] px-4 py-10 pb-28 " >
+      <div className="mx-auto max-w-6xl">
+      <div className="grid gap-8 md:grid-cols-3">
+      <div> 
+        <h3 className="font-bold text-[#b89b5e]">
+        WARUNG28 HOTSPOT 
+        </h3>
+        <p className="mt-3 text-sm text-[#a7a39a]">
+          Penjualan voucher WiFi MikroTik dengan aktivasi otomatis. 
+        </p> 
+      </div> 
+        <div> 
+          <h3 className="font-bold text-[#f2f0ea]"> 
+            Informasi 
+          </h3> 
+          <div className="mt-3 space-y-2 text-sm text-[#a7a39a]"> 
+            <a href="/about">Tentang Kami</a><br /> 
+            <a href="/contact">Kontak</a><br /> 
+            <a href="/faq">FAQ</a><br /> 
+            <a href="/privacy-policy">Privasi</a><br />
+            <a href="/terms-and-conditions">Syarat & Ketentuan</a><br /> 
+            <a href="/refund-policy">Refund Policy</a> 
+          </div> 
+        </div> 
+        <div> 
+          <h3 className="font-bold text-[#f2f0ea]"> Hubungi Kami </h3> 
+          <div className="mt-3 text-sm text-[#a7a39a]"> 
+            <p>📧 karmawayan@gmail.com</p> 
+            <p>📱 081328398343</p> 
+            <p>🕒 Layanan 08.00 hingga 22.00 WITA </p> 
+          </div> 
+        </div> 
+      </div> 
+        <div className="mt-10 border-t border-white/10 pt-5 text-center text-xs text-white/40"> © 2026 WARUNG28 HOTSPOT </div> 
+      </div> 
+      </footer>
 
 
       {/* =========================
