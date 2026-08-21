@@ -201,31 +201,20 @@ export default function HomePage() {
             "
           >
 
-            Internet Cepat.
+            Voucher WiFi
 
             <br />
 
             <span className="text-[#b89b5e]">
-              Tanpa Ribet.
+              Langsung Aktif.
             </span>
 
           </h1>
 
 
-          <p
-            className="
-              mx-auto
-              mt-6
-              max-w-xl
-              text-sm
-              leading-7
-              text-[#a7a39a]
-              sm:text-base
-            "
-          >
-            Selamat datang di WARUNG28 HOTSPOT.
-            Pilih paket internet sesuai kebutuhan
-            dan nikmati koneksi yang fleksibel.
+          <p className=" mx-auto mt-6 max-w-xl text-sm leading-7 text-[#a7a39a] sm:text-base " >
+            Beli voucher WiFi MikroTik secara online. 
+            Pembayaran mudah, aktivasi otomatis, dan langsung bisa digunakan.
           </p>
 
 
@@ -242,51 +231,13 @@ export default function HomePage() {
             "
           >
 
-            <a
-              href="/login"
-              className="
-                inline-flex
-                min-h-12
-                items-center
-                justify-center
-                rounded-xl
-                bg-[#b89b5e]
-                px-7
-                text-sm
-                font-bold
-                text-[#17130c]
-                shadow-[0_12px_35px_rgba(184,155,94,0.12)]
-                transition
-                hover:bg-[#c8ad72]
-                hover:-translate-y-0.5
-              "
-            >
-              🔐 Login Portal
+            <a href="#packages" className=" inline-flex min-h-12 items-center justify-center rounded-xl bg-[#b89b5e] px-7 text-sm font-bold text-[#17130c] shadow-[0_12px_35px_rgba(184,155,94,0.12)] transition hover:bg-[#c8ad72] hover:-translate-y-0.5 " >
+
+              ⚡ Beli Voucher
             </a>
 
 
-            <a
-              href="#packages"
-              className="
-                inline-flex
-                min-h-12
-                items-center
-                justify-center
-                rounded-xl
-                border
-                border-white/10
-                bg-white/[0.02]
-                px-7
-                text-sm
-                font-semibold
-                text-[#f2f0ea]
-                transition
-                hover:border-[#8f7747]
-                hover:bg-[#b89b5e]/5
-              "
-            >
-              🛒 Lihat Paket
-            </a>
+            <a href="/login" className=" inline-flex min-h-12 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] px-7 text-sm font-semibold text-[#f2f0ea] transition hover:border-[#8f7747] hover:bg-[#b89b5e]/5 " > 🔐 Login Hotspot </a>
 
           </div>
 
@@ -317,22 +268,7 @@ export default function HomePage() {
           "
         >
 
-          <Status
-            label="MikroTik"
-            value="Online"
-            success
-          />
-
-          <Status
-            label="Internet"
-            value="Connected"
-            success
-          />
-
-          <Status
-            label="Hotspot"
-            value="WARUNG28"
-          />
+          <Status label="Harga Mulai" value="Rp 2.000" /> <Status label="Voucher" value="Otomatis" /> <Status label="Layanan" value="24 Jam" />
 
         </div>
 
@@ -496,21 +432,7 @@ export default function HomePage() {
               "
             >
 
-              <button
-                className="
-                  min-h-11
-                  rounded-xl
-                  bg-[#b89b5e]
-                  px-5
-                  text-sm
-                  font-bold
-                  text-[#17130c]
-                  transition
-                  hover:bg-[#c8ad72]
-                "
-              >
-                🤖 Tanya WARUNG28 AI
-              </button>
+              <a href="https://wa.me/6281328398343" target="_blank" rel="noopener noreferrer" className=" inline-flex min-h-11 items-center justify-center rounded-xl bg-[#b89b5e] px-5 text-sm font-bold text-[#17130c] transition hover:bg-[#c8ad72] " > 💬 WhatsApp Support </a>
 
 
               <button
