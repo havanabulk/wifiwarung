@@ -1,18 +1,45 @@
 export default function ContactPage() {
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-20">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-yellow-500 mb-8">
-          Kontak Kami
-        </h1>
+    <main className="min-h-screen bg-[#080808] text-[#f2f0ea]">
+      <section className="px-6 py-24">
+        <div className="mx-auto max-w-5xl">
 
-        <div className="space-y-4 text-lg">
-          <p>Email: karmawayan@gmail.com</p>
-          <p>WhatsApp: 081328398343</p>
-          <p>Jam Operasional: 24 Jam</p>
-          <p>Layanan: Voucher WiFi MikroTik</p>
+          <h1 className="text-5xl font-black text-[#b89b5e]">
+            Hubungi Kami
+          </h1>
+
+          <p className="mt-6 text-[#a7a39a] leading-8">
+            Jika Anda memiliki pertanyaan, kendala layanan,
+            atau membutuhkan bantuan terkait voucher internet,
+            silakan hubungi kami melalui kontak berikut.
+          </p>
+
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+
+            <div className="rounded-2xl border border-white/10 p-6">
+              <h3 className="font-bold">📧 Email</h3>
+              <p className="mt-3 text-[#a7a39a]">
+                karmawayan@gmail.com
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 p-6">
+              <h3 className="font-bold">📱 WhatsApp</h3>
+              <p className="mt-3 text-[#a7a39a]">
+                081328398343
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 p-6">
+              <h3 className="font-bold">🕒 Jam Operasional</h3>
+              <p className="mt-3 text-[#a7a39a]">
+                24 Jam
+              </p>
+            </div>
+
+          </div>
         </div>
-      </div>
+      </section>
     </main>
   );
 }
