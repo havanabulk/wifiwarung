@@ -535,7 +535,7 @@ export default function HomePage() {
                 hover:text-[#17130c]
               "
             >
-              🔐 Login Portal
+              🔐 Login Member
             </a>
 
           </div>
