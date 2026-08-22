@@ -236,7 +236,7 @@ export default function LoginPage() {
               font-bold
               text-[#b89b5e]
             " >
-              <a href="/#pakages">disini</a> 
+              <a href="/#pakages"> disini</a> 
               </button> </br>
             
             </p>
