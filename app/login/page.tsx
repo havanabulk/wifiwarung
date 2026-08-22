@@ -225,7 +225,18 @@ export default function LoginPage() {
                 text-[#a7a39a]
               "
             >
-              Untuk pelanggan WARUNG28 silahkan akses disini. Bagi yang belum mempunyai akses bisa membeli <a href="/#pakages">disini</a> 
+              Untuk pelanggan WARUNG28 silahkan akses disini. 
+              Bagi yang belum mempunyai akses bisa membeli
+              <button 
+                className="
+              mt-2
+              text-xs
+              font-bold
+              text-[#b89b5e]
+            " >
+              <a href="/#pakages">disini</a> 
+              </button>
+            
             </p>
 
           </div>
