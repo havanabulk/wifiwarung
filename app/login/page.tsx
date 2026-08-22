@@ -214,7 +214,7 @@ export default function LoginPage() {
                 text-[#f2f0ea]
               "
             >
-              Masuk ke Portal
+              LOGIN
             </h2>
 
             <p
@@ -225,8 +225,7 @@ export default function LoginPage() {
                 text-[#a7a39a]
               "
             >
-              Satu pintu untuk pelanggan
-              dan administrator WARUNG28.
+              Untuk pelanggan WARUNG28 silahkan akses disini. Bagi yang belum mempunyai akses bisa membeli <a href="/#pakages">disini</a> 
             </p>
 
           </div>
