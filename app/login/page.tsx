@@ -225,7 +225,7 @@ export default function LoginPage() {
                 text-[#a7a39a]
               "
             >
-              Untuk pelanggan WARUNG28 silahkan akses disini. 
+              Untuk pelanggan WARUNG28 silahkan akses disini. </br>
               Bagi yang belum mempunyai akses bisa membeli
               <button 
                 className="
