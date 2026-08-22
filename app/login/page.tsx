@@ -225,9 +225,7 @@ export default function LoginPage() {
                 text-[#a7a39a]
               "
             >
-              Untuk pelanggan WARUNG28 silahkan akses disini. 
-              <br> 
-              
+              Untuk pelanggan WARUNG28 silahkan akses disini.               
               Bagi yang belum mempunyai akses bisa membeli
               <button 
                 className="
@@ -236,8 +234,8 @@ export default function LoginPage() {
               font-bold
               text-[#b89b5e]
             " >
-              <a href="/#pakages"> disini</a> 
-              </button> </br>
+              <a href="/#pakages"> disini </a> 
+              </button>
             
             </p>
 
