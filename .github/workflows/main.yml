@@ -1,0 +1,12 @@
+name: Format Code
+on: [push, pull_request]
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Run Prettier
+        uses: creyder/prettier_action@v4.3
+        with:
+          prettier_options: --write .
