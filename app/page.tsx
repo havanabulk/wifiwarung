@@ -442,22 +442,26 @@ export default function HomePage() {
               </a>
 
 
-              <button
-                className="
-                  min-h-11
-                  rounded-xl
-                  border
-                  border-white/10
-                  px-5
-                  text-sm
-                  font-semibold
-                  text-[#f2f0ea]
-                  transition
-                  hover:border-[#8f7747]
-                "
-              >
-                💬 Chat Admin
-              </button>
+              <a
+  href="/support"
+  className="
+    inline-flex
+    min-h-11
+    items-center
+    justify-center
+    rounded-xl
+    border
+    border-white/10
+    px-5
+    text-sm
+    font-semibold
+    text-[#f2f0ea]
+    transition
+    hover:border-[#8f7747]
+  "
+>
+  💬 Chat Admin
+</a>
 
             </div>
 
