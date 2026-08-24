@@ -27,7 +27,7 @@ export default function LoginPage() {
 
     const email = username.includes("@")
       ? username
-      : `${username}@warung28.local`;
+      : `${username}@warung28.my.id`;
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -36,6 +36,18 @@ export default function LoginPage() {
 
     if (error) {
       setLoading(false);
+
+      if (error.code === "email_not_confirmed") {
+        setError("Email akun belum dikonfirmasi. Hubungi admin WARUNG28.");
+
+        return;
+      }
+
+      if (error.code === "user_banned") {
+        setError("Akun ini telah diblokir.");
+
+        return;
+      }
 
       setError("Username atau password tidak benar.");
 
