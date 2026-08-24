@@ -35,12 +35,49 @@ type Customer = {
   package_orders?: PackageOrder[];
 };
 
+type CustomerSummary = {
+  totalCustomers: number;
+  activeCustomers: number;
+  activePackages: number;
+  totalBalance: number;
+};
+
+type PaginationInfo = {
+  page: number;
+  pageSize: number;
+  total: number;
+};
+
+const PAGE_SIZE = 25;
+
+function newRequestId() {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
+    return crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2)}`;
+}
+
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [summary, setSummary] = useState<CustomerSummary>({
+    totalCustomers: 0,
+    activeCustomers: 0,
+    activePackages: 0,
+    totalBalance: 0,
+  });
+  const [pagination, setPagination] = useState<PaginationInfo>({
+    page: 1,
+    pageSize: PAGE_SIZE,
+    total: 0,
+  });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  // Deposit
+  const [error, setError] = useState("");  // Deposit
   const [depositCustomer, setDepositCustomer] =
     useState<Customer | null>(null);
 
@@ -48,17 +85,23 @@ export default function CustomersPage() {
   const [depositNote, setDepositNote] = useState("");
   const [depositLoading, setDepositLoading] = useState(false);
   const [depositError, setDepositError] = useState("");
+  const [depositKey, setDepositKey] = useState("");
 
-  async function fetchCustomers(): Promise<
-    Customer[]
-  > {
-    const response =
-      await fetch("/api/admin/customers", {
+  async function fetchCustomers(
+    page: number
+  ): Promise<{
+    customers: Customer[];
+    summary: CustomerSummary;
+    pagination: PaginationInfo;
+  }> {
+    const response = await fetch(
+      `/api/admin/customers?page=${page}&pageSize=${PAGE_SIZE}`,
+      {
         cache: "no-store",
-      });
+      }
+    );
 
-    const result =
-      await response.json();
+    const result = await response.json();
 
     if (!response.ok) {
       throw new Error(
@@ -67,17 +110,34 @@ export default function CustomersPage() {
       );
     }
 
-    return result.customers ?? [];
+    return {
+      customers: result.customers ?? [],
+      summary: result.summary ?? {
+        totalCustomers: 0,
+        activeCustomers: 0,
+        activePackages: 0,
+        totalBalance: 0,
+      },
+      pagination: result.pagination ?? {
+        page,
+        pageSize: PAGE_SIZE,
+        total: 0,
+      },
+    };
   }
 
-  async function loadCustomers() {
+  async function loadCustomers(page?: number) {
     try {
       setLoading(true);
       setError("");
 
-      setCustomers(
-        await fetchCustomers()
+      const data = await fetchCustomers(
+        page ?? pagination.page
       );
+
+      setCustomers(data.customers);
+      setSummary(data.summary);
+      setPagination(data.pagination);
     } catch (error) {
       console.error("LOAD CUSTOMERS ERROR:", error);
 
@@ -96,11 +156,12 @@ export default function CustomersPage() {
 
     (async () => {
       try {
-        const data =
-          await fetchCustomers();
+        const data = await fetchCustomers(1);
 
         if (!cancelled) {
-          setCustomers(data);
+          setCustomers(data.customers);
+          setSummary(data.summary);
+          setPagination(data.pagination);
         }
       } catch (error) {
         console.error("LOAD CUSTOMERS ERROR:", error);
@@ -232,6 +293,7 @@ export default function CustomersPage() {
             user_id: depositCustomer.id,
             amount,
             note: depositNote.trim(),
+            idempotencyKey: depositKey,
           }),
         }
       );
@@ -270,7 +332,15 @@ export default function CustomersPage() {
     setDepositAmount("");
     setDepositNote("");
     setDepositError("");
+    setDepositKey("");
   }
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(
+      pagination.total / pagination.pageSize
+    )
+  );
 
   return (
     <main className="min-h-screen bg-[#090909] px-4 py-8 text-white sm:px-6 lg:px-8">
@@ -295,7 +365,7 @@ export default function CustomersPage() {
 
             <button
               type="button"
-              onClick={loadCustomers}
+              onClick={() => loadCustomers()}
               disabled={loading}
               className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/70 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -312,7 +382,7 @@ export default function CustomersPage() {
             </p>
 
             <p className="mt-2 text-2xl font-semibold">
-              {customers.length}
+              {summary.totalCustomers}
             </p>
           </div>
 
@@ -322,13 +392,7 @@ export default function CustomersPage() {
             </p>
 
             <p className="mt-2 text-2xl font-semibold text-emerald-300">
-              {
-                customers.filter(
-                  (customer) =>
-                    customer.status?.toLowerCase() !==
-                    "inactive"
-                ).length
-              }
+              {summary.activeCustomers}
             </p>
           </div>
 
@@ -338,12 +402,7 @@ export default function CustomersPage() {
             </p>
 
             <p className="mt-2 text-2xl font-semibold text-[#d8bd82]">
-              {
-                customers.filter(
-                  (customer) =>
-                    getActiveOrder(customer) !== null
-                ).length
-              }
+              {summary.activePackages}
             </p>
           </div>
 
@@ -353,13 +412,7 @@ export default function CustomersPage() {
             </p>
 
             <p className="mt-2 text-xl font-semibold text-[#d8bd82]">
-              {formatRupiah(
-                customers.reduce(
-                  (total, customer) =>
-                    total + getCustomerBalance(customer),
-                  0
-                )
-              )}
+              {formatRupiah(summary.totalBalance)}
             </p>
           </div>
         </div>
@@ -517,6 +570,7 @@ export default function CustomersPage() {
                               setDepositAmount("");
                               setDepositNote("");
                               setDepositError("");
+                              setDepositKey(newRequestId());
                             }}
                             className="rounded-xl border border-[#c8a96b]/30 bg-[#c8a96b]/10 px-4 py-2 text-sm font-medium text-[#d8bd82] transition hover:bg-[#c8a96b]/20"
                           >
@@ -543,6 +597,57 @@ export default function CustomersPage() {
                   Pelanggan yang terdaftar akan
                   muncul di sini.
                 </p>
+              </div>
+            )}
+
+            {/* PAGINATION */}
+            {pagination.total > 0 && (
+              <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 px-5 py-4 sm:flex-row">
+                <p className="text-xs text-white/40">
+                  Menampilkan{" "}
+                  {(pagination.page - 1) *
+                    pagination.pageSize +
+                    1}
+                  –
+                  {(pagination.page - 1) *
+                    pagination.pageSize +
+                    customers.length}{" "}
+                  dari {pagination.total} pelanggan
+                </p>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={
+                      pagination.page <= 1 || loading
+                    }
+                    onClick={() =>
+                      loadCustomers(pagination.page - 1)
+                    }
+                    className="rounded-lg border border-white/10 px-3 py-2 text-xs text-white/60 transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-30"
+                  >
+                    ← Sebelumnya
+                  </button>
+
+                  <span className="px-2 text-xs text-white/50">
+                    Halaman {pagination.page} dari{" "}
+                    {totalPages}
+                  </span>
+
+                  <button
+                    type="button"
+                    disabled={
+                      pagination.page >= totalPages ||
+                      loading
+                    }
+                    onClick={() =>
+                      loadCustomers(pagination.page + 1)
+                    }
+                    className="rounded-lg border border-white/10 px-3 py-2 text-xs text-white/60 transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-30"
+                  >
+                    Berikutnya →
+                  </button>
+                </div>
               </div>
             )}
           </div>

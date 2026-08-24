@@ -15,7 +15,33 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-    const { user_id, amount, note } = body;
+    const { user_id, amount, note, idempotencyKey } =
+      body;
+
+    let idempotencyKeyParam: string | null = null;
+
+    if (
+      idempotencyKey !== null &&
+      idempotencyKey !== undefined
+    ) {
+      if (
+        typeof idempotencyKey !== "string" ||
+        idempotencyKey.trim().length > 64
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Idempotency key tidak valid.",
+          },
+          { status: 400 }
+        );
+      }
+
+      idempotencyKeyParam =
+        idempotencyKey.trim() === ""
+          ? null
+          : idempotencyKey.trim();
+    }
 
     if (
       !user_id ||
@@ -84,6 +110,7 @@ export async function POST(request: Request) {
           typeof note === "string" && note.trim() !== ""
             ? note.trim()
             : null,
+        p_idempotency_key: idempotencyKeyParam,
       });
 
     if (rpcError) {

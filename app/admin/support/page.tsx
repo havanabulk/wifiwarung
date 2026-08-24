@@ -1,17 +1,46 @@
+import Link from "next/link";
 import { requireAdminPage } from "@/lib/auth/admin";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminSupportPage() {
+const PAGE_SIZE = 20;
+
+type SearchParams = {
+  searchParams: Promise<{
+    page?: string;
+  }>;
+};
+
+export default async function AdminSupportPage({
+  searchParams,
+}: SearchParams) {
   const { supabase } =
     await requireAdminPage();
 
-  const { data, error } = await supabase
+  const resolvedSearchParams =
+    await searchParams;
+
+  const rawPage = Number(
+    resolvedSearchParams.page
+  );
+
+  const page =
+    Number.isInteger(rawPage) && rawPage > 0
+      ? rawPage
+      : 1;
+
+  const rangeFrom = (page - 1) * PAGE_SIZE;
+  const rangeTo = rangeFrom + PAGE_SIZE - 1;
+
+  const { data, error, count } = await supabase
     .from("support_messages")
-    .select("*")
+    .select("*", {
+      count: "exact",
+    })
     .order("created_at", {
       ascending: false,
-    });
+    })
+    .range(rangeFrom, rangeTo);
 
   if (error) {
     console.error(
@@ -36,6 +65,13 @@ export default async function AdminSupportPage() {
     );
   }
 
+  const total = count ?? 0;
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(total / PAGE_SIZE)
+  );
+
   return (
     <div className="min-h-screen bg-[#080808] p-8 text-white">
       <div className="mx-auto max-w-7xl">
@@ -52,7 +88,7 @@ export default async function AdminSupportPage() {
           </div>
 
           <div className="rounded-xl border border-[#b89b5e]/20 bg-[#11110f] px-4 py-2 text-sm text-[#b89b5e]">
-            Total Ticket: {data?.length ?? 0}
+            Total Ticket: {total}
           </div>
         </div>
 
@@ -110,7 +146,7 @@ export default async function AdminSupportPage() {
                     </td>
 
                     <td className="p-4 text-gray-300">
-                      {item.phone}
+                      {item.phone ?? "-"}
                     </td>
 
                     <td className="max-w-md p-4 text-gray-300">
@@ -136,6 +172,52 @@ export default async function AdminSupportPage() {
             </table>
 
           </div>
+
+          {/* PAGINATION */}
+
+          {totalPages > 1 && (
+            <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 px-5 py-4 sm:flex-row">
+              <p className="text-xs text-white/40">
+                Menampilkan {rangeFrom + 1}–
+                {Math.min(rangeTo + 1, total)} dari{" "}
+                {total} tiket
+              </p>
+
+              <div className="flex items-center gap-2">
+                {page > 1 ? (
+                  <Link
+                    href={`/admin/support?page=${page - 1}`}
+                    className="rounded-lg border border-white/10 px-3 py-2 text-xs text-white/60 transition hover:bg-white/5"
+                  >
+                    ← Sebelumnya
+                  </Link>
+                ) : (
+                  <span className="rounded-lg border border-white/10 px-3 py-2 text-xs text-white/20">
+                    ← Sebelumnya
+                  </span>
+                )}
+
+                <span className="px-2 text-xs text-white/50">
+                  Halaman {page} dari{" "}
+                  {totalPages}
+                </span>
+
+                {page < totalPages ? (
+                  <Link
+                    href={`/admin/support?page=${page + 1}`}
+                    className="rounded-lg border border-white/10 px-3 py-2 text-xs text-white/60 transition hover:bg-white/5"
+                  >
+                    Berikutnya →
+                  </Link>
+                ) : (
+                  <span className="rounded-lg border border-white/10 px-3 py-2 text-xs text-white/20">
+                    Berikutnya →
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
         </div>
 
       </div>
