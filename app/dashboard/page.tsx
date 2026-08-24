@@ -3,7 +3,60 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "@/components/auth/LogoutButton";
 
-export default async function DashboardPage() {
+const TRANSACTIONS_PAGE_SIZE = 10;
+
+type TransactionRow = {
+  id: number | string;
+  type: string;
+  amount: number | string;
+  note: string | null;
+  created_at: string;
+};
+
+function formatDateTimeWIB(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+
+  return new Intl.DateTimeFormat("id-ID", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Asia/Jakarta",
+  }).format(date);
+}
+
+function formatRupiah(value: number) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function getTransactionLabel(type: string) {
+  const normalized = type.toLowerCase();
+
+  if (normalized === "deposit") {
+    return "Deposit";
+  }
+
+  return (
+    normalized.charAt(0).toUpperCase() +
+    normalized.slice(1)
+  );
+}
+
+type SearchParams = {
+  searchParams: Promise<{
+    page?: string;
+  }>;
+};
+
+export default async function DashboardPage({
+  searchParams,
+}: SearchParams) {
   const supabase = await createClient();
 
   const {
@@ -69,6 +122,59 @@ export default async function DashboardPage() {
       </main>
     );
   }
+
+  const resolvedSearchParams =
+    await searchParams;
+
+  const rawPage = Number(
+    resolvedSearchParams.page
+  );
+
+  const page =
+    Number.isInteger(rawPage) && rawPage > 0
+      ? rawPage
+      : 1;
+
+  const rangeFrom =
+    (page - 1) * TRANSACTIONS_PAGE_SIZE;
+
+  const rangeTo =
+    rangeFrom + TRANSACTIONS_PAGE_SIZE - 1;
+
+  const { data: transactions, count } =
+    await supabase
+      .from("wallet_transactions")
+      .select(
+        `
+        id,
+        type,
+        amount,
+        note,
+        created_at
+      `,
+        {
+          count: "exact",
+        }
+      )
+      .eq("user_id", user.id)
+      .order("created_at", {
+        ascending: false,
+      })
+      .range(rangeFrom, rangeTo);
+
+  const totalTransactions = count ?? 0;
+
+  const transactionRows =
+    (transactions ??
+      []) as TransactionRow[];
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(
+      totalTransactions /
+        TRANSACTIONS_PAGE_SIZE
+    )
+  );
 
   return (
     <main className="min-h-screen bg-[#080808] px-4 py-8">
@@ -234,6 +340,248 @@ export default async function DashboardPage() {
             label="Role"
             value={profile.role}
           />
+
+        </section>
+
+
+        {/* TRANSACTIONS */}
+
+        <section className="mt-10">
+
+          <h2
+            className="
+              text-xl
+              font-bold
+              text-[#f2f0ea]
+            "
+          >
+            Riwayat Transaksi
+          </h2>
+
+          <p
+            className="
+              mt-2
+              text-sm
+              text-[#a7a39a]
+            "
+          >
+            Semua deposit dan pembelian paket
+            pada akun Anda.
+          </p>
+
+          <div
+            className="
+              mt-5
+              overflow-hidden
+              rounded-2xl
+              border
+              border-white/6
+              bg-[#11110f]
+            "
+          >
+
+            {transactionRows.length === 0 ? (
+
+              <div className="p-8 text-center">
+                <p className="text-sm text-[#a7a39a]">
+                  Belum ada transaksi.
+                </p>
+              </div>
+
+            ) : (
+
+              <ul className="divide-y divide-white/5">
+
+                {transactionRows.map(
+                  (tx) => {
+
+                    const isCredit =
+                      tx.type.toLowerCase() ===
+                      "deposit";
+
+                    return (
+
+                      <li
+                        key={String(tx.id)}
+                        className="
+                          flex
+                          items-center
+                          justify-between
+                          gap-4
+                          px-6
+                          py-4
+                        "
+                      >
+                        <div className="min-w-0">
+
+                          <p
+                            className="
+                              truncate
+                              text-sm
+                              font-semibold
+                              text-[#f2f0ea]
+                            "
+                          >
+                            {getTransactionLabel(
+                              tx.type
+                            )}
+                          </p>
+
+                          <p
+                            className="
+                              mt-0.5
+                              truncate
+                              text-xs
+                              text-[#a7a39a]
+                            "
+                          >
+                            {tx.note ??
+                              "-"}{" "}
+                            •{" "}
+                            {formatDateTimeWIB(
+                              tx.created_at
+                            )}
+                          </p>
+
+                        </div>
+
+                        <span
+                          className={`
+                            shrink-0
+                            text-sm
+                            font-black
+                            ${
+                              isCredit
+                                ? "text-emerald-300"
+                                : "text-red-300"
+                            }
+                          `}
+                        >
+                          {isCredit ? "+" : "−"}
+                          {formatRupiah(
+                            Number(tx.amount)
+                          )}
+                        </span>
+
+                      </li>
+
+                    );
+
+                  }
+                )}
+
+              </ul>
+
+            )}
+
+            {totalPages > 1 && (
+
+              <div
+                className="
+                  flex
+                  items-center
+                  justify-between
+                  gap-3
+                  border-t
+                  border-white/6
+                  px-6
+                  py-4
+                "
+              >
+                <p
+                  className="
+                    text-xs
+                    text-[#a7a39a]
+                  "
+                >
+                  Halaman {page} dari{" "}
+                  {totalPages} •{" "}
+                  {totalTransactions}{" "}
+                  transaksi
+                </p>
+
+                <div className="flex items-center gap-2">
+                  {page > 1 ? (
+
+                    <Link
+                      href={`/dashboard?page=${page - 1}`}
+                      className="
+                        rounded-lg
+                        border
+                        border-white/10
+                        px-3
+                        py-2
+                        text-xs
+                        text-white/60
+                        transition
+                        hover:bg-white/5
+                      "
+                    >
+                      ← Sebelumnya
+                    </Link>
+
+                  ) : (
+
+                    <span
+                      className="
+                        rounded-lg
+                        border
+                        border-white/10
+                        px-3
+                        py-2
+                        text-xs
+                        text-white/20
+                      "
+                    >
+                      ← Sebelumnya
+                    </span>
+
+                  )}
+
+                  {page < totalPages ? (
+
+                    <Link
+                      href={`/dashboard?page=${page + 1}`}
+                      className="
+                        rounded-lg
+                        border
+                        border-white/10
+                        px-3
+                        py-2
+                        text-xs
+                        text-white/60
+                        transition
+                        hover:bg-white/5
+                      "
+                    >
+                      Berikutnya →
+                    </Link>
+
+                  ) : (
+
+                    <span
+                      className="
+                        rounded-lg
+                        border
+                        border-white/10
+                        px-3
+                        py-2
+                        text-xs
+                        text-white/20
+                      "
+                    >
+                      Berikutnya →
+                    </span>
+
+                  )}
+
+                </div>
+
+              </div>
+
+            )}
+
+          </div>
 
         </section>
 
