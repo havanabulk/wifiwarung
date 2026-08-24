@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth/admin";
+import { parsePackageInput } from "@/lib/validation/package";
 
 type Context = {
   params: Promise<{
@@ -25,43 +26,29 @@ export async function PUT(
     const body =
       await request.json();
 
+    const parsed =
+      parsePackageInput(body);
+
+    if (!parsed.ok) {
+      return NextResponse.json(
+        {
+          error:
+            parsed.error,
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
     const supabase =
       await createClient();
-
-    const {
-      name,
-      type,
-      duration_minutes,
-      quota_mb,
-      speed_down_mbps,
-      speed_up_mbps,
-      price,
-      start_time,
-      end_time,
-      active,
-    } = body;
 
     const { data, error } =
       await supabase
         .from("packages")
         .update({
-          name,
-          type,
-          duration_minutes:
-            duration_minutes ?? null,
-          quota_mb:
-            quota_mb ?? null,
-          speed_down_mbps:
-            speed_down_mbps ?? null,
-          speed_up_mbps:
-            speed_up_mbps ?? null,
-          price: Number(price),
-          start_time:
-            start_time ?? null,
-          end_time:
-            end_time ?? null,
-          active:
-            active !== false,
+          ...parsed.data,
           updated_at:
             new Date().toISOString(),
         })

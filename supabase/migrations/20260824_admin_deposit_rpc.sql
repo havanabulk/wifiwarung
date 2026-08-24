@@ -44,6 +44,14 @@ begin
     raise exception 'AMOUNT_INVALID' using errcode = '22023';
   end if;
 
+  if p_amount <> trunc(p_amount) then
+    raise exception 'AMOUNT_NOT_INTEGER' using errcode = '22023';
+  end if;
+
+  if p_amount < 1000 then
+    raise exception 'AMOUNT_BELOW_MINIMUM' using errcode = '22023';
+  end if;
+
   if not exists (
     select 1 from public.profiles where id = p_user_id
   ) then

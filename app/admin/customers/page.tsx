@@ -49,24 +49,35 @@ export default function CustomersPage() {
   const [depositLoading, setDepositLoading] = useState(false);
   const [depositError, setDepositError] = useState("");
 
+  async function fetchCustomers(): Promise<
+    Customer[]
+  > {
+    const response =
+      await fetch("/api/admin/customers", {
+        cache: "no-store",
+      });
+
+    const result =
+      await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.error ||
+          "Gagal mengambil data pelanggan."
+      );
+    }
+
+    return result.customers ?? [];
+  }
+
   async function loadCustomers() {
     try {
       setLoading(true);
       setError("");
 
-      const response = await fetch("/api/admin/customers", {
-        cache: "no-store",
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error || "Gagal mengambil data pelanggan."
-        );
-      }
-
-      setCustomers(result.customers ?? []);
+      setCustomers(
+        await fetchCustomers()
+      );
     } catch (error) {
       console.error("LOAD CUSTOMERS ERROR:", error);
 
@@ -81,7 +92,36 @@ export default function CustomersPage() {
   }
 
   useEffect(() => {
-    loadCustomers();
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const data =
+          await fetchCustomers();
+
+        if (!cancelled) {
+          setCustomers(data);
+        }
+      } catch (error) {
+        console.error("LOAD CUSTOMERS ERROR:", error);
+
+        if (!cancelled) {
+          setError(
+            error instanceof Error
+              ? error.message
+              : "Terjadi kesalahan saat mengambil data pelanggan."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   function formatRupiah(value: number) {

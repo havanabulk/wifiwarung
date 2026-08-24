@@ -37,6 +37,25 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!Number.isInteger(depositAmount)) {
+      return NextResponse.json(
+        {
+          error:
+            "Nominal deposit harus bilangan bulat rupiah.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (depositAmount < 1000) {
+      return NextResponse.json(
+        {
+          error: "Minimal deposit Rp 1.000.",
+        },
+        { status: 400 }
+      );
+    }
+
     const supabase = await createClient();
 
     const { data: wallet, error: rpcError } =

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import StatCard from "@/components/admin/StatCard";
@@ -450,17 +451,17 @@ export default async function AdminPage() {
             />
 
             <QuickAction
-              title="Top Up"
-              description="Kelola deposit"
-              href="/admin/topup"
+              title="Deposit Pelanggan"
+              description="Kelola saldo pelanggan"
+              href="/admin/customers"
               icon="Rp"
             />
 
             <QuickAction
-              title="MikroTik"
-              description="Kelola jaringan"
-              href="/admin/mikrotik"
-              icon="⌁"
+              title="Customer Service"
+              description="Balas pertanyaan pelanggan"
+              href="/admin/support"
+              icon="◌"
             />
 
           </div>
@@ -509,7 +510,7 @@ function QuickAction({
   icon: string;
 }) {
   return (
-    <a
+    <Link
       href={href}
       className="
         group
@@ -558,6 +559,6 @@ function QuickAction({
 
       </div>
 
-    </a>
+    </Link>
   );
 }

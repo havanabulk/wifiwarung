@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import LogoutButton from "@/components/auth/LogoutButton";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -23,6 +24,42 @@ export default async function DashboardPage() {
 
   if (!profile) {
     redirect("/login");
+  }
+
+  if (profile.status !== "active") {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#080808] px-4">
+        <div className="w-full max-w-md rounded-3xl border border-red-500/20 bg-[#11110f] p-8 text-center">
+          <h1 className="text-xl font-black text-[#f2f0ea]">
+            Akun Dinonaktifkan
+          </h1>
+
+          <p className="mt-3 text-sm text-[#a7a39a]">
+            Akun Anda sedang dinonaktifkan. Silakan hubungi admin WARUNG28
+            untuk mengaktifkan kembali akun Anda.
+          </p>
+
+          <LogoutButton
+            className="
+              mt-6
+              w-full
+              rounded-xl
+              border
+              border-red-500/20
+              bg-red-500/5
+              px-4
+              py-3
+              text-sm
+              font-semibold
+              text-red-300
+              transition
+              hover:bg-red-500/10
+              disabled:opacity-50
+            "
+          />
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -67,18 +104,38 @@ export default async function DashboardPage() {
 
           </div>
 
-          <div
-            className="
-              rounded-full
-              border
-              border-[#b89b5e]/20
-              px-4
-              py-2
-              text-xs
-              text-[#c8ad72]
-            "
-          >
-            ● Online
+          <div className="flex items-center gap-3">
+            <div
+              className="
+                rounded-full
+                border
+                border-[#b89b5e]/20
+                px-4
+                py-2
+                text-xs
+                text-[#c8ad72]
+              "
+            >
+              ● Online
+            </div>
+
+            <LogoutButton
+              className="
+                rounded-xl
+                border
+                border-white/10
+                bg-white/2
+                px-4
+                py-2
+                text-xs
+                font-semibold
+                text-white/60
+                transition
+                hover:bg-white/5
+                hover:text-white
+                disabled:opacity-50
+              "
+            />
           </div>
 
         </header>

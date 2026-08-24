@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export type AdminContext = {
@@ -27,11 +28,16 @@ export async function requireAdmin(): Promise<RequireAdminResult> {
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, status")
     .eq("id", authData.user.id)
     .single();
 
-  if (profileError || !profile || profile.role !== "admin") {
+  if (
+    profileError ||
+    !profile ||
+    profile.role !== "admin" ||
+    profile.status !== "active"
+  ) {
     return {
       ok: false,
       response: NextResponse.json(
@@ -48,4 +54,33 @@ export async function requireAdmin(): Promise<RequireAdminResult> {
       role: profile.role,
     },
   };
+}
+
+export async function requireAdminPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role, status")
+    .eq("id", user.id)
+    .single();
+
+  if (
+    profileError ||
+    !profile ||
+    profile.role !== "admin" ||
+    profile.status !== "active"
+  ) {
+    redirect("/dashboard");
+  }
+
+  return { supabase, user, profile };
 }

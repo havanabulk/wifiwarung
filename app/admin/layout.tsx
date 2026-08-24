@@ -1,10 +1,13 @@
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import { requireAdminPage } from "@/lib/auth/admin";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await requireAdminPage();
+
   return (
     <div className="min-h-screen bg-[#080808] text-[#f2f0ea]">
       <AdminSidebar />

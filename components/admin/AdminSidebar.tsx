@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import LogoutButton from "@/components/auth/LogoutButton";
 
 const menus = [
   {
@@ -20,39 +21,9 @@ const menus = [
     icon: "◈",
   },
   {
-    label: "Voucher",
-    href: "/admin/vouchers",
-    icon: "◇",
-  },
-  {
-    label: "Transaksi",
-    href: "/admin/transactions",
-    icon: "▤",
-  },
-  {
-    label: "Deposit / Top Up",
-    href: "/admin/topup",
-    icon: "＋",
-  },
-  {
-    label: "MikroTik",
-    href: "/admin/mikrotik",
-    icon: "⌁",
-  },
-  {
     label: "Customer Service",
     href: "/admin/support",
     icon: "◌",
-  },
-  {
-    label: "WARUNG28 AI",
-    href: "/admin/ai",
-    icon: "✦",
-  },
-  {
-    label: "Settings",
-    href: "/admin/settings",
-    icon: "⚙",
   },
 ];
 
@@ -248,40 +219,13 @@ export default function AdminSidebar() {
 
           </nav>
 
-          {/* Connection */}
+          {/* Actions */}
 
           <div className="border-t border-white/6 p-5">
-
-            <div
-              className="
-                rounded-2xl
-                border
-                border-emerald-500/10
-                bg-emerald-500/5
-                p-4
-              "
-            >
-
-              <div className="flex items-center gap-2">
-
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-
-                <span className="text-xs font-semibold text-emerald-300">
-                  MikroTik Connected
-                </span>
-
-              </div>
-
-              <p className="mt-2 text-[10px] text-white/35">
-                Monitoring aktif
-              </p>
-
-            </div>
 
             <Link
               href="/"
               className="
-                mt-3
                 block
                 rounded-xl
                 px-3
@@ -296,6 +240,26 @@ export default function AdminSidebar() {
             >
               ← Kembali ke Portal
             </Link>
+
+            <LogoutButton
+              className="
+                mt-2
+                w-full
+                rounded-xl
+                border
+                border-red-500/20
+                bg-red-500/5
+                px-3
+                py-3
+                text-center
+                text-xs
+                font-semibold
+                text-red-300
+                transition
+                hover:bg-red-500/10
+                disabled:opacity-50
+              "
+            />
 
           </div>
 

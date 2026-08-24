@@ -1,12 +1,10 @@
-import { createClient } from "@supabase/supabase-js";
+import { requireAdminPage } from "@/lib/auth/admin";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminSupportPage() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-  );
+  const { supabase } =
+    await requireAdminPage();
 
   const { data, error } = await supabase
     .from("support_messages")
@@ -16,8 +14,13 @@ export default async function AdminSupportPage() {
     });
 
   if (error) {
+    console.error(
+      "SUPPORT PAGE ERROR:",
+      error
+    );
+
     return (
-      <main className="min-h-screen bg-[#080808] p-8 text-white">
+      <div className="p-8">
         <div className="mx-auto max-w-7xl">
           <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6">
             <h1 className="text-xl font-bold text-red-400">
@@ -25,16 +28,16 @@ export default async function AdminSupportPage() {
             </h1>
 
             <p className="mt-2 text-sm text-red-300">
-              {error.message}
+              Terjadi kesalahan saat memuat tiket support. Silakan coba lagi.
             </p>
           </div>
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#080808] p-8 text-white">
+    <div className="min-h-screen bg-[#080808] p-8 text-white">
       <div className="mx-auto max-w-7xl">
 
         <div className="mb-8 flex items-center justify-between">
@@ -136,6 +139,6 @@ export default async function AdminSupportPage() {
         </div>
 
       </div>
-    </main>
+    </div>
   );
 }
