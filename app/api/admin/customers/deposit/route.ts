@@ -1,17 +1,20 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/admin";
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireAdmin();
+
+    if (!auth.ok) {
+      return auth.response;
+    }
+
     const body = await request.json();
 
-    const {
-      user_id,
-      amount,
-      note,
-    } = body;
+    const { user_id, amount, note } = body;
 
-    if (!user_id) {
+    if (!user_id || typeof user_id !== "string") {
       return NextResponse.json(
         {
           error: "User ID wajib diisi.",
@@ -36,190 +39,49 @@ export async function POST(request: Request) {
 
     const supabase = await createClient();
 
-    /*
-     * Pastikan pelanggan benar-benar ada
-     */
-    const {
-      data: profile,
-      error: profileError,
-    } = await supabase
-      .from("profiles")
-      .select("id, full_name, username")
-      .eq("id", user_id)
-      .single();
-
-    if (profileError || !profile) {
-      return NextResponse.json(
-        {
-          error: "Pelanggan tidak ditemukan.",
-        },
-        { status: 404 }
-      );
-    }
-
-    /*
-     * Cari wallet pelanggan
-     */
-    const {
-      data: wallet,
-      error: walletError,
-    } = await supabase
-      .from("wallets")
-      .select("id, user_id, balance")
-      .eq("user_id", user_id)
-      .maybeSingle();
-
-    if (walletError) {
-      console.error(
-        "WALLET GET ERROR:",
-        walletError
-      );
-
-      return NextResponse.json(
-        {
-          error: walletError.message,
-        },
-        { status: 500 }
-      );
-    }
-
-    /*
-     * Jika wallet belum ada,
-     * buat wallet baru.
-     */
-    if (!wallet) {
-      const {
-        data: newWallet,
-        error: createWalletError,
-      } = await supabase
-        .from("wallets")
-        .insert({
-          user_id,
-          balance: depositAmount,
-        })
-        .select()
-        .single();
-
-      if (createWalletError) {
-        console.error(
-          "CREATE WALLET ERROR:",
-          createWalletError
-        );
-
-        return NextResponse.json(
-          {
-            error:
-              createWalletError.message,
-          },
-          { status: 500 }
-        );
-      }
-
-      /*
-       * Catat transaksi deposit
-       */
-      const {
-        error: transactionError,
-      } = await supabase
-        .from("wallet_transactions")
-        .insert({
-          user_id,
-          type: "deposit",
-          amount: depositAmount,
-          note:
-            note?.trim() ||
-            "Deposit oleh admin",
-        });
-
-      if (transactionError) {
-        console.error(
-          "TRANSACTION ERROR:",
-          transactionError
-        );
-
-        return NextResponse.json(
-          {
-            error:
-              transactionError.message,
-          },
-          { status: 500 }
-        );
-      }
-
-      return NextResponse.json(
-        {
-          success: true,
-          message:
-            "Deposit berhasil.",
-          wallet: newWallet,
-        },
-        { status: 201 }
-      );
-    }
-
-    /*
-     * Wallet sudah ada
-     */
-    const currentBalance =
-      Number(wallet.balance) || 0;
-
-    const newBalance =
-      currentBalance + depositAmount;
-
-    const {
-      data: updatedWallet,
-      error: updateError,
-    } = await supabase
-      .from("wallets")
-      .update({
-        balance: newBalance,
-        updated_at:
-          new Date().toISOString(),
-      })
-      .eq("id", wallet.id)
-      .select()
-      .single();
-
-    if (updateError) {
-      console.error(
-        "UPDATE WALLET ERROR:",
-        updateError
-      );
-
-      return NextResponse.json(
-        {
-          error: updateError.message,
-        },
-        { status: 500 }
-      );
-    }
-
-    /*
-     * Catat transaksi
-     */
-    const {
-      error: transactionError,
-    } = await supabase
-      .from("wallet_transactions")
-      .insert({
-        user_id,
-        type: "deposit",
-        amount: depositAmount,
-        note:
-          note?.trim() ||
-          "Deposit oleh admin",
+    const { data: wallet, error: rpcError } =
+      await supabase.rpc("admin_deposit", {
+        p_user_id: user_id,
+        p_amount: depositAmount,
+        p_note:
+          typeof note === "string" && note.trim() !== ""
+            ? note.trim()
+            : null,
       });
 
-    if (transactionError) {
-      console.error(
-        "TRANSACTION INSERT ERROR:",
-        transactionError
-      );
+    if (rpcError) {
+      console.error("DEPOSIT RPC ERROR:", rpcError);
+
+      if (rpcError.code === "P0002") {
+        return NextResponse.json(
+          {
+            error: "Pelanggan tidak ditemukan.",
+          },
+          { status: 404 }
+        );
+      }
+
+      if (rpcError.code === "22P02" || rpcError.code === "22023") {
+        return NextResponse.json(
+          {
+            error: "Data deposit tidak valid.",
+          },
+          { status: 400 }
+        );
+      }
+
+      if (rpcError.code === "42501") {
+        return NextResponse.json(
+          {
+            error: "Akses ditolak.",
+          },
+          { status: 403 }
+        );
+      }
 
       return NextResponse.json(
         {
-          error:
-            transactionError.message,
+          error: "Deposit gagal diproses.",
         },
         { status: 500 }
       );
@@ -229,15 +91,12 @@ export async function POST(request: Request) {
       {
         success: true,
         message: "Deposit berhasil.",
-        wallet: updatedWallet,
+        wallet,
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error(
-      "DEPOSIT API ERROR:",
-      error
-    );
+    console.error("DEPOSIT API ERROR:", error);
 
     return NextResponse.json(
       {

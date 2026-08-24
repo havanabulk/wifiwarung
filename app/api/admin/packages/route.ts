@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/admin";
 
 const VALID_TYPES = [
   "hourly",
@@ -39,6 +40,12 @@ function nullableNumber(
 
 export async function GET() {
   try {
+    const auth = await requireAdmin();
+
+    if (!auth.ok) {
+      return auth.response;
+    }
+
     const supabase =
       await createClient();
 
@@ -108,6 +115,12 @@ export async function POST(
   request: Request
 ) {
   try {
+    const auth = await requireAdmin();
+
+    if (!auth.ok) {
+      return auth.response;
+    }
+
     const body =
       await request.json();
 

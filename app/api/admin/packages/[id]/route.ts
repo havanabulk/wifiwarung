@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/admin";
 
 type Context = {
   params: Promise<{
@@ -14,6 +15,12 @@ export async function PUT(
   try {
     const { id } =
       await context.params;
+
+    const auth = await requireAdmin();
+
+    if (!auth.ok) {
+      return auth.response;
+    }
 
     const body =
       await request.json();
