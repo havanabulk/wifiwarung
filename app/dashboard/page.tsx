@@ -2,6 +2,9 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "@/components/auth/LogoutButton";
+import PurchasePackages, {
+  type PurchasePackageItem,
+} from "@/components/dashboard/PurchasePackages";
 
 const TRANSACTIONS_PAGE_SIZE = 10;
 
@@ -176,6 +179,95 @@ export default async function DashboardPage({
     )
   );
 
+  const { data: packageRows } =
+    await supabase
+      .from("packages")
+      .select(
+        `
+        id,
+        name,
+        price,
+        duration_minutes,
+        quota_mb,
+        speed_down_mbps,
+        speed_up_mbps,
+        start_time,
+        end_time
+      `
+      )
+      .eq("active", true)
+      .order("price", {
+        ascending: true,
+      });
+
+  const activePackages: PurchasePackageItem[] =
+    (packageRows ?? []).map((row) => ({
+      id: row.id,
+      name: row.name,
+      price: Number(row.price),
+      durationMinutes:
+        row.duration_minutes ?? null,
+      quotaMb: row.quota_mb ?? null,
+      speedDownMbps:
+        row.speed_down_mbps ?? null,
+      speedUpMbps:
+        row.speed_up_mbps ?? null,
+      startTime: row.start_time ?? null,
+      endTime: row.end_time ?? null,
+    }));
+
+  const { data: activeOrderRow } =
+    await supabase
+      .from("package_orders")
+      .select(
+        `
+        id,
+        status,
+        start_at,
+        end_at,
+        packages (
+          name
+        )
+      `
+      )
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .order("start_at", {
+        ascending: false,
+      })
+      .limit(1)
+      .maybeSingle();
+
+  type ActiveOrderView = {
+    packageName: string;
+    startAt: string;
+    endAt: string | null;
+  };
+
+  let activeOrder: ActiveOrderView | null =
+    null;
+
+  if (activeOrderRow) {
+
+    const notYetEnded =
+      !activeOrderRow.end_at ||
+      new Date(activeOrderRow.end_at) >
+        new Date();
+
+    if (notYetEnded) {
+      activeOrder = {
+        packageName:
+          (activeOrderRow.packages as
+            | { name?: string }[]
+            | undefined)?.[0]?.name ??
+          "Paket",
+        startAt: activeOrderRow.start_at,
+        endAt: activeOrderRow.end_at,
+      };
+    }
+
+  }
+
   return (
     <main className="min-h-screen bg-[#080808] px-4 py-8">
 
@@ -341,6 +433,92 @@ export default async function DashboardPage({
             value={profile.role}
           />
 
+        </section>
+
+
+        {/* ACTIVE PACKAGE */}
+
+        <section
+          className="
+            mt-5
+            rounded-2xl
+            border
+            border-white/6
+            bg-[#11110f]
+            p-6
+          "
+        >
+          {activeOrder ? (
+
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p
+                  className="
+                    text-xs
+                    text-[#a7a39a]
+                  "
+                >
+                  Paket Aktif
+                </p>
+
+                <p
+                  className="
+                    mt-1
+                    text-lg
+                    font-bold
+                    text-emerald-300
+                  "
+                >
+                  {activeOrder.packageName}
+                </p>
+
+                <p
+                  className="
+                    mt-1
+                    text-xs
+                    text-[#a7a39a]
+                  "
+                >
+                  Mulai{" "}
+                  {formatDateTimeWIB(
+                    activeOrder.startAt
+                  )}
+                  {activeOrder.endAt
+                    ? ` • Berakhir ${formatDateTimeWIB(activeOrder.endAt)}`
+                    : " • Tanpa batas waktu"}
+                </p>
+              </div>
+
+              <span
+                className="
+                  rounded-full
+                  border
+                  border-emerald-500/30
+                  bg-emerald-500/10
+                  px-3
+                  py-1
+                  text-xs
+                  font-semibold
+                  text-emerald-300
+                "
+              >
+                Aktif
+              </span>
+            </div>
+
+          ) : (
+
+            <p
+              className="
+                text-sm
+                text-[#a7a39a]
+              "
+            >
+              Tidak ada paket aktif. Pilih
+              paket di bawah untuk berlangganan.
+            </p>
+
+          )}
         </section>
 
 
@@ -611,22 +789,12 @@ export default async function DashboardPage({
             kebutuhan Anda.
           </p>
 
-          <div
-            className="
-              mt-5
-              rounded-2xl
-              border
-              border-white/6
-              bg-[#11110f]
-              p-6
-              text-sm
-              text-[#a7a39a]
-            "
-          >
-            Daftar paket akan kita hubungkan
-            langsung ke database WARUNG28
-            pada tahap berikutnya.
-          </div>
+          <PurchasePackages
+            packages={activePackages}
+            balance={Number(
+              wallet?.balance ?? 0
+            )}
+          />
 
         </section>
 
