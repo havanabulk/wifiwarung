@@ -21,6 +21,11 @@ const menus = [
     icon: "◈",
   },
   {
+    label: "Voucher",
+    href: "/admin/vouchers",
+    icon: "▤",
+  },
+  {
     label: "Customer Service",
     href: "/admin/support",
     icon: "◌",

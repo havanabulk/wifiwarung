@@ -5,6 +5,7 @@ import LogoutButton from "@/components/auth/LogoutButton";
 import PurchasePackages, {
   type PurchasePackageItem,
 } from "@/components/dashboard/PurchasePackages";
+import VoucherRedeem from "@/components/dashboard/VoucherRedeem";
 
 const TRANSACTIONS_PAGE_SIZE = 10;
 
@@ -41,8 +42,14 @@ function formatRupiah(value: number) {
 function getTransactionLabel(type: string) {
   const normalized = type.toLowerCase();
 
-  if (normalized === "deposit") {
-    return "Deposit";
+  const labels: Record<string, string> = {
+    deposit: "Deposit",
+    voucher: "Tebus Voucher",
+    purchase: "Pembelian Paket",
+  };
+
+  if (labels[normalized]) {
+    return labels[normalized];
   }
 
   return normalized.charAt(0).toUpperCase() + normalized.slice(1);
@@ -453,6 +460,13 @@ export default async function DashboardPage({ searchParams }: SearchParams) {
           )}
         </section>
 
+
+        {/* VOUCHER */}
+
+        <section className="mt-5">
+          <VoucherRedeem />
+        </section>
+
         {/* TRANSACTIONS */}
 
         <section className="mt-10">
@@ -494,6 +508,12 @@ export default async function DashboardPage({ searchParams }: SearchParams) {
               <ul className="divide-y divide-white/5">
                 {transactionRows.map((tx) => {
                   const isCredit = tx.type.toLowerCase() === "deposit";
+
+                  const normalizedType = tx.type.toLowerCase();
+
+                  const isCredit =
+                    normalizedType === "deposit" ||
+                    normalizedType === "voucher";
 
                   return (
                     <li
