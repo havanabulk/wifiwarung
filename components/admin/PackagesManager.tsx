@@ -155,6 +155,10 @@ export default function PackagesManager({
 
   const [saving, setSaving] = useState(false);
 
+  const [togglingId, setTogglingId] = useState<
+    number | null
+  >(null);
+
   const [showForm, setShowForm] = useState(false);
 
   const [editingId, setEditingId] =
@@ -211,10 +215,53 @@ export default function PackagesManager({
   }
 
   useEffect(() => {
-    if (initialPackages.length === 0) {
-      loadPackages();
+    if (initialPackages.length > 0) {
+      return;
     }
-  }, []);
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const response = await fetch(
+          "/api/admin/packages",
+          {
+            cache: "no-store",
+          }
+        );
+
+        const result =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            result.error ||
+              "Gagal mengambil data paket."
+          );
+        }
+
+        if (!cancelled) {
+          setPackages(result.packages ?? []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Gagal mengambil data paket."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialPackages.length]);
 
   /*
    * ============================
@@ -229,24 +276,21 @@ export default function PackagesManager({
     )
   );
 
+  const activePage = Math.min(
+    currentPage,
+    totalPages
+  );
+
   const visiblePackages = useMemo(() => {
     const start =
-      (currentPage - 1) *
+      (activePage - 1) *
       itemsPerPage;
 
     return packages.slice(
       start,
       start + itemsPerPage
     );
-  }, [packages, currentPage]);
-
-  useEffect(() => {
-    if (
-      currentPage > totalPages
-    ) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
+  }, [packages, activePage]);
 
   /*
    * ============================
@@ -586,6 +630,7 @@ export default function PackagesManager({
     item: PackageItem
   ) {
     try {
+      setTogglingId(item.id);
       setError("");
       setMessage("");
 
@@ -630,6 +675,8 @@ export default function PackagesManager({
           ? err.message
           : "Gagal mengubah status paket."
       );
+    } finally {
+      setTogglingId(null);
     }
   }
 
@@ -716,7 +763,7 @@ export default function PackagesManager({
       ) : (
         <>
           <div
-            key={currentPage}
+            key={activePage}
             className="grid animate-[fadeIn_350ms_ease-out] gap-4 md:grid-cols-2 xl:grid-cols-4"
           >
             {visiblePackages.map(
@@ -724,6 +771,9 @@ export default function PackagesManager({
                 <PackageCard
                   key={item.id}
                   item={item}
+                  toggling={
+                    togglingId === item.id
+                  }
                   onEdit={() =>
                     openEditForm(item)
                   }
@@ -742,9 +792,7 @@ export default function PackagesManager({
 
               <button
                 type="button"
-                disabled={
-                  currentPage === 1
-                }
+                disabled={activePage === 1}
                 onClick={() =>
                   setCurrentPage(
                     (page) =>
@@ -775,7 +823,7 @@ export default function PackagesManager({
                     )
                   }
                   className={`h-9 min-w-9 rounded-lg px-3 text-sm transition ${
-                    currentPage ===
+                    activePage ===
                     page
                       ? "bg-amber-300/15 text-amber-200 ring-1 ring-amber-300/25"
                       : "text-white/50 hover:bg-white/5"
@@ -788,7 +836,7 @@ export default function PackagesManager({
               <button
                 type="button"
                 disabled={
-                  currentPage ===
+                  activePage ===
                   totalPages
                 }
                 onClick={() =>
@@ -1312,10 +1360,12 @@ export default function PackagesManager({
 
 function PackageCard({
   item,
+  toggling,
   onEdit,
   onToggle,
 }: {
   item: PackageItem;
+  toggling: boolean;
   onEdit: () => void;
   onToggle: () => void;
 }) {
@@ -1455,7 +1505,8 @@ function PackageCard({
         <button
           type="button"
           onClick={onEdit}
-          className="rounded-lg border border-white/8 px-3 py-2 text-xs font-medium text-white/60 transition hover:bg-white/5 hover:text-white"
+          disabled={toggling}
+          className="rounded-lg border border-white/8 px-3 py-2 text-xs font-medium text-white/60 transition hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
         >
           Edit
         </button>
@@ -1463,15 +1514,18 @@ function PackageCard({
         <button
           type="button"
           onClick={onToggle}
-          className={`rounded-lg border px-3 py-2 text-xs font-medium transition ${
+          disabled={toggling}
+          className={`rounded-lg border px-3 py-2 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${
             item.active
               ? "border-red-400/15 text-red-300/70 hover:bg-red-400/10"
               : "border-emerald-400/15 text-emerald-300/70 hover:bg-emerald-400/10"
           }`}
         >
-          {item.active
-            ? "Nonaktifkan"
-            : "Aktifkan"}
+          {toggling
+            ? "Memproses..."
+            : item.active
+              ? "Nonaktifkan"
+              : "Aktifkan"}
         </button>
 
       </div>

@@ -3,13 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth/admin";
 import { parsePackageInput } from "@/lib/validation/package";
 
-/*
-|--------------------------------------------------------------------------
-| GET
-|--------------------------------------------------------------------------
-| Mengambil seluruh paket internet
-*/
-
 export async function GET() {
   try {
     const auth = await requireAdmin();
@@ -18,13 +11,9 @@ export async function GET() {
       return auth.response;
     }
 
-    const supabase =
-      await createClient();
+    const supabase = await createClient();
 
-    const {
-      data,
-      error,
-    } = await supabase
+    const { data, error } = await supabase
       .from("packages")
       .select("*")
       .order("created_at", {
@@ -40,52 +29,28 @@ export async function GET() {
       return NextResponse.json(
         {
           error:
-            error.message,
-          details:
-            error.details,
-          hint: error.hint,
-          code: error.code,
+            "Gagal mengambil data paket.",
         },
-        {
-          status: 500,
-        }
+        { status: 500 }
       );
     }
 
     return NextResponse.json({
       packages: data ?? [],
     });
-
   } catch (error) {
-    console.error(
-      "PACKAGE GET API ERROR:",
-      error
-    );
+    console.error("PACKAGE GET API ERROR:", error);
 
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Terjadi kesalahan server.",
+        error: "Terjadi kesalahan server.",
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }
 
-/*
-|--------------------------------------------------------------------------
-| POST
-|--------------------------------------------------------------------------
-| Membuat paket internet baru
-*/
-
-export async function POST(
-  request: Request
-) {
+export async function POST(request: Request) {
   try {
     const auth = await requireAdmin();
 
@@ -93,57 +58,26 @@ export async function POST(
       return auth.response;
     }
 
-    const body =
-      await request.json();
+    const body = await request.json();
 
-    console.log(
-      "PACKAGE POST BODY:",
-      body
-    );
-
-    const parsed =
-      parsePackageInput(body);
+    const parsed = parsePackageInput(body);
 
     if (!parsed.ok) {
       return NextResponse.json(
         {
-          error:
-            parsed.error,
+          error: parsed.error,
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
-    const packageData =
-      parsed.data;
+    const supabase = await createClient();
 
-    /*
-    |--------------------------------------------------------------------------
-    | SUPABASE
-    |--------------------------------------------------------------------------
-    */
-
-    const supabase =
-      await createClient();
-
-    const {
-      data,
-      error,
-    } = await supabase
+    const { data, error } = await supabase
       .from("packages")
-      .insert(
-        packageData
-      )
+      .insert(parsed.data)
       .select()
       .single();
-
-    /*
-    |--------------------------------------------------------------------------
-    | DATABASE ERROR
-    |--------------------------------------------------------------------------
-    */
 
     if (error) {
       console.error(
@@ -153,57 +87,26 @@ export async function POST(
 
       return NextResponse.json(
         {
-          error:
-            error.message,
-          details:
-            error.details,
-          hint:
-            error.hint,
-          code:
-            error.code,
+          error: "Gagal menyimpan paket.",
         },
-        {
-          status: 500,
-        }
+        { status: 500 }
       );
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | SUCCESS
-    |--------------------------------------------------------------------------
-    */
-
-    console.log(
-      "PACKAGE CREATED:",
-      data
-    );
 
     return NextResponse.json(
       {
         package: data,
       },
-      {
-        status: 201,
-      }
+      { status: 201 }
     );
-
   } catch (error) {
-    console.error(
-      "PACKAGE POST API ERROR:",
-      error
-    );
+    console.error("PACKAGE POST API ERROR:", error);
 
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Data paket tidak valid.",
+        error: "Data paket tidak valid.",
       },
-      {
-        status: 400,
-      }
+      { status: 400 }
     );
   }
 }

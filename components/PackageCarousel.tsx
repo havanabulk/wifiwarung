@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-type Package = {
+export type CatalogPackage = {
   id: number;
   name: string;
   icon: string;
@@ -11,77 +11,16 @@ type Package = {
   category: string;
 };
 
-const packages: Package[] = [
-  {
-    id: 1,
-    name: "1 Jam",
-    icon: "⚡",
-    price: "Rp2.000",
-    description: "Internet singkat untuk kebutuhan cepat.",
-    category: "TIME",
-  },
-  {
-    id: 2,
-    name: "2 Jam",
-    icon: "⚡",
-    price: "Rp4.000",
-    description: "Lebih leluasa untuk browsing dan sosial media.",
-    category: "TIME",
-  },
-  {
-    id: 3,
-    name: "3 Jam",
-    icon: "⚡",
-    price: "Rp5.000",
-    description: "Paket populer untuk pemakaian beberapa jam.",
-    category: "TIME",
-  },
-  {
-    id: 4,
-    name: "Paket Malam",
-    icon: "🌙",
-    price: "Rp10.000",
-    description: "Internet malam untuk kebutuhan hingga pagi.",
-    category: "NIGHT",
-  },
-  {
-    id: 5,
-    name: "Harian",
-    icon: "📅",
-    price: "Rp12.000",
-    description: "Akses internet selama 24 jam.",
-    category: "DAILY",
-  },
-  {
-    id: 6,
-    name: "Mingguan",
-    icon: "📆",
-    price: "Rp25.000",
-    description: "Internet hemat untuk penggunaan 7 hari.",
-    category: "WEEKLY",
-  },
-  {
-    id: 7,
-    name: "Bulanan",
-    icon: "🏠",
-    price: "Rp50.000",
-    description: "Pilihan hemat untuk penggunaan rutin.",
-    category: "MONTHLY",
-  },
-  {
-    id: 8,
-    name: "Paket Kuota",
-    icon: "📶",
-    price: "Custom",
-    description: "Harga dan jumlah kuota diatur oleh admin.",
-    category: "QUOTA",
-  },
-];
-
 const itemsPerPageDesktop = 3;
 const itemsPerPageMobile = 1;
 
-export default function PackageCarousel() {
+type Props = {
+  packages?: CatalogPackage[];
+};
+
+export default function PackageCarousel({
+  packages = [],
+}: Props) {
   const [page, setPage] = useState(0);
   const [mobile, setMobile] = useState(false);
 
@@ -162,6 +101,37 @@ export default function PackageCarousel() {
 
     touchStart.current = null;
     touchEnd.current = null;
+  }
+
+  if (packages.length === 0) {
+    return (
+      <div className="w-full">
+        <div
+          className="
+            rounded-3xl
+            border
+            border-dashed
+            border-[#b89b5e]/25
+            bg-[#11110f]
+            p-12
+            text-center
+          "
+        >
+          <div className="text-3xl text-[#b89b5e]/50">
+            📶
+          </div>
+
+          <h3 className="mt-4 font-bold text-[#f2f0ea]">
+            Daftar paket segera hadir
+          </h3>
+
+          <p className="mt-1 text-sm text-[#a7a39a]">
+            Silakan hubungi admin WARUNG28 untuk info paket
+            terbaru.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

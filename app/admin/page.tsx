@@ -3,6 +3,56 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import StatCard from "@/components/admin/StatCard";
 
+const JAKARTA_OFFSET_MS = 7 * 60 * 60 * 1000;
+
+function startOfJakartaDayISO(): string {
+  const shifted = new Date(
+    Date.now() + JAKARTA_OFFSET_MS
+  );
+
+  return new Date(
+    Date.UTC(
+      shifted.getUTCFullYear(),
+      shifted.getUTCMonth(),
+      shifted.getUTCDate()
+    ) - JAKARTA_OFFSET_MS
+  ).toISOString();
+}
+
+function formatRupiah(value: number) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function formatDateTime(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+
+  return new Intl.DateTimeFormat("id-ID", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Asia/Jakarta",
+  }).format(date);
+}
+
+type RecentTransaction = {
+  id: number;
+  type: string;
+  amount: number | string;
+  note: string | null;
+  created_at: string;
+  profiles?: {
+    username: string | null;
+    full_name: string | null;
+  }[] | null;
+};
+
 export default async function AdminPage() {
   const supabase = await createClient();
 
@@ -26,6 +76,76 @@ export default async function AdminPage() {
   if (!profile || profile.role !== "admin") {
     redirect("/dashboard");
   }
+
+  const startOfDayISO =
+    startOfJakartaDayISO();
+
+  const [
+    customersCount,
+    transactionsToday,
+    depositsToday,
+    recentTransactions,
+  ] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id", {
+        count: "exact",
+        head: true,
+      })
+      .neq("role", "admin"),
+
+    supabase
+      .from("wallet_transactions")
+      .select("id", {
+        count: "exact",
+        head: true,
+      })
+      .gte("created_at", startOfDayISO),
+
+    supabase
+      .from("wallet_transactions")
+      .select("amount")
+      .eq("type", "deposit")
+      .gte("created_at", startOfDayISO),
+
+    supabase
+      .from("wallet_transactions")
+      .select(
+        `
+        id,
+        type,
+        amount,
+        note,
+        created_at,
+        profiles (
+          username,
+          full_name
+        )
+      `
+      )
+      .order("created_at", {
+        ascending: false,
+      })
+      .limit(5),
+  ]);
+
+  const totalCustomers =
+    customersCount.count ?? 0;
+
+  const transactionsTodayCount =
+    transactionsToday.count ?? 0;
+
+  const revenueToday = (
+    depositsToday.data ?? []
+  ).reduce(
+    (total, row) =>
+      total + Number(row.amount ?? 0),
+    0
+  );
+
+  const recent =
+    (recentTransactions.data ??
+      []) as RecentTransaction[];
 
   return (
     <div className="min-h-screen">
@@ -84,16 +204,13 @@ export default async function AdminPage() {
 
               <p className="mt-2 text-sm text-white/40">
                 Pantau aktivitas WARUNG28
-                HOTSPOT secara realtime.
+                HOTSPOT.
               </p>
 
             </div>
 
             <div
               className="
-                flex
-                items-center
-                gap-3
                 rounded-xl
                 border
                 border-white/6
@@ -103,19 +220,19 @@ export default async function AdminPage() {
               "
             >
 
-              <span className="h-2 w-2 rounded-full bg-emerald-400" />
+              <p className="text-xs font-semibold">
+                {new Intl.DateTimeFormat(
+                  "id-ID",
+                  {
+                    dateStyle: "full",
+                    timeZone: "Asia/Jakarta",
+                  }
+                ).format(new Date())}
+              </p>
 
-              <div>
-
-                <p className="text-xs font-semibold">
-                  Sistem Online
-                </p>
-
-                <p className="text-[10px] text-white/30">
-                  MikroTik terhubung
-                </p>
-
-              </div>
+              <p className="text-[10px] text-white/30">
+                Waktu Indonesia Barat
+              </p>
 
             </div>
 
@@ -143,31 +260,31 @@ export default async function AdminPage() {
 
           <StatCard
             label="Total Pelanggan"
-            value="0"
+            value={String(totalCustomers)}
             description="Pelanggan terdaftar"
             icon="♙"
           />
 
           <StatCard
             label="Sedang Online"
-            value="0"
-            description="Aktif di MikroTik"
+            value="-"
+            description="Menunggu integrasi MikroTik"
             icon="⌁"
-            accent="green"
-          />
-
-          <StatCard
-            label="Transaksi Hari Ini"
-            value="0"
-            description="Transaksi berhasil"
-            icon="▤"
             accent="blue"
           />
 
           <StatCard
+            label="Transaksi Hari Ini"
+            value={String(transactionsTodayCount)}
+            description="Sejak 00:00 WIB"
+            icon="▤"
+            accent="green"
+          />
+
+          <StatCard
             label="Pendapatan Hari Ini"
-            value="Rp 0"
-            description="Total transaksi"
+            value={formatRupiah(revenueToday)}
+            description="Total deposit masuk"
             icon="Rp"
             accent="gold"
           />
@@ -186,7 +303,7 @@ export default async function AdminPage() {
           "
         >
 
-          {/* Online Users */}
+          {/* Recent Transactions */}
 
           <section
             className="
@@ -213,74 +330,135 @@ export default async function AdminPage() {
               <div>
 
                 <h2 className="font-bold">
-                  Pelanggan Online
+                  Transaksi Terbaru
                 </h2>
 
                 <p className="mt-1 text-xs text-white/30">
-                  Perangkat yang sedang terhubung
+                  Aktivitas deposit pelanggan
                 </p>
 
               </div>
 
-              <span
+              <Link
+                href="/admin/customers"
                 className="
-                  rounded-full
-                  border
-                  border-emerald-500/10
-                  bg-emerald-500/5
-                  px-3
-                  py-1.5
-                  text-[10px]
-                  font-bold
-                  text-emerald-300
+                  text-xs
+                  font-semibold
+                  text-[#b89b5e]
                 "
               >
-                LIVE
-              </span>
+                Lihat Semua →
+              </Link>
 
             </div>
 
 
             <div className="p-5">
 
-              <div
-                className="
-                  flex
-                  min-h-48
-                  items-center
-                  justify-center
-                  rounded-xl
-                  border
-                  border-dashed
-                  border-white/6
-                  bg-white/2
-                "
-              >
+              {recent.length === 0 ? (
 
-                <div className="text-center">
-
-                  <div className="text-2xl text-white/20">
-                    ⌁
-                  </div>
-
-                  <p className="mt-3 text-sm text-white/40">
-                    Belum ada pelanggan online
+                <div
+                  className="
+                    flex
+                    min-h-32
+                    items-center
+                    justify-center
+                    rounded-xl
+                    bg-white/2
+                  "
+                >
+                  <p className="text-xs text-white/30">
+                    Belum ada transaksi.
                   </p>
-
-                  <p className="mt-1 text-[10px] text-white/20">
-                    Data akan berasal dari MikroTik
-                  </p>
-
                 </div>
 
-              </div>
+              ) : (
+
+                <ul className="divide-y divide-white/5">
+
+                  {recent.map((tx) => {
+
+                    const customerName =
+                      tx.profiles?.[0]?.full_name ||
+                      tx.profiles?.[0]?.username ||
+                      "Tanpa nama";
+
+                    return (
+
+                      <li
+                        key={tx.id}
+                        className="
+                          flex
+                          items-center
+                          justify-between
+                          gap-4
+                          py-3
+                          first:pt-0
+                          last:pb-0
+                        "
+                      >
+                        <div
+                          className="
+                            min-w-0
+                          "
+                        >
+                          <p
+                            className="
+                              truncate
+                              text-sm
+                              font-semibold
+                            "
+                          >
+                            {customerName}
+                          </p>
+
+                          <p
+                            className="
+                              mt-0.5
+                              truncate
+                              text-[11px]
+                              text-white/30
+                            "
+                          >
+                            {tx.note ||
+                              "Deposit"}{" "}
+                            •{" "}
+                            {formatDateTime(
+                              tx.created_at
+                            )}
+                          </p>
+                        </div>
+
+                        <span
+                          className="
+                            shrink-0
+                            text-sm
+                            font-bold
+                            text-emerald-300
+                          "
+                        >
+                          +
+                          {formatRupiah(
+                            Number(tx.amount)
+                          )}
+                        </span>
+
+                      </li>
+
+                    );
+
+                  })}
+
+                </ul>
+
+              )}
 
             </div>
 
           </section>
 
 
-          {/* MikroTik */}
+          {/* Router */}
 
           <section
             className="
@@ -297,7 +475,7 @@ export default async function AdminPage() {
               <div>
 
                 <h2 className="font-bold">
-                  MikroTik
+                  Router MikroTik
                 </h2>
 
                 <p className="mt-1 text-xs text-white/30">
@@ -306,7 +484,7 @@ export default async function AdminPage() {
 
               </div>
 
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
 
             </div>
 
@@ -315,22 +493,22 @@ export default async function AdminPage() {
 
               <StatusRow
                 label="Connection"
-                value="Connected"
+                value="Belum terhubung"
               />
 
               <StatusRow
                 label="Active Users"
-                value="0"
+                value="-"
               />
 
               <StatusRow
                 label="CPU Load"
-                value="0%"
+                value="-"
               />
 
               <StatusRow
                 label="Memory"
-                value="0 MB"
+                value="-"
               />
 
               <StatusRow
@@ -340,82 +518,27 @@ export default async function AdminPage() {
 
             </div>
 
+            <p
+              className="
+                mt-5
+                rounded-xl
+                border
+                border-dashed
+                border-white/10
+                bg-white/2
+                p-3
+                text-[11px]
+                leading-5
+                text-white/30
+              "
+            >
+              Integrasi MikroTik direncanakan pada
+              milestone M2 (lihat docs/PRD.md).
+            </p>
+
           </section>
 
         </div>
-
-
-        {/* Recent Transactions */}
-
-        <section
-          className="
-            mt-6
-            rounded-2xl
-            border
-            border-white/6
-            bg-[#11110f]
-          "
-        >
-
-          <div
-            className="
-              flex
-              items-center
-              justify-between
-              border-b
-              border-white/6
-              px-5
-              py-5
-            "
-          >
-
-            <div>
-
-              <h2 className="font-bold">
-                Transaksi Terbaru
-              </h2>
-
-              <p className="mt-1 text-xs text-white/30">
-                Aktivitas pembayaran pelanggan
-              </p>
-
-            </div>
-
-            <button
-              className="
-                text-xs
-                font-semibold
-                text-[#b89b5e]
-              "
-            >
-              Lihat Semua →
-            </button>
-
-          </div>
-
-
-          <div className="p-5">
-
-            <div
-              className="
-                flex
-                min-h-32
-                items-center
-                justify-center
-                rounded-xl
-                bg-white/2
-              "
-            >
-
-              <p className="text-xs text-white/30">
-                Belum ada transaksi.
-              </p>
-
-            </div>
-
-          </div>
-
-        </section>
 
 
         {/* Quick Actions */}

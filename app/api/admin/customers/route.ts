@@ -54,14 +54,10 @@ export async function GET() {
 
       return NextResponse.json(
         {
-          error: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
+          error:
+            "Gagal mengambil data pelanggan.",
         },
-        {
-          status: 500,
-        }
+        { status: 500 }
       );
     }
 
@@ -76,14 +72,9 @@ export async function GET() {
 
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Terjadi kesalahan server.",
+        error: "Terjadi kesalahan server.",
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }

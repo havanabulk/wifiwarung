@@ -27,6 +27,16 @@ export type ParsePackageResult =
   | { ok: true; data: PackageInputData }
   | { ok: false; error: string };
 
+export const MAX_PACKAGE_NAME_LENGTH = 100;
+
+const MAX_PRICE = 100_000_000;
+const MAX_DURATION_MINUTES = 525600; // 1 tahun
+const MAX_QUOTA_MB = 1048576; // 1 TB
+const MAX_SPEED_MBPS = 10000;
+
+const TIME_PATTERN =
+  /^([01]\d|2[0-3]):[0-5]\d$/;
+
 function nullableNumber(
   value: unknown
 ): number | null {
@@ -78,6 +88,16 @@ export function parsePackageInput(
   }
 
   if (
+    name.trim().length >
+    MAX_PACKAGE_NAME_LENGTH
+  ) {
+    return {
+      ok: false,
+      error: `Nama paket maksimal ${MAX_PACKAGE_NAME_LENGTH} karakter.`,
+    };
+  }
+
+  if (
     typeof type !== "string" ||
     !VALID_TYPES.includes(
       type as PackageType
@@ -103,6 +123,25 @@ export function parsePackageInput(
       ok: false,
       error:
         "Harga paket tidak valid.",
+    };
+  }
+
+  if (
+    !Number.isInteger(
+      packagePrice
+    )
+  ) {
+    return {
+      ok: false,
+      error:
+        "Harga harus bilangan bulat rupiah.",
+    };
+  }
+
+  if (packagePrice > MAX_PRICE) {
+    return {
+      ok: false,
+      error: "Harga paket terlalu besar.",
     };
   }
 
@@ -135,6 +174,30 @@ export function parsePackageInput(
   }
 
   if (
+    durationMinutes !== null &&
+    !Number.isInteger(
+      durationMinutes
+    )
+  ) {
+    return {
+      ok: false,
+      error:
+        "Durasi harus bilangan bulat menit.",
+    };
+  }
+
+  if (
+    durationMinutes !== null &&
+    durationMinutes >
+      MAX_DURATION_MINUTES
+  ) {
+    return {
+      ok: false,
+      error: "Durasi terlalu besar.",
+    };
+  }
+
+  if (
     quotaMb !== null &&
     quotaMb <= 0
   ) {
@@ -142,6 +205,27 @@ export function parsePackageInput(
       ok: false,
       error:
         "Kuota harus lebih besar dari 0.",
+    };
+  }
+
+  if (
+    quotaMb !== null &&
+    !Number.isInteger(quotaMb)
+  ) {
+    return {
+      ok: false,
+      error:
+        "Kuota harus bilangan bulat MB.",
+    };
+  }
+
+  if (
+    quotaMb !== null &&
+    quotaMb > MAX_QUOTA_MB
+  ) {
+    return {
+      ok: false,
+      error: "Kuota terlalu besar.",
     };
   }
 
@@ -157,6 +241,17 @@ export function parsePackageInput(
   }
 
   if (
+    speedDown !== null &&
+    speedDown > MAX_SPEED_MBPS
+  ) {
+    return {
+      ok: false,
+      error:
+        "Kecepatan download terlalu besar.",
+    };
+  }
+
+  if (
     speedUp !== null &&
     speedUp < 0
   ) {
@@ -164,6 +259,31 @@ export function parsePackageInput(
       ok: false,
       error:
         "Kecepatan upload tidak valid.",
+    };
+  }
+
+  if (
+    speedUp !== null &&
+    speedUp > MAX_SPEED_MBPS
+  ) {
+    return {
+      ok: false,
+      error:
+        "Kecepatan upload terlalu besar.",
+    };
+  }
+
+  if (type === "hourly" && durationMinutes === null) {
+    return {
+      ok: false,
+      error: "Durasi paket per jam wajib diisi.",
+    };
+  }
+
+  if (type === "quota" && quotaMb === null) {
+    return {
+      ok: false,
+      error: "Kuota paket wajib diisi.",
     };
   }
 
@@ -195,6 +315,25 @@ export function parsePackageInput(
         ok: false,
         error:
           "Jam mulai dan jam selesai paket malam wajib diisi.",
+      };
+    }
+
+    if (
+      !TIME_PATTERN.test(startTime) ||
+      !TIME_PATTERN.test(endTime)
+    ) {
+      return {
+        ok: false,
+        error:
+          "Format jam harus HH:MM yang valid.",
+      };
+    }
+
+    if (startTime === endTime) {
+      return {
+        ok: false,
+        error:
+          "Jam mulai dan jam selesai tidak boleh sama.",
       };
     }
   }

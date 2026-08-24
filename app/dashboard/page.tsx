@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "@/components/auth/LogoutButton";
 
@@ -17,7 +18,7 @@ export default async function DashboardPage() {
     await supabase
       .from("profiles")
       .select(
-        "username, full_name, balance, role, status"
+        "username, full_name, role, status"
       )
       .eq("id", user.id)
       .single();
@@ -25,6 +26,13 @@ export default async function DashboardPage() {
   if (!profile) {
     redirect("/login");
   }
+
+  const { data: wallet } =
+    await supabase
+      .from("wallets")
+      .select("balance")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
   if (profile.status !== "active") {
     return (
@@ -173,13 +181,15 @@ export default async function DashboardPage() {
           >
             Rp{" "}
             {Number(
-              profile.balance
+              wallet?.balance ?? 0
             ).toLocaleString("id-ID")}
           </h2>
 
-          <button
+          <Link
+            href="/contact"
             className="
               mt-6
+              inline-block
               rounded-xl
               bg-[#b89b5e]
               px-5
@@ -190,7 +200,7 @@ export default async function DashboardPage() {
             "
           >
             + Top Up Saldo
-          </button>
+          </Link>
 
         </section>
 

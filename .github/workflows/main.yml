@@ -1,12 +1,22 @@
 name: Format Code
+
 on: [push, pull_request]
+
+concurrency:
+  group: format-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   prettier:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.head_ref }}
       - name: Run Prettier
-        uses: creyder/prettier_action@v4.3
+        uses: creyD/prettier_action@8c18391fdc98ed0d884c6345f03975edac71b8f0 # v4.6
         with:
           prettier_options: --write .

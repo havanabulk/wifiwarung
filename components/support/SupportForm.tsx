@@ -1,1 +1,87 @@
-"use client"; import { useState } from "react"; export default function SupportForm() { const [loading, setLoading] = useState(false); const [form, setForm] = useState({ name: "", phone: "", message: "", }); async function handleSubmit( e: React.FormEvent ) { e.preventDefault(); setLoading(true); try { const res = await fetch( "/api/support", { method: "POST", headers: { "Content-Type": "application/json", }, body: JSON.stringify(form), } ); if (!res.ok) { throw new Error(); } alert( "Pesan berhasil dikirim." ); setForm({ name: "", phone: "", message: "", }); } catch { alert( "Gagal mengirim pesan." ); } setLoading(false); } return ( <form onSubmit={handleSubmit} className="space-y-5" > <input type="text" placeholder="Nama" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value, }) } className="w-full rounded-xl border border-white/10 bg-[#111] p-4 text-white" /> <input type="text" placeholder="Nomor WhatsApp" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value, }) } className="w-full rounded-xl border border-white/10 bg-[#111] p-4 text-white" /> <textarea rows={5} placeholder="Tulis pesan..." value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value, }) } className="w-full rounded-xl border border-white/10 bg-[#111] p-4 text-white" /> <button disabled={loading} className="w-full rounded-xl bg-[#b89b5e] py-4 font-bold text-black" > {loading ? "Mengirim..." : "Kirim Pesan"} </button> </form> ); }
+"use client";
+
+import { useState } from "react";
+
+export default function SupportForm() {
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    message: "",
+  });
+
+  async function handleSubmit(
+    e: React.FormEvent
+  ) {
+    e.preventDefault();
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/support", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) {
+        throw new Error();
+      }
+
+      alert("Pesan berhasil dikirim.");
+
+      setForm({
+        name: "",
+        phone: "",
+        message: "",
+      });
+    } catch {
+      alert("Gagal mengirim pesan.");
+    }
+
+    setLoading(false);
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <input
+        type="text"
+        placeholder="Nama"
+        value={form.name}
+        onChange={(e) =>
+          setForm({ ...form, name: e.target.value })
+        }
+        className="w-full rounded-xl border border-white/10 bg-[#111] p-4 text-white"
+      />
+
+      <input
+        type="text"
+        placeholder="Nomor WhatsApp"
+        value={form.phone}
+        onChange={(e) =>
+          setForm({ ...form, phone: e.target.value })
+        }
+        className="w-full rounded-xl border border-white/10 bg-[#111] p-4 text-white"
+      />
+
+      <textarea
+        rows={5}
+        placeholder="Tulis pesan..."
+        value={form.message}
+        onChange={(e) =>
+          setForm({ ...form, message: e.target.value })
+        }
+        className="w-full rounded-xl border border-white/10 bg-[#111] p-4 text-white"
+      />
+
+      <button
+        disabled={loading}
+        className="w-full rounded-xl bg-[#b89b5e] py-4 font-bold text-black"
+      >
+        {loading ? "Mengirim..." : "Kirim Pesan"}
+      </button>
+    </form>
+  );
+}

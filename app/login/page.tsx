@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 
@@ -227,15 +228,16 @@ export default function LoginPage() {
             >
               Untuk pelanggan WARUNG28 silahkan akses disini.               
               Bagi yang belum mempunyai akses bisa membeli
-              <button 
+              <Link 
+                href="/#packages"
                 className="
-              mt-2
-              text-xs
-              font-bold
-              text-[#b89b5e]
-            " >
-              <a href="/#packages"> disini </a> 
-              </button>
+                  text-xs
+                  font-bold
+                  text-[#b89b5e]
+                "
+              >
+                {" "}disini{" "}
+              </Link>
             
             </p>
 
@@ -434,7 +436,7 @@ export default function LoginPage() {
           </div>
 
 
-          <a
+          <Link
             href="/"
             className="
               flex
@@ -454,7 +456,7 @@ export default function LoginPage() {
             "
           >
             ← Kembali ke Beranda
-          </a>
+          </Link>
 
         </section>
 
@@ -465,16 +467,18 @@ export default function LoginPage() {
             Tidak bisa terhubung ke internet?
           </p>
 
-          <button
+          <Link
+            href="/contact"
             className="
               mt-2
+              inline-block
               text-xs
               font-bold
               text-[#b89b5e]
             "
           >
             💬 Hubungi Admin WARUNG28
-          </button>
+          </Link>
 
         </div>
 

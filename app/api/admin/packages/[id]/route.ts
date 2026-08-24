@@ -14,47 +14,50 @@ export async function PUT(
   context: Context
 ) {
   try {
-    const { id } =
-      await context.params;
-
     const auth = await requireAdmin();
 
     if (!auth.ok) {
       return auth.response;
     }
 
-    const body =
-      await request.json();
+    const { id } = await context.params;
 
-    const parsed =
-      parsePackageInput(body);
+    const body = await request.json();
+
+    const parsed = parsePackageInput(body);
 
     if (!parsed.ok) {
       return NextResponse.json(
         {
-          error:
-            parsed.error,
+          error: parsed.error,
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
-    const supabase =
-      await createClient();
+    if (
+      !/^\d+$/.test(id)
+    ) {
+      return NextResponse.json(
+        {
+          error: "ID paket tidak valid.",
+        },
+        { status: 400 }
+      );
+    }
 
-    const { data, error } =
-      await supabase
-        .from("packages")
-        .update({
-          ...parsed.data,
-          updated_at:
-            new Date().toISOString(),
-        })
-        .eq("id", id)
-        .select()
-        .single();
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("packages")
+      .update({
+        ...parsed.data,
+        updated_at:
+          new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
 
     if (error) {
       console.error(
@@ -62,12 +65,18 @@ export async function PUT(
         error
       );
 
+      if (error.code === "PGRST116") {
+        return NextResponse.json(
+          {
+            error: "Paket tidak ditemukan.",
+          },
+          { status: 404 }
+        );
+      }
+
       return NextResponse.json(
         {
-          error: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
+          error: "Gagal memperbarui paket.",
         },
         { status: 500 }
       );
@@ -76,19 +85,12 @@ export async function PUT(
     return NextResponse.json({
       package: data,
     });
-
   } catch (error) {
-    console.error(
-      "PACKAGE UPDATE ERROR:",
-      error
-    );
+    console.error("PACKAGE UPDATE API ERROR:", error);
 
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Gagal memperbarui paket.",
+        error: "Gagal memperbarui paket.",
       },
       { status: 500 }
     );

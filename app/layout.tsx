@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-export const metadata = {
+export const metadata: Metadata = {
   metadataBase: new URL("https://warung28.my.id"),
 
   title: "Warung28 Hotspot WiFi",

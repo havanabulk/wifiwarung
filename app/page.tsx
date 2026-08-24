@@ -1,6 +1,175 @@
-import PackageCarousel from "@/components/PackageCarousel";
+import PackageCarousel, {
+  type CatalogPackage,
+} from "@/components/PackageCarousel";
+import { createClient } from "@supabase/supabase-js";
 
-export default function HomePage() {
+export const revalidate = 300;
+
+type PackageRow = {
+  id: number;
+  name: string;
+  type: string;
+  duration_minutes: number | null;
+  quota_mb: number | null;
+  speed_down_mbps: number | null;
+  speed_up_mbps: number | null;
+  price: number;
+  start_time: string | null;
+  end_time: string | null;
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  hourly: "TIME",
+  night: "NIGHT",
+  daily: "DAILY",
+  weekly: "WEEKLY",
+  monthly: "MONTHLY",
+  quota: "QUOTA",
+};
+
+const TYPE_ICONS: Record<string, string> = {
+  hourly: "⚡",
+  night: "🌙",
+  daily: "📅",
+  weekly: "📆",
+  monthly: "🏠",
+  quota: "📶",
+};
+
+function formatRupiah(value: number) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function formatDurationDescription(
+  row: PackageRow
+): string {
+  const minutes = row.duration_minutes;
+
+  if (!minutes) {
+    return "Akses internet sesuai durasi.";
+  }
+
+  if (minutes % (24 * 60) === 0) {
+    const days = minutes / (24 * 60);
+
+    return `Masa aktif ${days} hari.`;
+  }
+
+  if (minutes % 60 === 0) {
+    return `Akses internet ${minutes / 60} jam.`;
+  }
+
+  return `Akses internet ${minutes} menit.`;
+}
+
+function toCatalogItem(
+  row: PackageRow
+): CatalogPackage {
+  let description =
+    formatDurationDescription(row);
+
+  switch (row.type) {
+    case "night":
+      description = `Internet malam (${(row.start_time ?? "").slice(0, 5)}–${(row.end_time ?? "").slice(0, 5)}).`;
+      break;
+
+    case "quota": {
+      const mb = row.quota_mb;
+
+      description =
+        mb && mb % 1024 === 0
+          ? `Kuota ${mb / 1024} GB.`
+          : `Kuota ${mb ?? 0} MB.`;
+
+      break;
+    }
+  }
+
+  const speeds = [
+    row.speed_down_mbps !== null
+      ? `Down ${row.speed_down_mbps} Mbps`
+      : null,
+    row.speed_up_mbps !== null
+      ? `Up ${row.speed_up_mbps} Mbps`
+      : null,
+  ].filter(Boolean);
+
+  if (speeds.length > 0) {
+    description += ` ${speeds.join(" • ")}.`;
+  }
+
+  return {
+    id: row.id,
+    name: row.name,
+    icon: TYPE_ICONS[row.type] ?? "📶",
+    price: formatRupiah(Number(row.price)),
+    description,
+    category:
+      CATEGORY_LABELS[row.type] ??
+      row.type.toUpperCase(),
+  };
+}
+
+async function getCatalogPackages(): Promise<
+  CatalogPackage[]
+> {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+    );
+
+    const { data, error } = await supabase
+      .from("packages")
+      .select(
+        `
+        id,
+        name,
+        type,
+        duration_minutes,
+        quota_mb,
+        speed_down_mbps,
+        speed_up_mbps,
+        price,
+        start_time,
+        end_time
+      `
+      )
+      .eq("active", true)
+      .order("type", {
+        ascending: true,
+      })
+      .order("price", {
+        ascending: true,
+      });
+
+    if (error) {
+      console.error(
+        "CATALOG PACKAGES ERROR:",
+        error
+      );
+
+      return [];
+    }
+
+    return (data ?? []).map(toCatalogItem);
+  } catch (error) {
+    console.error(
+      "CATALOG PACKAGES ERROR:",
+      error
+    );
+
+    return [];
+  }
+}
+
+export default async function HomePage() {
+  const catalogPackages =
+    await getCatalogPackages();
   return (
     <main className="min-h-screen bg-[#080808]">
 
@@ -343,7 +512,7 @@ export default function HomePage() {
           </div>
 
 
-          <PackageCarousel />
+          <PackageCarousel packages={catalogPackages} />
 
         </div>
 

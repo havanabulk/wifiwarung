@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth/admin";
 
+const MIN_DEPOSIT = 1000;
+const MAX_DEPOSIT = 10_000_000;
+
 export async function POST(request: Request) {
   try {
     const auth = await requireAdmin();
@@ -14,10 +17,16 @@ export async function POST(request: Request) {
 
     const { user_id, amount, note } = body;
 
-    if (!user_id || typeof user_id !== "string") {
+    if (
+      !user_id ||
+      typeof user_id !== "string" ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        user_id
+      )
+    ) {
       return NextResponse.json(
         {
-          error: "User ID wajib diisi.",
+          error: "User ID tidak valid.",
         },
         { status: 400 }
       );
@@ -47,10 +56,19 @@ export async function POST(request: Request) {
       );
     }
 
-    if (depositAmount < 1000) {
+    if (depositAmount < MIN_DEPOSIT) {
       return NextResponse.json(
         {
-          error: "Minimal deposit Rp 1.000.",
+          error: `Minimal deposit Rp ${MIN_DEPOSIT.toLocaleString("id-ID")}.`,
+        },
+        { status: 400 }
+      );
+    }
+
+    if (depositAmount > MAX_DEPOSIT) {
+      return NextResponse.json(
+        {
+          error: `Maksimal deposit Rp ${MAX_DEPOSIT.toLocaleString("id-ID")} per transaksi.`,
         },
         { status: 400 }
       );
@@ -81,9 +99,15 @@ export async function POST(request: Request) {
       }
 
       if (rpcError.code === "22P02" || rpcError.code === "22023") {
+        const aboveMaximum = String(rpcError.message).includes(
+          "AMOUNT_ABOVE_MAXIMUM"
+        );
+
         return NextResponse.json(
           {
-            error: "Data deposit tidak valid.",
+            error: aboveMaximum
+              ? `Maksimal deposit Rp ${MAX_DEPOSIT.toLocaleString("id-ID")} per transaksi.`
+              : "Data deposit tidak valid.",
           },
           { status: 400 }
         );
