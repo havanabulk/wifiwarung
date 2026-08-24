@@ -4,15 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 
-export default function LogoutButton({
-  className,
-}: {
-  className?: string;
-}) {
+export default function LogoutButton({ className }: { className?: string }) {
   const router = useRouter();
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
   async function handleLogout() {
     setLoading(true);
@@ -32,9 +27,7 @@ export default function LogoutButton({
       disabled={loading}
       className={className}
     >
-      {loading
-        ? "Memproses..."
-        : "Keluar"}
+      {loading ? "Memproses..." : "Keluar"}
     </button>
   );
 }

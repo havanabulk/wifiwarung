@@ -18,8 +18,8 @@ export default function TermsPage() {
         </ul>
 
         <p className="mt-6">
-          Data digunakan untuk verifikasi transaksi, layanan pelanggan,
-          dan peningkatan kualitas layanan.
+          Data digunakan untuk verifikasi transaksi, layanan pelanggan, dan
+          peningkatan kualitas layanan.
         </p>
       </div>
     </main>

@@ -8,8 +8,7 @@ export type AdminContext = {
 };
 
 export type RequireAdminResult =
-  | { ok: true; context: AdminContext }
-  | { ok: false; response: NextResponse };
+  { ok: true; context: AdminContext } | { ok: false; response: NextResponse };
 
 export async function requireAdmin(): Promise<RequireAdminResult> {
   const supabase = await createClient();
@@ -21,7 +20,7 @@ export async function requireAdmin(): Promise<RequireAdminResult> {
       ok: false,
       response: NextResponse.json(
         { error: "Autentikasi diperlukan." },
-        { status: 401 }
+        { status: 401 },
       ),
     };
   }
@@ -40,10 +39,7 @@ export async function requireAdmin(): Promise<RequireAdminResult> {
   ) {
     return {
       ok: false,
-      response: NextResponse.json(
-        { error: "Akses ditolak." },
-        { status: 403 }
-      ),
+      response: NextResponse.json({ error: "Akses ditolak." }, { status: 403 }),
     };
   }
 

@@ -15,9 +15,9 @@ export const metadata: Metadata = {
     "hotspot",
     "mikrotik",
     "warung28",
-    "wifi bali"
-  ]
-}
+    "wifi bali",
+  ],
+};
 
 export default function RootLayout({
   children,

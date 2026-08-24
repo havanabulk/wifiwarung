@@ -68,26 +68,17 @@ export default function PurchasePackages({
 }) {
   const router = useRouter();
 
-  const [selected, setSelected] =
-    useState<PurchasePackageItem | null>(null);
+  const [selected, setSelected] = useState<PurchasePackageItem | null>(null);
 
-  const [purchaseKey, setPurchaseKey] =
-    useState<string>("");
+  const [purchaseKey, setPurchaseKey] = useState<string>("");
 
-  const [submitting, setSubmitting] =
-    useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const [error, setError] = useState<
-    string | null
-  >(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const [success, setSuccess] = useState<
-    string | null
-  >(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  function openPurchaseModal(
-    item: PurchasePackageItem
-  ) {
+  function openPurchaseModal(item: PurchasePackageItem) {
     setSelected(item);
     setPurchaseKey(newRequestId());
     setError(null);
@@ -110,20 +101,16 @@ export default function PurchasePackages({
     setError(null);
 
     try {
-      const response = await fetch(
-        "/api/purchase",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-          body: JSON.stringify({
-            packageId: selected.id,
-            idempotencyKey: purchaseKey,
-          }),
-        }
-      );
+      const response = await fetch("/api/purchase", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          packageId: selected.id,
+          idempotencyKey: purchaseKey,
+        }),
+      });
 
       const result = await response.json();
 
@@ -131,7 +118,7 @@ export default function PurchasePackages({
         setError(
           typeof result.error === "string"
             ? result.error
-            : "Pembelian gagal diproses."
+            : "Pembelian gagal diproses.",
         );
 
         setSubmitting(false);
@@ -139,24 +126,19 @@ export default function PurchasePackages({
         return;
       }
 
-      setSuccess(
-        `Pembelian paket "${selected.name}" berhasil.`
-      );
+      setSuccess(`Pembelian paket "${selected.name}" berhasil.`);
 
       router.refresh();
 
       closeModal();
     } catch {
-      setError(
-        "Terjadi kesalahan jaringan. Coba lagi."
-      );
+      setError("Terjadi kesalahan jaringan. Coba lagi.");
 
       setSubmitting(false);
     }
   }
 
   if (packages.length === 0) {
-
     return (
       <div
         className="
@@ -173,11 +155,9 @@ export default function PurchasePackages({
         Belum ada paket yang tersedia.
       </div>
     );
-
   }
 
   return (
-
     <>
       {success && (
         <div
@@ -198,11 +178,8 @@ export default function PurchasePackages({
       )}
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-
         {packages.map((item) => {
-
-          const affordable =
-            balance >= item.price;
+          const affordable = balance >= item.price;
 
           const metaLines: string[] = [];
 
@@ -210,37 +187,24 @@ export default function PurchasePackages({
             item.durationMinutes !== null &&
             item.durationMinutes !== undefined
           ) {
-            metaLines.push(
-              formatDuration(
-                item.durationMinutes
-              )
-            );
+            metaLines.push(formatDuration(item.durationMinutes));
           }
 
           if (item.quotaMb !== null) {
-            metaLines.push(
-              `${formatQuota(item.quotaMb)} kuota`
-            );
+            metaLines.push(`${formatQuota(item.quotaMb)} kuota`);
           }
 
           if (item.speedDownMbps !== null) {
-            metaLines.push(
-              `↓ ${item.speedDownMbps} Mbps`
-            );
+            metaLines.push(`↓ ${item.speedDownMbps} Mbps`);
           }
 
           if (item.speedUpMbps !== null) {
-            metaLines.push(
-              `↑ ${item.speedUpMbps} Mbps`
-            );
+            metaLines.push(`↑ ${item.speedUpMbps} Mbps`);
           }
 
-          if (
-            item.startTime &&
-            item.endTime
-          ) {
+          if (item.startTime && item.endTime) {
             metaLines.push(
-              `${formatClock(item.startTime)} – ${formatClock(item.endTime)}`
+              `${formatClock(item.startTime)} – ${formatClock(item.endTime)}`,
             );
           }
 
@@ -279,7 +243,6 @@ export default function PurchasePackages({
               </p>
 
               {metaLines.length > 0 && (
-
                 <ul
                   className="
                     mt-3
@@ -289,19 +252,14 @@ export default function PurchasePackages({
                   "
                 >
                   {metaLines.map((line) => (
-                    <li key={line}>
-                      {line}
-                    </li>
+                    <li key={line}>{line}</li>
                   ))}
                 </ul>
-
               )}
 
               <button
                 type="button"
-                onClick={() =>
-                  openPurchaseModal(item)
-                }
+                onClick={() => openPurchaseModal(item)}
                 disabled={!affordable}
                 className="
                   mt-4
@@ -323,21 +281,14 @@ export default function PurchasePackages({
                   disabled:text-white/30
                 "
               >
-                {affordable
-                  ? "Beli"
-                  : "Saldo kurang"}
+                {affordable ? "Beli" : "Saldo kurang"}
               </button>
-
             </div>
           );
-
         })}
-
       </div>
 
-
       {selected && (
-
         <div
           className="
             fixed
@@ -401,31 +352,19 @@ export default function PurchasePackages({
               "
             >
               <div className="flex justify-between">
-                <dt className="text-[#a7a39a]">
-                  Saldo saat ini
-                </dt>
-                <dd className="text-[#f2f0ea]">
-                  {formatRupiah(balance)}
-                </dd>
+                <dt className="text-[#a7a39a]">Saldo saat ini</dt>
+                <dd className="text-[#f2f0ea]">{formatRupiah(balance)}</dd>
               </div>
 
               <div className="flex justify-between">
-                <dt className="text-[#a7a39a]">
-                  Saldo setelah beli
-                </dt>
+                <dt className="text-[#a7a39a]">Saldo setelah beli</dt>
                 <dd className="text-[#f2f0ea]">
-                  {formatRupiah(
-                    balance - selected.price
-                  )}
+                  {formatRupiah(balance - selected.price)}
                 </dd>
               </div>
             </dl>
 
-            {error && (
-              <p className="mt-3 text-xs text-red-300">
-                {error}
-              </p>
-            )}
+            {error && <p className="mt-3 text-xs text-red-300">{error}</p>}
 
             <div className="mt-5 flex gap-3">
               <button
@@ -470,16 +409,12 @@ export default function PurchasePackages({
                   disabled:opacity-50
                 "
               >
-                {submitting
-                  ? "Memproses..."
-                  : "Konfirmasi"}
+                {submitting ? "Memproses..." : "Konfirmasi"}
               </button>
             </div>
-
           </div>
         </div>
       )}
-
     </>
   );
 }

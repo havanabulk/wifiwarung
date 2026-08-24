@@ -21,17 +21,13 @@ export async function GET() {
       });
 
     if (error) {
-      console.error(
-        "SUPABASE PACKAGE GET ERROR:",
-        error
-      );
+      console.error("SUPABASE PACKAGE GET ERROR:", error);
 
       return NextResponse.json(
         {
-          error:
-            "Gagal mengambil data paket.",
+          error: "Gagal mengambil data paket.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -45,7 +41,7 @@ export async function GET() {
       {
         error: "Terjadi kesalahan server.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -67,7 +63,7 @@ export async function POST(request: Request) {
         {
           error: parsed.error,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -80,16 +76,13 @@ export async function POST(request: Request) {
       .single();
 
     if (error) {
-      console.error(
-        "SUPABASE PACKAGE INSERT ERROR:",
-        error
-      );
+      console.error("SUPABASE PACKAGE INSERT ERROR:", error);
 
       return NextResponse.json(
         {
           error: "Gagal menyimpan paket.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -97,7 +90,7 @@ export async function POST(request: Request) {
       {
         package: data,
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("PACKAGE POST API ERROR:", error);
@@ -106,7 +99,7 @@ export async function POST(request: Request) {
       {
         error: "Data paket tidak valid.",
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

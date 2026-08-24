@@ -1,1 +1,28 @@
-import SupportForm from "@/components/support/SupportForm"; export const metadata = { title: "Support | WARUNG28", }; export default function SupportPage() { return ( <main className="min-h-screen bg-[#080808] px-6 py-20 text-white"> <div className="mx-auto max-w-3xl"> <div className="mb-10 text-center"> <h1 className="text-4xl font-black text-[#b89b5e]"> Customer Support </h1> <p className="mt-4 text-gray-400"> Hubungi tim WARUNG28 jika mengalami kendala voucher, pembayaran, login hotspot, atau pertanyaan lainnya. </p> </div> <div className="rounded-3xl border border-white/10 bg-[#11110f] p-8"> <SupportForm /> </div> </div> </main> ); }
+import SupportForm from "@/components/support/SupportForm";
+export const metadata = { title: "Support | WARUNG28" };
+export default function SupportPage() {
+  return (
+    <main className="min-h-screen bg-[#080808] px-6 py-20 text-white">
+      {" "}
+      <div className="mx-auto max-w-3xl">
+        {" "}
+        <div className="mb-10 text-center">
+          {" "}
+          <h1 className="text-4xl font-black text-[#b89b5e]">
+            {" "}
+            Customer Support{" "}
+          </h1>{" "}
+          <p className="mt-4 text-gray-400">
+            {" "}
+            Hubungi tim WARUNG28 jika mengalami kendala voucher, pembayaran,
+            login hotspot, atau pertanyaan lainnya.{" "}
+          </p>{" "}
+        </div>{" "}
+        <div className="rounded-3xl border border-white/10 bg-[#11110f] p-8">
+          {" "}
+          <SupportForm />{" "}
+        </div>{" "}
+      </div>{" "}
+    </main>
+  );
+}

@@ -9,10 +9,7 @@ type Context = {
   }>;
 };
 
-export async function PUT(
-  request: Request,
-  context: Context
-) {
+export async function PUT(request: Request, context: Context) {
   try {
     const auth = await requireAdmin();
 
@@ -31,18 +28,16 @@ export async function PUT(
         {
           error: parsed.error,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    if (
-      !/^\d+$/.test(id)
-    ) {
+    if (!/^\d+$/.test(id)) {
       return NextResponse.json(
         {
           error: "ID paket tidak valid.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -52,25 +47,21 @@ export async function PUT(
       .from("packages")
       .update({
         ...parsed.data,
-        updated_at:
-          new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       })
       .eq("id", id)
       .select()
       .single();
 
     if (error) {
-      console.error(
-        "UPDATE PACKAGE ERROR:",
-        error
-      );
+      console.error("UPDATE PACKAGE ERROR:", error);
 
       if (error.code === "PGRST116") {
         return NextResponse.json(
           {
             error: "Paket tidak ditemukan.",
           },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
@@ -78,7 +69,7 @@ export async function PUT(
         {
           error: "Gagal memperbarui paket.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -92,7 +83,7 @@ export async function PUT(
       {
         error: "Gagal memperbarui paket.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

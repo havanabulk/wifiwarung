@@ -58,9 +58,7 @@ function newRequestId() {
     return crypto.randomUUID();
   }
 
-  return `${Date.now()}-${Math.random()
-    .toString(36)
-    .slice(2)}`;
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
 export default function CustomersPage() {
@@ -77,9 +75,8 @@ export default function CustomersPage() {
     total: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");  // Deposit
-  const [depositCustomer, setDepositCustomer] =
-    useState<Customer | null>(null);
+  const [error, setError] = useState(""); // Deposit
+  const [depositCustomer, setDepositCustomer] = useState<Customer | null>(null);
 
   const [depositAmount, setDepositAmount] = useState("");
   const [depositNote, setDepositNote] = useState("");
@@ -87,9 +84,7 @@ export default function CustomersPage() {
   const [depositError, setDepositError] = useState("");
   const [depositKey, setDepositKey] = useState("");
 
-  async function fetchCustomers(
-    page: number
-  ): Promise<{
+  async function fetchCustomers(page: number): Promise<{
     customers: Customer[];
     summary: CustomerSummary;
     pagination: PaginationInfo;
@@ -98,16 +93,13 @@ export default function CustomersPage() {
       `/api/admin/customers?page=${page}&pageSize=${PAGE_SIZE}`,
       {
         cache: "no-store",
-      }
+      },
     );
 
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(
-        result.error ||
-          "Gagal mengambil data pelanggan."
-      );
+      throw new Error(result.error || "Gagal mengambil data pelanggan.");
     }
 
     return {
@@ -131,9 +123,7 @@ export default function CustomersPage() {
       setLoading(true);
       setError("");
 
-      const data = await fetchCustomers(
-        page ?? pagination.page
-      );
+      const data = await fetchCustomers(page ?? pagination.page);
 
       setCustomers(data.customers);
       setSummary(data.summary);
@@ -144,7 +134,7 @@ export default function CustomersPage() {
       setError(
         error instanceof Error
           ? error.message
-          : "Terjadi kesalahan saat mengambil data pelanggan."
+          : "Terjadi kesalahan saat mengambil data pelanggan.",
       );
     } finally {
       setLoading(false);
@@ -170,7 +160,7 @@ export default function CustomersPage() {
           setError(
             error instanceof Error
               ? error.message
-              : "Terjadi kesalahan saat mengambil data pelanggan."
+              : "Terjadi kesalahan saat mengambil data pelanggan.",
           );
         }
       } finally {
@@ -241,23 +231,20 @@ export default function CustomersPage() {
     if (status === "inactive") {
       return {
         label: "Nonaktif",
-        className:
-          "border-red-500/20 bg-red-500/10 text-red-300",
+        className: "border-red-500/20 bg-red-500/10 text-red-300",
       };
     }
 
     if (status === "pending") {
       return {
         label: "Pending",
-        className:
-          "border-yellow-500/20 bg-yellow-500/10 text-yellow-300",
+        className: "border-yellow-500/20 bg-yellow-500/10 text-yellow-300",
       };
     }
 
     return {
       label: "Aktif",
-      className:
-        "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
+      className: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
     };
   }
 
@@ -282,21 +269,18 @@ export default function CustomersPage() {
       setDepositLoading(true);
       setDepositError("");
 
-      const response = await fetch(
-        "/api/admin/customers/deposit",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_id: depositCustomer.id,
-            amount,
-            note: depositNote.trim(),
-            idempotencyKey: depositKey,
-          }),
-        }
-      );
+      const response = await fetch("/api/admin/customers/deposit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: depositCustomer.id,
+          amount,
+          note: depositNote.trim(),
+          idempotencyKey: depositKey,
+        }),
+      });
 
       const result = await response.json();
 
@@ -314,9 +298,7 @@ export default function CustomersPage() {
       console.error("DEPOSIT ERROR:", error);
 
       setDepositError(
-        error instanceof Error
-          ? error.message
-          : "Deposit gagal."
+        error instanceof Error ? error.message : "Deposit gagal.",
       );
     } finally {
       setDepositLoading(false);
@@ -337,9 +319,7 @@ export default function CustomersPage() {
 
   const totalPages = Math.max(
     1,
-    Math.ceil(
-      pagination.total / pagination.pageSize
-    )
+    Math.ceil(pagination.total / pagination.pageSize),
   );
 
   return (
@@ -358,8 +338,7 @@ export default function CustomersPage() {
               </h1>
 
               <p className="mt-2 max-w-2xl text-sm text-white/50">
-                Kelola pelanggan, saldo, paket aktif,
-                dan status akun WARUNG28.
+                Kelola pelanggan, saldo, paket aktif, dan status akun WARUNG28.
               </p>
             </div>
 
@@ -420,13 +399,9 @@ export default function CustomersPage() {
         {/* ERROR */}
         {error && (
           <div className="mb-6 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-300">
-            <p className="font-medium">
-              Gagal memuat pelanggan
-            </p>
+            <p className="font-medium">Gagal memuat pelanggan</p>
 
-            <p className="mt-1 text-red-300/80">
-              {error}
-            </p>
+            <p className="mt-1 text-red-300/80">{error}</p>
           </div>
         )}
 
@@ -445,46 +420,29 @@ export default function CustomersPage() {
               <table className="w-full min-w-[1050px]">
                 <thead>
                   <tr className="border-b border-white/10 bg-white/5 text-left text-xs uppercase tracking-wider text-white/40">
-                    <th className="px-5 py-4">
-                      Pelanggan
-                    </th>
+                    <th className="px-5 py-4">Pelanggan</th>
 
-                    <th className="px-5 py-4">
-                      Kontak
-                    </th>
+                    <th className="px-5 py-4">Kontak</th>
 
-                    <th className="px-5 py-4">
-                      Saldo
-                    </th>
+                    <th className="px-5 py-4">Saldo</th>
 
-                    <th className="px-5 py-4">
-                      Paket Aktif
-                    </th>
+                    <th className="px-5 py-4">Paket Aktif</th>
 
-                    <th className="px-5 py-4">
-                      Expired
-                    </th>
+                    <th className="px-5 py-4">Expired</th>
 
-                    <th className="px-5 py-4">
-                      Status
-                    </th>
+                    <th className="px-5 py-4">Status</th>
 
-                    <th className="px-5 py-4 text-right">
-                      Aksi
-                    </th>
+                    <th className="px-5 py-4 text-right">Aksi</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {customers.map((customer) => {
-                    const activeOrder =
-                      getActiveOrder(customer);
+                    const activeOrder = getActiveOrder(customer);
 
-                    const status =
-                      getStatusLabel(customer);
+                    const status = getStatusLabel(customer);
 
-                    const balance =
-                      getCustomerBalance(customer);
+                    const balance = getCustomerBalance(customer);
 
                     return (
                       <tr
@@ -527,13 +485,11 @@ export default function CustomersPage() {
                           {activeOrder ? (
                             <div>
                               <div className="font-medium">
-                                {activeOrder.packages?.name ||
-                                  "Paket"}
+                                {activeOrder.packages?.name || "Paket"}
                               </div>
 
                               <div className="mt-1 text-xs capitalize text-white/40">
-                                {activeOrder.packages?.type ||
-                                  "-"}
+                                {activeOrder.packages?.type || "-"}
                               </div>
                             </div>
                           ) : (
@@ -546,9 +502,7 @@ export default function CustomersPage() {
                         {/* EXPIRED */}
                         <td className="px-5 py-5">
                           <span className="text-sm text-white/60">
-                            {formatDate(
-                              activeOrder?.end_at ?? null
-                            )}
+                            {formatDate(activeOrder?.end_at ?? null)}
                           </span>
                         </td>
 
@@ -589,13 +543,10 @@ export default function CustomersPage() {
               <div className="p-12 text-center">
                 <div className="text-3xl">👤</div>
 
-                <h3 className="mt-4 font-medium">
-                  Belum ada pelanggan
-                </h3>
+                <h3 className="mt-4 font-medium">Belum ada pelanggan</h3>
 
                 <p className="mt-1 text-sm text-white/40">
-                  Pelanggan yang terdaftar akan
-                  muncul di sini.
+                  Pelanggan yang terdaftar akan muncul di sini.
                 </p>
               </div>
             )}
@@ -604,13 +555,8 @@ export default function CustomersPage() {
             {pagination.total > 0 && (
               <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 px-5 py-4 sm:flex-row">
                 <p className="text-xs text-white/40">
-                  Menampilkan{" "}
-                  {(pagination.page - 1) *
-                    pagination.pageSize +
-                    1}
-                  –
-                  {(pagination.page - 1) *
-                    pagination.pageSize +
+                  Menampilkan {(pagination.page - 1) * pagination.pageSize + 1}–
+                  {(pagination.page - 1) * pagination.pageSize +
                     customers.length}{" "}
                   dari {pagination.total} pelanggan
                 </p>
@@ -618,31 +564,21 @@ export default function CustomersPage() {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    disabled={
-                      pagination.page <= 1 || loading
-                    }
-                    onClick={() =>
-                      loadCustomers(pagination.page - 1)
-                    }
+                    disabled={pagination.page <= 1 || loading}
+                    onClick={() => loadCustomers(pagination.page - 1)}
                     className="rounded-lg border border-white/10 px-3 py-2 text-xs text-white/60 transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-30"
                   >
                     ← Sebelumnya
                   </button>
 
                   <span className="px-2 text-xs text-white/50">
-                    Halaman {pagination.page} dari{" "}
-                    {totalPages}
+                    Halaman {pagination.page} dari {totalPages}
                   </span>
 
                   <button
                     type="button"
-                    disabled={
-                      pagination.page >= totalPages ||
-                      loading
-                    }
-                    onClick={() =>
-                      loadCustomers(pagination.page + 1)
-                    }
+                    disabled={pagination.page >= totalPages || loading}
+                    onClick={() => loadCustomers(pagination.page + 1)}
                     className="rounded-lg border border-white/10 px-3 py-2 text-xs text-white/60 transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-30"
                   >
                     Berikutnya →
@@ -659,10 +595,7 @@ export default function CustomersPage() {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm"
           onMouseDown={(event) => {
-            if (
-              event.target === event.currentTarget &&
-              !depositLoading
-            ) {
+            if (event.target === event.currentTarget && !depositLoading) {
               closeDepositModal();
             }
           }}
@@ -674,9 +607,7 @@ export default function CustomersPage() {
                 WARUNG28 HOTSPOT
               </p>
 
-              <h2 className="mt-2 text-2xl font-semibold">
-                Tambah Saldo
-              </h2>
+              <h2 className="mt-2 text-2xl font-semibold">Tambah Saldo</h2>
 
               <p className="mt-1 text-sm text-white/40">
                 Isi saldo pelanggan secara manual.
@@ -700,16 +631,10 @@ export default function CustomersPage() {
                   </div>
 
                   <div className="text-right">
-                    <p className="text-xs text-white/40">
-                      Saldo saat ini
-                    </p>
+                    <p className="text-xs text-white/40">Saldo saat ini</p>
 
                     <p className="mt-1 font-semibold text-[#d8bd82]">
-                      {formatRupiah(
-                        getCustomerBalance(
-                          depositCustomer
-                        )
-                      )}
+                      {formatRupiah(getCustomerBalance(depositCustomer))}
                     </p>
                   </div>
                 </div>
@@ -736,11 +661,7 @@ export default function CustomersPage() {
                       min="1000"
                       step="1000"
                       value={depositAmount}
-                      onChange={(event) =>
-                        setDepositAmount(
-                          event.target.value
-                        )
-                      }
+                      onChange={(event) => setDepositAmount(event.target.value)}
                       placeholder="50000"
                       disabled={depositLoading}
                       className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-white outline-none transition placeholder:text-white/20 focus:border-[#c8a96b]/50 disabled:opacity-50"
@@ -760,11 +681,7 @@ export default function CustomersPage() {
                     id="deposit-note"
                     type="text"
                     value={depositNote}
-                    onChange={(event) =>
-                      setDepositNote(
-                        event.target.value
-                      )
-                    }
+                    onChange={(event) => setDepositNote(event.target.value)}
                     placeholder="Contoh: Deposit tunai"
                     disabled={depositLoading}
                     className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition placeholder:text-white/20 focus:border-[#c8a96b]/50 disabled:opacity-50"
@@ -775,45 +692,30 @@ export default function CustomersPage() {
                 {Number(depositAmount) > 0 && (
                   <div className="rounded-2xl border border-[#c8a96b]/20 bg-[#c8a96b]/5 p-4">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-white/40">
-                        Saldo sekarang
-                      </span>
+                      <span className="text-white/40">Saldo sekarang</span>
 
                       <span className="text-white/70">
-                        {formatRupiah(
-                          getCustomerBalance(
-                            depositCustomer
-                          )
-                        )}
+                        {formatRupiah(getCustomerBalance(depositCustomer))}
                       </span>
                     </div>
 
                     <div className="my-3 h-px bg-white/10" />
 
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-white/40">
-                        Deposit
-                      </span>
+                      <span className="text-white/40">Deposit</span>
 
                       <span className="text-[#d8bd82]">
-                        +{" "}
-                        {formatRupiah(
-                          Number(depositAmount)
-                        )}
+                        + {formatRupiah(Number(depositAmount))}
                       </span>
                     </div>
 
                     <div className="mt-3 flex items-center justify-between">
-                      <span className="font-medium">
-                        Saldo setelah deposit
-                      </span>
+                      <span className="font-medium">Saldo setelah deposit</span>
 
                       <span className="text-lg font-semibold text-[#d8bd82]">
                         {formatRupiah(
-                          getCustomerBalance(
-                            depositCustomer
-                          ) +
-                            Number(depositAmount)
+                          getCustomerBalance(depositCustomer) +
+                            Number(depositAmount),
                         )}
                       </span>
                     </div>
@@ -842,15 +744,10 @@ export default function CustomersPage() {
                 <button
                   type="button"
                   onClick={handleDeposit}
-                  disabled={
-                    depositLoading ||
-                    Number(depositAmount) <= 0
-                  }
+                  disabled={depositLoading || Number(depositAmount) <= 0}
                   className="flex-1 rounded-xl bg-[#c8a96b] px-4 py-3 text-sm font-semibold text-[#090909] transition hover:bg-[#d8bd82] disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {depositLoading
-                    ? "Memproses..."
-                    : "Tambah Saldo"}
+                  {depositLoading ? "Memproses..." : "Tambah Saldo"}
                 </button>
               </div>
             </div>

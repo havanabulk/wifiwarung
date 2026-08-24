@@ -13,18 +13,13 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const [showPassword, setShowPassword] =
-    useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
-  async function handleLogin(
-    event: FormEvent<HTMLFormElement>
-  ) {
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setError("");
@@ -34,18 +29,15 @@ export default function LoginPage() {
       ? username
       : `${username}@warung28.local`;
 
-    const { data, error } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     if (error) {
       setLoading(false);
 
-      setError(
-        "Username atau password tidak benar."
-      );
+      setError("Username atau password tidak benar.");
 
       return;
     }
@@ -53,26 +45,21 @@ export default function LoginPage() {
     if (!data.user) {
       setLoading(false);
 
-      setError(
-        "Akun tidak ditemukan."
-      );
+      setError("Akun tidak ditemukan.");
 
       return;
     }
 
-    const { data: profile } =
-      await supabase
-        .from("profiles")
-        .select("role, status")
-        .eq("id", data.user.id)
-        .single();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, status")
+      .eq("id", data.user.id)
+      .single();
 
     setLoading(false);
 
     if (!profile) {
-      setError(
-        "Profil akun belum tersedia."
-      );
+      setError("Profil akun belum tersedia.");
 
       return;
     }
@@ -80,9 +67,7 @@ export default function LoginPage() {
     if (profile.status !== "active") {
       await supabase.auth.signOut();
 
-      setError(
-        "Akun Anda sedang dinonaktifkan."
-      );
+      setError("Akun Anda sedang dinonaktifkan.");
 
       return;
     }
@@ -98,9 +83,7 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-[#080808] px-4">
-
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-
         <div
           className="
             absolute
@@ -114,7 +97,6 @@ export default function LoginPage() {
             blur-[120px]
           "
         />
-
       </div>
 
       <div
@@ -130,11 +112,9 @@ export default function LoginPage() {
           py-10
         "
       >
-
         {/* LOGO */}
 
         <div className="mb-8 text-center">
-
           <div
             className="
               mx-auto
@@ -176,9 +156,7 @@ export default function LoginPage() {
           >
             HOTSPOT
           </p>
-
         </div>
-
 
         {/* CARD */}
 
@@ -193,9 +171,7 @@ export default function LoginPage() {
             sm:p-8
           "
         >
-
           <div className="mb-7">
-
             <div
               className="
                 text-[10px]
@@ -226,9 +202,9 @@ export default function LoginPage() {
                 text-[#a7a39a]
               "
             >
-              Untuk pelanggan WARUNG28 silahkan akses disini.               
-              Bagi yang belum mempunyai akses bisa membeli
-              <Link 
+              Untuk pelanggan WARUNG28 silahkan akses disini. Bagi yang belum
+              mempunyai akses bisa membeli
+              <Link
                 href="/#packages"
                 className="
                   text-xs
@@ -236,13 +212,11 @@ export default function LoginPage() {
                   text-[#b89b5e]
                 "
               >
-                {" "}disini{" "}
+                {" "}
+                disini{" "}
               </Link>
-            
             </p>
-
           </div>
-
 
           {/* ERROR */}
 
@@ -265,16 +239,10 @@ export default function LoginPage() {
             </div>
           )}
 
-
           {/* FORM */}
 
-          <form
-            onSubmit={handleLogin}
-            className="space-y-5"
-          >
-
+          <form onSubmit={handleLogin} className="space-y-5">
             <div>
-
               <label
                 htmlFor="username"
                 className="
@@ -292,11 +260,7 @@ export default function LoginPage() {
                 id="username"
                 type="text"
                 value={username}
-                onChange={(event) =>
-                  setUsername(
-                    event.target.value
-                  )
-                }
+                onChange={(event) => setUsername(event.target.value)}
                 placeholder="Masukkan username"
                 autoComplete="username"
                 required
@@ -315,12 +279,9 @@ export default function LoginPage() {
                   focus:border-[#b89b5e]/60
                 "
               />
-
             </div>
 
-
             <div>
-
               <label
                 htmlFor="password"
                 className="
@@ -335,20 +296,11 @@ export default function LoginPage() {
               </label>
 
               <div className="relative">
-
                 <input
                   id="password"
-                  type={
-                    showPassword
-                      ? "text"
-                      : "password"
-                  }
+                  type={showPassword ? "text" : "password"}
                   value={password}
-                  onChange={(event) =>
-                    setPassword(
-                      event.target.value
-                    )
-                  }
+                  onChange={(event) => setPassword(event.target.value)}
                   placeholder="Masukkan password"
                   autoComplete="current-password"
                   required
@@ -371,11 +323,7 @@ export default function LoginPage() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowPassword(
-                      (value) => !value
-                    )
-                  }
+                  onClick={() => setShowPassword((value) => !value)}
                   className="
                     absolute
                     right-0
@@ -386,15 +334,10 @@ export default function LoginPage() {
                     text-white/40
                   "
                 >
-                  {showPassword
-                    ? "🙈"
-                    : "👁"}
+                  {showPassword ? "🙈" : "👁"}
                 </button>
-
               </div>
-
             </div>
-
 
             <button
               type="submit"
@@ -415,26 +358,17 @@ export default function LoginPage() {
                 disabled:opacity-50
               "
             >
-              {loading
-                ? "Memproses..."
-                : "LOGIN MEMBER"}
+              {loading ? "Memproses..." : "LOGIN MEMBER"}
             </button>
-
           </form>
 
-
           <div className="my-7 flex items-center gap-3">
-
             <div className="h-px flex-1 bg-white/6" />
 
-            <span className="text-[10px] text-white/30">
-              ATAU
-            </span>
+            <span className="text-[10px] text-white/30">ATAU</span>
 
             <div className="h-px flex-1 bg-white/6" />
-
           </div>
-
 
           <Link
             href="/"
@@ -457,12 +391,9 @@ export default function LoginPage() {
           >
             ← Kembali ke Beranda
           </Link>
-
         </section>
 
-
         <div className="mt-6 text-center">
-
           <p className="text-xs text-[#a7a39a]">
             Tidak bisa terhubung ke internet?
           </p>
@@ -479,11 +410,8 @@ export default function LoginPage() {
           >
             💬 Hubungi Admin WARUNG28
           </Link>
-
         </div>
-
       </div>
-
     </main>
   );
 }

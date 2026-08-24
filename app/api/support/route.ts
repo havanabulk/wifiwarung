@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import {
-  checkRateLimit,
-  getClientIp,
-} from "@/lib/rate-limit";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const RATE_LIMIT = 5;
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
@@ -19,7 +16,7 @@ export async function POST(req: Request) {
     const rateLimit = checkRateLimit(
       `support:${getClientIp(req)}`,
       RATE_LIMIT,
-      RATE_LIMIT_WINDOW_MS
+      RATE_LIMIT_WINDOW_MS,
     );
 
     if (!rateLimit.ok) {
@@ -30,17 +27,15 @@ export async function POST(req: Request) {
         {
           status: 429,
           headers: {
-            "Retry-After": String(
-              rateLimit.retryAfterSeconds
-            ),
+            "Retry-After": String(rateLimit.retryAfterSeconds),
           },
-        }
+        },
       );
     }
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     );
 
     const body = await req.json();
@@ -56,15 +51,11 @@ export async function POST(req: Request) {
         {
           error: `Nama wajib diisi (maksimal ${MAX_NAME_LENGTH} karakter).`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    if (
-      phone !== null &&
-      phone !== undefined &&
-      phone !== ""
-    ) {
+    if (phone !== null && phone !== undefined && phone !== "") {
       if (
         typeof phone !== "string" ||
         phone.trim().length > MAX_PHONE_LENGTH ||
@@ -74,7 +65,7 @@ export async function POST(req: Request) {
           {
             error: "Nomor WhatsApp tidak valid.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -88,14 +79,12 @@ export async function POST(req: Request) {
         {
           error: `Pesan wajib diisi (maksimal ${MAX_MESSAGE_LENGTH} karakter).`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const trimmedPhone =
-      typeof phone === "string" && phone.trim() !== ""
-        ? phone.trim()
-        : null;
+      typeof phone === "string" && phone.trim() !== "" ? phone.trim() : null;
 
     const { data, error } = await supabase
       .from("support_messages")
@@ -117,7 +106,7 @@ export async function POST(req: Request) {
         {
           error: "Gagal mengirim pesan.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -132,7 +121,7 @@ export async function POST(req: Request) {
       {
         error: "Gagal mengirim pesan.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

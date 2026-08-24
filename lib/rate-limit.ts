@@ -18,7 +18,7 @@ function pruneExpired(now: number) {
 export function checkRateLimit(
   key: string,
   limit: number,
-  windowMs: number
+  windowMs: number,
 ): { ok: boolean; retryAfterSeconds: number } {
   const now = Date.now();
 
@@ -45,9 +45,7 @@ export function checkRateLimit(
   if (bucket.count > limit) {
     return {
       ok: false,
-      retryAfterSeconds: Math.ceil(
-        (bucket.resetAt - now) / 1000
-      ),
+      retryAfterSeconds: Math.ceil((bucket.resetAt - now) / 1000),
     };
   }
 

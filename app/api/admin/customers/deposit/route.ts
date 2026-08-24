@@ -15,70 +15,59 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-    const { user_id, amount, note, idempotencyKey } =
-      body;
+    const { user_id, amount, note, idempotencyKey } = body;
 
     let idempotencyKeyParam: string | null = null;
 
-    if (
-      idempotencyKey !== null &&
-      idempotencyKey !== undefined
-    ) {
+    if (idempotencyKey !== null && idempotencyKey !== undefined) {
       if (
         typeof idempotencyKey !== "string" ||
         idempotencyKey.trim().length > 64
       ) {
         return NextResponse.json(
           {
-            error:
-              "Idempotency key tidak valid.",
+            error: "Idempotency key tidak valid.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       idempotencyKeyParam =
-        idempotencyKey.trim() === ""
-          ? null
-          : idempotencyKey.trim();
+        idempotencyKey.trim() === "" ? null : idempotencyKey.trim();
     }
 
     if (
       !user_id ||
       typeof user_id !== "string" ||
       !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        user_id
+        user_id,
       )
     ) {
       return NextResponse.json(
         {
           error: "User ID tidak valid.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const depositAmount = Number(amount);
 
-    if (
-      !Number.isFinite(depositAmount) ||
-      depositAmount <= 0
-    ) {
+    if (!Number.isFinite(depositAmount) || depositAmount <= 0) {
       return NextResponse.json(
         {
           error: "Jumlah deposit tidak valid.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!Number.isInteger(depositAmount)) {
       return NextResponse.json(
         {
-          error:
-            "Nominal deposit harus bilangan bulat rupiah.",
+          error: "Nominal deposit harus bilangan bulat rupiah.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -87,7 +76,7 @@ export async function POST(request: Request) {
         {
           error: `Minimal deposit Rp ${MIN_DEPOSIT.toLocaleString("id-ID")}.`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -96,22 +85,22 @@ export async function POST(request: Request) {
         {
           error: `Maksimal deposit Rp ${MAX_DEPOSIT.toLocaleString("id-ID")} per transaksi.`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const supabase = await createClient();
 
-    const { data: wallet, error: rpcError } =
-      await supabase.rpc("admin_deposit", {
+    const { data: wallet, error: rpcError } = await supabase.rpc(
+      "admin_deposit",
+      {
         p_user_id: user_id,
         p_amount: depositAmount,
         p_note:
-          typeof note === "string" && note.trim() !== ""
-            ? note.trim()
-            : null,
+          typeof note === "string" && note.trim() !== "" ? note.trim() : null,
         p_idempotency_key: idempotencyKeyParam,
-      });
+      },
+    );
 
     if (rpcError) {
       console.error("DEPOSIT RPC ERROR:", rpcError);
@@ -121,13 +110,13 @@ export async function POST(request: Request) {
           {
             error: "Pelanggan tidak ditemukan.",
           },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
       if (rpcError.code === "22P02" || rpcError.code === "22023") {
         const aboveMaximum = String(rpcError.message).includes(
-          "AMOUNT_ABOVE_MAXIMUM"
+          "AMOUNT_ABOVE_MAXIMUM",
         );
 
         return NextResponse.json(
@@ -136,7 +125,7 @@ export async function POST(request: Request) {
               ? `Maksimal deposit Rp ${MAX_DEPOSIT.toLocaleString("id-ID")} per transaksi.`
               : "Data deposit tidak valid.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -145,7 +134,7 @@ export async function POST(request: Request) {
           {
             error: "Akses ditolak.",
           },
-          { status: 403 }
+          { status: 403 },
         );
       }
 
@@ -153,7 +142,7 @@ export async function POST(request: Request) {
         {
           error: "Deposit gagal diproses.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -163,7 +152,7 @@ export async function POST(request: Request) {
         message: "Deposit berhasil.",
         wallet,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("DEPOSIT API ERROR:", error);
@@ -171,11 +160,9 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          error instanceof Error
-            ? error.message
-            : "Terjadi kesalahan server.",
+          error instanceof Error ? error.message : "Terjadi kesalahan server.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

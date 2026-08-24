@@ -52,9 +52,7 @@ export default function AdminSidebar() {
         "
       >
         <div>
-          <div className="text-sm font-black">
-            WARUNG28
-          </div>
+          <div className="text-sm font-black">WARUNG28</div>
 
           <div
             className="
@@ -90,13 +88,10 @@ export default function AdminSidebar() {
         "
       >
         <div className="flex h-full flex-col">
-
           {/* Brand */}
 
           <div className="border-b border-white/6 px-7 py-7">
-
             <div className="flex items-center gap-3">
-
               <div
                 className="
                   flex
@@ -116,10 +111,7 @@ export default function AdminSidebar() {
               </div>
 
               <div>
-
-                <div className="font-black tracking-tight">
-                  WARUNG28
-                </div>
+                <div className="font-black tracking-tight">WARUNG28</div>
 
                 <div
                   className="
@@ -132,17 +124,13 @@ export default function AdminSidebar() {
                 >
                   HOTSPOT ADMIN
                 </div>
-
               </div>
-
             </div>
-
           </div>
 
           {/* Navigation */}
 
           <nav className="flex-1 overflow-y-auto px-4 py-6">
-
             <p
               className="
                 mb-3
@@ -157,15 +145,11 @@ export default function AdminSidebar() {
             </p>
 
             <div className="space-y-1">
-
               {menus.map((menu) => {
-
                 const active =
                   menu.href === "/admin"
                     ? pathname === "/admin"
-                    : pathname.startsWith(
-                        menu.href
-                      );
+                    : pathname.startsWith(menu.href);
 
                 return (
                   <Link
@@ -187,7 +171,6 @@ export default function AdminSidebar() {
                       }
                     `}
                   >
-
                     <span
                       className={`
                         flex
@@ -207,22 +190,16 @@ export default function AdminSidebar() {
                       {menu.icon}
                     </span>
 
-                    <span className="font-medium">
-                      {menu.label}
-                    </span>
-
+                    <span className="font-medium">{menu.label}</span>
                   </Link>
                 );
               })}
-
             </div>
-
           </nav>
 
           {/* Actions */}
 
           <div className="border-t border-white/6 p-5">
-
             <Link
               href="/"
               className="
@@ -260,9 +237,7 @@ export default function AdminSidebar() {
                 disabled:opacity-50
               "
             />
-
           </div>
-
         </div>
       </aside>
     </>

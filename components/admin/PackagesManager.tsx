@@ -3,12 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 type PackageType =
-  | "hourly"
-  | "night"
-  | "daily"
-  | "weekly"
-  | "monthly"
-  | "quota";
+  "hourly" | "night" | "daily" | "weekly" | "monthly" | "quota";
 
 type PackageItem = {
   id: number;
@@ -112,10 +107,7 @@ function formatQuota(mb: number | null) {
 }
 
 function getTypeLabel(type: PackageType) {
-  return (
-    PACKAGE_TYPES.find((item) => item.value === type)?.label ??
-    type
-  );
+  return PACKAGE_TYPES.find((item) => item.value === type)?.label ?? type;
 }
 
 function getTypeIcon(type: PackageType) {
@@ -143,31 +135,22 @@ function getTypeIcon(type: PackageType) {
   }
 }
 
-export default function PackagesManager({
-  initialPackages = [],
-}: Props) {
-  const [packages, setPackages] =
-    useState<PackageItem[]>(initialPackages);
+export default function PackagesManager({ initialPackages = [] }: Props) {
+  const [packages, setPackages] = useState<PackageItem[]>(initialPackages);
 
-  const [loading, setLoading] = useState(
-    initialPackages.length === 0
-  );
+  const [loading, setLoading] = useState(initialPackages.length === 0);
 
   const [saving, setSaving] = useState(false);
 
-  const [togglingId, setTogglingId] = useState<
-    number | null
-  >(null);
+  const [togglingId, setTogglingId] = useState<number | null>(null);
 
   const [showForm, setShowForm] = useState(false);
 
-  const [editingId, setEditingId] =
-    useState<number | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [form, setForm] =
-    useState(defaultForm);
+  const [form, setForm] = useState(defaultForm);
 
   const [message, setMessage] = useState("");
 
@@ -186,28 +169,20 @@ export default function PackagesManager({
       setLoading(true);
       setError("");
 
-      const response = await fetch(
-        "/api/admin/packages",
-        {
-          cache: "no-store",
-        }
-      );
+      const response = await fetch("/api/admin/packages", {
+        cache: "no-store",
+      });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          result.error ||
-            "Gagal mengambil data paket."
-        );
+        throw new Error(result.error || "Gagal mengambil data paket.");
       }
 
       setPackages(result.packages ?? []);
     } catch (err) {
       setError(
-        err instanceof Error
-          ? err.message
-          : "Gagal mengambil data paket."
+        err instanceof Error ? err.message : "Gagal mengambil data paket.",
       );
     } finally {
       setLoading(false);
@@ -223,21 +198,14 @@ export default function PackagesManager({
 
     (async () => {
       try {
-        const response = await fetch(
-          "/api/admin/packages",
-          {
-            cache: "no-store",
-          }
-        );
+        const response = await fetch("/api/admin/packages", {
+          cache: "no-store",
+        });
 
-        const result =
-          await response.json();
+        const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(
-            result.error ||
-              "Gagal mengambil data paket."
-          );
+          throw new Error(result.error || "Gagal mengambil data paket.");
         }
 
         if (!cancelled) {
@@ -246,9 +214,7 @@ export default function PackagesManager({
       } catch (err) {
         if (!cancelled) {
           setError(
-            err instanceof Error
-              ? err.message
-              : "Gagal mengambil data paket."
+            err instanceof Error ? err.message : "Gagal mengambil data paket.",
           );
         }
       } finally {
@@ -269,27 +235,14 @@ export default function PackagesManager({
    * ============================
    */
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(
-      packages.length / itemsPerPage
-    )
-  );
+  const totalPages = Math.max(1, Math.ceil(packages.length / itemsPerPage));
 
-  const activePage = Math.min(
-    currentPage,
-    totalPages
-  );
+  const activePage = Math.min(currentPage, totalPages);
 
   const visiblePackages = useMemo(() => {
-    const start =
-      (activePage - 1) *
-      itemsPerPage;
+    const start = (activePage - 1) * itemsPerPage;
 
-    return packages.slice(
-      start,
-      start + itemsPerPage
-    );
+    return packages.slice(start, start + itemsPerPage);
   }, [packages, activePage]);
 
   /*
@@ -315,28 +268,19 @@ export default function PackagesManager({
 
     let hours = 1;
 
-    if (
-      item.duration_minutes
-    ) {
-      hours =
-        item.duration_minutes / 60;
+    if (item.duration_minutes) {
+      hours = item.duration_minutes / 60;
     }
 
     let quota = 1;
-    let quotaUnit: "MB" | "GB" =
-      "GB";
+    let quotaUnit: "MB" | "GB" = "GB";
 
     if (item.quota_mb) {
-      if (
-        item.quota_mb >= 1024 &&
-        item.quota_mb % 1024 === 0
-      ) {
-        quota =
-          item.quota_mb / 1024;
+      if (item.quota_mb >= 1024 && item.quota_mb % 1024 === 0) {
+        quota = item.quota_mb / 1024;
         quotaUnit = "GB";
       } else {
-        quota =
-          item.quota_mb;
+        quota = item.quota_mb;
         quotaUnit = "MB";
       }
     }
@@ -347,21 +291,11 @@ export default function PackagesManager({
       hours,
       quota,
       quotaUnit,
-      speedDown:
-        item.speed_down_mbps ?? 10,
-      speedUp:
-        item.speed_up_mbps ?? 5,
+      speedDown: item.speed_down_mbps ?? 10,
+      speedUp: item.speed_up_mbps ?? 5,
       price: item.price,
-      startTime:
-        item.start_time?.slice(
-          0,
-          5
-        ) ?? "22:00",
-      endTime:
-        item.end_time?.slice(
-          0,
-          5
-        ) ?? "06:00",
+      startTime: item.start_time?.slice(0, 5) ?? "22:00",
+      endTime: item.end_time?.slice(0, 5) ?? "06:00",
       active: item.active,
     });
 
@@ -370,9 +304,7 @@ export default function PackagesManager({
     setShowForm(true);
   }
 
-  function handleTypeChange(
-    type: PackageType
-  ) {
+  function handleTypeChange(type: PackageType) {
     let name = form.name;
 
     if (type === "daily") {
@@ -392,10 +324,7 @@ export default function PackagesManager({
     }
 
     if (type === "hourly") {
-      name =
-        form.hours === 1
-          ? "1 Jam"
-          : `${form.hours} Jam`;
+      name = form.hours === 1 ? "1 Jam" : `${form.hours} Jam`;
     }
 
     if (type === "quota") {
@@ -409,9 +338,7 @@ export default function PackagesManager({
     }));
   }
 
-  function handleHoursChange(
-    hours: number
-  ) {
+  function handleHoursChange(hours: number) {
     setForm((previous) => ({
       ...previous,
       hours,
@@ -419,9 +346,7 @@ export default function PackagesManager({
     }));
   }
 
-  function handleQuotaChange(
-    quota: number
-  ) {
+  function handleQuotaChange(quota: number) {
     setForm((previous) => ({
       ...previous,
       quota,
@@ -429,9 +354,7 @@ export default function PackagesManager({
     }));
   }
 
-  function handleQuotaUnitChange(
-    unit: "MB" | "GB"
-  ) {
+  function handleQuotaUnitChange(unit: "MB" | "GB") {
     setForm((previous) => ({
       ...previous,
       quotaUnit: unit,
@@ -445,9 +368,7 @@ export default function PackagesManager({
    * ============================
    */
 
-  async function handleSubmit(
-    event: React.FormEvent
-  ) {
+  async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
     try {
@@ -455,29 +376,20 @@ export default function PackagesManager({
       setError("");
       setMessage("");
 
-      let durationMinutes:
-        | number
-        | null = null;
+      let durationMinutes: number | null = null;
 
-      let quotaMb:
-        | number
-        | null = null;
+      let quotaMb: number | null = null;
 
-      let startTime:
-        | string
-        | null = null;
+      let startTime: string | null = null;
 
-      let endTime:
-        | string
-        | null = null;
+      let endTime: string | null = null;
 
       /*
        * PER JAM
        */
 
       if (form.type === "hourly") {
-        durationMinutes =
-          Number(form.hours) * 60;
+        durationMinutes = Number(form.hours) * 60;
       }
 
       /*
@@ -485,8 +397,7 @@ export default function PackagesManager({
        */
 
       if (form.type === "daily") {
-        durationMinutes =
-          24 * 60;
+        durationMinutes = 24 * 60;
       }
 
       /*
@@ -494,8 +405,7 @@ export default function PackagesManager({
        */
 
       if (form.type === "weekly") {
-        durationMinutes =
-          7 * 24 * 60;
+        durationMinutes = 7 * 24 * 60;
       }
 
       /*
@@ -503,8 +413,7 @@ export default function PackagesManager({
        */
 
       if (form.type === "monthly") {
-        durationMinutes =
-          30 * 24 * 60;
+        durationMinutes = 30 * 24 * 60;
       }
 
       /*
@@ -512,11 +421,9 @@ export default function PackagesManager({
        */
 
       if (form.type === "night") {
-        startTime =
-          form.startTime;
+        startTime = form.startTime;
 
-        endTime =
-          form.endTime;
+        endTime = form.endTime;
       }
 
       /*
@@ -526,81 +433,56 @@ export default function PackagesManager({
       if (form.type === "quota") {
         quotaMb =
           form.quotaUnit === "GB"
-            ? Number(form.quota) *
-              1024
+            ? Number(form.quota) * 1024
             : Number(form.quota);
       }
 
       const payload = {
-        name:
-          form.name.trim() ||
-          "Paket Internet",
+        name: form.name.trim() || "Paket Internet",
 
         type: form.type,
 
-        duration_minutes:
-          durationMinutes,
+        duration_minutes: durationMinutes,
 
-        quota_mb:
-          quotaMb,
+        quota_mb: quotaMb,
 
-        speed_down_mbps:
-          Number(
-            form.speedDown
-          ),
+        speed_down_mbps: Number(form.speedDown),
 
-        speed_up_mbps:
-          Number(
-            form.speedUp
-          ),
+        speed_up_mbps: Number(form.speedUp),
 
-        price:
-          Number(form.price),
+        price: Number(form.price),
 
-        start_time:
-          startTime,
+        start_time: startTime,
 
-        end_time:
-          endTime,
+        end_time: endTime,
 
-        active:
-          form.active,
+        active: form.active,
       };
 
       const url = editingId
         ? `/api/admin/packages/${editingId}`
         : "/api/admin/packages";
 
-      const method = editingId
-        ? "PUT"
-        : "POST";
+      const method = editingId ? "PUT" : "POST";
 
-      const response =
-        await fetch(url, {
-          method,
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-          body: JSON.stringify(
-            payload
-          ),
-        });
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-      const result =
-        await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          result.error ||
-            "Gagal menyimpan paket."
-        );
+        throw new Error(result.error || "Gagal menyimpan paket.");
       }
 
       setMessage(
         editingId
           ? "Paket berhasil diperbarui."
-          : "Paket berhasil ditambahkan."
+          : "Paket berhasil ditambahkan.",
       );
 
       setShowForm(false);
@@ -608,13 +490,8 @@ export default function PackagesManager({
       resetForm();
 
       await loadPackages();
-
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Gagal menyimpan paket."
-      );
+      setError(err instanceof Error ? err.message : "Gagal menyimpan paket.");
     } finally {
       setSaving(false);
     }
@@ -626,54 +503,35 @@ export default function PackagesManager({
    * ============================
    */
 
-  async function toggleActive(
-    item: PackageItem
-  ) {
+  async function toggleActive(item: PackageItem) {
     try {
       setTogglingId(item.id);
       setError("");
       setMessage("");
 
-      const response =
-        await fetch(
-          `/api/admin/packages/${item.id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-            body: JSON.stringify({
-              ...item,
-              active:
-                !item.active,
-            }),
-          }
-        );
+      const response = await fetch(`/api/admin/packages/${item.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...item,
+          active: !item.active,
+        }),
+      });
 
-      const result =
-        await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          result.error ||
-            "Gagal mengubah status paket."
-        );
+        throw new Error(result.error || "Gagal mengubah status paket.");
       }
 
-      setMessage(
-        !item.active
-          ? "Paket diaktifkan."
-          : "Paket dinonaktifkan."
-      );
+      setMessage(!item.active ? "Paket diaktifkan." : "Paket dinonaktifkan.");
 
       await loadPackages();
-
     } catch (err) {
       setError(
-        err instanceof Error
-          ? err.message
-          : "Gagal mengubah status paket."
+        err instanceof Error ? err.message : "Gagal mengubah status paket.",
       );
     } finally {
       setTogglingId(null);
@@ -688,11 +546,9 @@ export default function PackagesManager({
 
   return (
     <div className="space-y-6">
-
       {/* HEADER */}
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-amber-300/70">
             WARUNG28 HOTSPOT
@@ -703,9 +559,7 @@ export default function PackagesManager({
           </h1>
 
           <p className="mt-1 text-sm text-white/45">
-            Atur paket internet,
-            harga, kuota dan
-            kecepatan pelanggan.
+            Atur paket internet, harga, kuota dan kecepatan pelanggan.
           </p>
         </div>
 
@@ -736,28 +590,21 @@ export default function PackagesManager({
 
       {loading ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {[1, 2, 3, 4].map(
-            (item) => (
-              <div
-                key={item}
-                className="h-72 animate-pulse rounded-2xl border border-white/6 bg-white/2"
-              />
-            )
-          )}
+          {[1, 2, 3, 4].map((item) => (
+            <div
+              key={item}
+              className="h-72 animate-pulse rounded-2xl border border-white/6 bg-white/2"
+            />
+          ))}
         </div>
       ) : packages.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/10 bg-white/2 p-12 text-center">
-          <div className="text-4xl text-amber-200/50">
-            ◈
-          </div>
+          <div className="text-4xl text-amber-200/50">◈</div>
 
-          <h3 className="mt-4 font-medium text-white">
-            Belum ada paket
-          </h3>
+          <h3 className="mt-4 font-medium text-white">Belum ada paket</h3>
 
           <p className="mt-1 text-sm text-white/40">
-            Tambahkan paket internet
-            pertama WARUNG28.
+            Tambahkan paket internet pertama WARUNG28.
           </p>
         </div>
       ) : (
@@ -766,42 +613,25 @@ export default function PackagesManager({
             key={activePage}
             className="grid animate-[fadeIn_350ms_ease-out] gap-4 md:grid-cols-2 xl:grid-cols-4"
           >
-            {visiblePackages.map(
-              (item) => (
-                <PackageCard
-                  key={item.id}
-                  item={item}
-                  toggling={
-                    togglingId === item.id
-                  }
-                  onEdit={() =>
-                    openEditForm(item)
-                  }
-                  onToggle={() =>
-                    toggleActive(item)
-                  }
-                />
-              )
-            )}
+            {visiblePackages.map((item) => (
+              <PackageCard
+                key={item.id}
+                item={item}
+                toggling={togglingId === item.id}
+                onEdit={() => openEditForm(item)}
+                onToggle={() => toggleActive(item)}
+              />
+            ))}
           </div>
 
           {/* PAGINATION */}
 
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2">
-
               <button
                 type="button"
                 disabled={activePage === 1}
-                onClick={() =>
-                  setCurrentPage(
-                    (page) =>
-                      Math.max(
-                        1,
-                        page - 1
-                      )
-                  )
-                }
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                 className="rounded-lg border border-white/10 px-3 py-2 text-sm text-white/60 transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-30"
               >
                 ←
@@ -811,20 +641,14 @@ export default function PackagesManager({
                 {
                   length: totalPages,
                 },
-                (_, index) =>
-                  index + 1
+                (_, index) => index + 1,
               ).map((page) => (
                 <button
                   key={page}
                   type="button"
-                  onClick={() =>
-                    setCurrentPage(
-                      page
-                    )
-                  }
+                  onClick={() => setCurrentPage(page)}
                   className={`h-9 min-w-9 rounded-lg px-3 text-sm transition ${
-                    activePage ===
-                    page
+                    activePage === page
                       ? "bg-amber-300/15 text-amber-200 ring-1 ring-amber-300/25"
                       : "text-white/50 hover:bg-white/5"
                   }`}
@@ -835,24 +659,14 @@ export default function PackagesManager({
 
               <button
                 type="button"
-                disabled={
-                  activePage ===
-                  totalPages
-                }
+                disabled={activePage === totalPages}
                 onClick={() =>
-                  setCurrentPage(
-                    (page) =>
-                      Math.min(
-                        totalPages,
-                        page + 1
-                      )
-                  )
+                  setCurrentPage((page) => Math.min(totalPages, page + 1))
                 }
                 className="rounded-lg border border-white/10 px-3 py-2 text-sm text-white/60 transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-30"
               >
                 →
               </button>
-
             </div>
           )}
         </>
@@ -862,30 +676,23 @@ export default function PackagesManager({
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-
           <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/10 bg-[#10100f] shadow-2xl">
-
             {/* MODAL HEADER */}
 
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/6 bg-[#10100f]/95 px-6 py-5 backdrop-blur">
-
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-amber-300/60">
                   WARUNG28
                 </p>
 
                 <h2 className="mt-1 text-xl font-semibold text-white">
-                  {editingId
-                    ? "Edit Paket"
-                    : "Tambah Paket"}
+                  {editingId ? "Edit Paket" : "Tambah Paket"}
                 </h2>
               </div>
 
               <button
                 type="button"
-                onClick={() =>
-                  setShowForm(false)
-                }
+                onClick={() => setShowForm(false)}
                 className="rounded-lg px-3 py-2 text-white/50 hover:bg-white/5 hover:text-white"
               >
                 ✕
@@ -894,13 +701,7 @@ export default function PackagesManager({
 
             {/* FORM */}
 
-            <form
-              onSubmit={
-                handleSubmit
-              }
-              className="space-y-5 p-6"
-            >
-
+            <form onSubmit={handleSubmit} className="space-y-5 p-6">
               {/* TYPE */}
 
               <div>
@@ -909,45 +710,30 @@ export default function PackagesManager({
                 </label>
 
                 <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+                  {PACKAGE_TYPES.map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      onClick={() => handleTypeChange(item.value)}
+                      className={`rounded-xl border p-3 text-left transition ${
+                        form.type === item.value
+                          ? "border-amber-300/30 bg-amber-300/10"
+                          : "border-white/8 bg-white/2 hover:bg-white/5"
+                      }`}
+                    >
+                      <div className="text-lg text-amber-200">
+                        {getTypeIcon(item.value)}
+                      </div>
 
-                  {PACKAGE_TYPES.map(
-                    (item) => (
-                      <button
-                        key={
-                          item.value
-                        }
-                        type="button"
-                        onClick={() =>
-                          handleTypeChange(
-                            item.value
-                          )
-                        }
-                        className={`rounded-xl border p-3 text-left transition ${
-                          form.type ===
-                          item.value
-                            ? "border-amber-300/30 bg-amber-300/10"
-                            : "border-white/8 bg-white/2 hover:bg-white/5"
-                        }`}
-                      >
-                        <div className="text-lg text-amber-200">
-                          {getTypeIcon(
-                            item.value
-                          )}
-                        </div>
+                      <div className="mt-1 text-sm font-medium text-white">
+                        {item.label}
+                      </div>
 
-                        <div className="mt-1 text-sm font-medium text-white">
-                          {item.label}
-                        </div>
-
-                        <div className="mt-1 text-[11px] leading-4 text-white/35">
-                          {
-                            item.description
-                          }
-                        </div>
-                      </button>
-                    )
-                  )}
-
+                      <div className="mt-1 text-[11px] leading-4 text-white/35">
+                        {item.description}
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -959,21 +745,12 @@ export default function PackagesManager({
                 </label>
 
                 <input
-                  value={
-                    form.name
-                  }
+                  value={form.name}
                   onChange={(event) =>
-                    setForm(
-                      (
-                        previous
-                      ) => ({
-                        ...previous,
-                        name:
-                          event
-                            .target
-                            .value,
-                      })
-                    )
+                    setForm((previous) => ({
+                      ...previous,
+                      name: event.target.value,
+                    }))
                   }
                   required
                   className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-amber-300/30"
@@ -983,49 +760,32 @@ export default function PackagesManager({
 
               {/* HOURLY */}
 
-              {form.type ===
-                "hourly" && (
+              {form.type === "hourly" && (
                 <div>
                   <label className="mb-2 block text-sm text-white/65">
                     Durasi
                   </label>
 
                   <div className="flex items-center gap-3">
-
                     <input
                       type="number"
                       min={1}
-                      value={
-                        form.hours
-                      }
-                      onChange={(
-                        event
-                      ) =>
-                        handleHoursChange(
-                          Number(
-                            event
-                              .target
-                              .value
-                          )
-                        )
+                      value={form.hours}
+                      onChange={(event) =>
+                        handleHoursChange(Number(event.target.value))
                       }
                       className="w-28 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-amber-300/30"
                     />
 
-                    <span className="text-sm text-white/50">
-                      Jam
-                    </span>
-
+                    <span className="text-sm text-white/50">Jam</span>
                   </div>
                 </div>
               )}
 
               {/* NIGHT */}
 
-              {form.type ===
-                "night" && (
+              {form.type === "night" && (
                 <div className="grid gap-4 sm:grid-cols-2">
-
                   <div>
                     <label className="mb-2 block text-sm text-white/65">
                       Mulai
@@ -1033,23 +793,12 @@ export default function PackagesManager({
 
                     <input
                       type="time"
-                      value={
-                        form.startTime
-                      }
-                      onChange={(
-                        event
-                      ) =>
-                        setForm(
-                          (
-                            previous
-                          ) => ({
-                            ...previous,
-                            startTime:
-                              event
-                                .target
-                                .value,
-                          })
-                        )
+                      value={form.startTime}
+                      onChange={(event) =>
+                        setForm((previous) => ({
+                          ...previous,
+                          startTime: event.target.value,
+                        }))
                       }
                       className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-amber-300/30"
                     />
@@ -1062,88 +811,49 @@ export default function PackagesManager({
 
                     <input
                       type="time"
-                      value={
-                        form.endTime
-                      }
-                      onChange={(
-                        event
-                      ) =>
-                        setForm(
-                          (
-                            previous
-                          ) => ({
-                            ...previous,
-                            endTime:
-                              event
-                                .target
-                                .value,
-                          })
-                        )
+                      value={form.endTime}
+                      onChange={(event) =>
+                        setForm((previous) => ({
+                          ...previous,
+                          endTime: event.target.value,
+                        }))
                       }
                       className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-amber-300/30"
                     />
                   </div>
-
                 </div>
               )}
 
               {/* QUOTA */}
 
-              {form.type ===
-                "quota" && (
+              {form.type === "quota" && (
                 <div>
                   <label className="mb-2 block text-sm text-white/65">
                     Kuota
                   </label>
 
                   <div className="flex gap-3">
-
                     <input
                       type="number"
                       min={1}
-                      value={
-                        form.quota
-                      }
-                      onChange={(
-                        event
-                      ) =>
-                        handleQuotaChange(
-                          Number(
-                            event
-                              .target
-                              .value
-                          )
-                        )
+                      value={form.quota}
+                      onChange={(event) =>
+                        handleQuotaChange(Number(event.target.value))
                       }
                       className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-amber-300/30"
                     />
 
                     <select
-                      value={
-                        form.quotaUnit
-                      }
-                      onChange={(
-                        event
-                      ) =>
-                        handleQuotaUnitChange(
-                          event
-                            .target
-                            .value as
-                            | "MB"
-                            | "GB"
-                        )
+                      value={form.quotaUnit}
+                      onChange={(event) =>
+                        handleQuotaUnitChange(event.target.value as "MB" | "GB")
                       }
                       className="rounded-xl border border-white/10 bg-[#181816] px-4 py-3 text-white outline-none focus:border-amber-300/30"
                     >
-                      <option value="GB">
-                        GB
-                      </option>
+                      <option value="GB">GB</option>
 
-                      <option value="MB">
-                        MB
-                      </option>
+                      <option value="MB">MB</option>
                     </select>
-
                   </div>
                 </div>
               )}
@@ -1151,36 +861,21 @@ export default function PackagesManager({
               {/* SPEED */}
 
               <div className="grid gap-4 sm:grid-cols-2">
-
                 <div>
                   <label className="mb-2 block text-sm text-white/65">
-                    Download
-                    Mbps
+                    Download Mbps
                   </label>
 
                   <input
                     type="number"
                     min={0}
                     step="0.1"
-                    value={
-                      form.speedDown
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      setForm(
-                        (
-                          previous
-                        ) => ({
-                          ...previous,
-                          speedDown:
-                            Number(
-                              event
-                                .target
-                                .value
-                            ),
-                        })
-                      )
+                    value={form.speedDown}
+                    onChange={(event) =>
+                      setForm((previous) => ({
+                        ...previous,
+                        speedDown: Number(event.target.value),
+                      }))
                     }
                     className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-amber-300/30"
                   />
@@ -1195,30 +890,16 @@ export default function PackagesManager({
                     type="number"
                     min={0}
                     step="0.1"
-                    value={
-                      form.speedUp
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      setForm(
-                        (
-                          previous
-                        ) => ({
-                          ...previous,
-                          speedUp:
-                            Number(
-                              event
-                                .target
-                                .value
-                            ),
-                        })
-                      )
+                    value={form.speedUp}
+                    onChange={(event) =>
+                      setForm((previous) => ({
+                        ...previous,
+                        speedUp: Number(event.target.value),
+                      }))
                     }
                     className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-amber-300/30"
                   />
                 </div>
-
               </div>
 
               {/* PRICE */}
@@ -1229,99 +910,59 @@ export default function PackagesManager({
                 </label>
 
                 <div className="flex items-center rounded-xl border border-white/10 bg-white/5">
-
-                  <span className="px-4 text-sm text-white/35">
-                    Rp
-                  </span>
+                  <span className="px-4 text-sm text-white/35">Rp</span>
 
                   <input
                     type="number"
                     min={0}
-                    value={
-                      form.price
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      setForm(
-                        (
-                          previous
-                        ) => ({
-                          ...previous,
-                          price:
-                            Number(
-                              event
-                                .target
-                                .value
-                            ),
-                        })
-                      )
+                    value={form.price}
+                    onChange={(event) =>
+                      setForm((previous) => ({
+                        ...previous,
+                        price: Number(event.target.value),
+                      }))
                     }
                     className="w-full bg-transparent px-2 py-3 text-white outline-none"
                   />
-
                 </div>
 
                 <p className="mt-2 text-xs text-white/30">
-                  {formatRupiah(
-                    Number(
-                      form.price
-                    )
-                  )}
+                  {formatRupiah(Number(form.price))}
                 </p>
               </div>
 
               {/* STATUS */}
 
               <label className="flex cursor-pointer items-center justify-between rounded-xl border border-white/8 bg-white/2 p-4">
-
                 <div>
                   <div className="text-sm font-medium text-white">
                     Paket Aktif
                   </div>
 
                   <div className="mt-1 text-xs text-white/35">
-                    Paket dapat ditampilkan
-                    kepada pelanggan.
+                    Paket dapat ditampilkan kepada pelanggan.
                   </div>
                 </div>
 
                 <input
                   type="checkbox"
-                  checked={
-                    form.active
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    setForm(
-                      (
-                        previous
-                      ) => ({
-                        ...previous,
-                        active:
-                          event
-                            .target
-                            .checked,
-                      })
-                    )
+                  checked={form.active}
+                  onChange={(event) =>
+                    setForm((previous) => ({
+                      ...previous,
+                      active: event.target.checked,
+                    }))
                   }
                   className="h-5 w-5 accent-amber-300"
                 />
-
               </label>
 
               {/* BUTTON */}
 
               <div className="flex gap-3 border-t border-white/6 pt-5">
-
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowForm(
-                      false
-                    )
-                  }
+                  onClick={() => setShowForm(false)}
                   className="flex-1 rounded-xl border border-white/10 px-4 py-3 text-sm text-white/60 transition hover:bg-white/5"
                 >
                   Batal
@@ -1338,16 +979,11 @@ export default function PackagesManager({
                       ? "Simpan Perubahan"
                       : "Tambah Paket"}
                 </button>
-
               </div>
-
             </form>
-
           </div>
-
         </div>
       )}
-
     </div>
   );
 }
@@ -1377,7 +1013,6 @@ function PackageCard({
           : "border-white/5 bg-white/[0.015] opacity-60"
       }`}
     >
-
       {/* GOLD LINE */}
 
       <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/40 to-transparent opacity-0 transition group-hover:opacity-100" />
@@ -1385,11 +1020,8 @@ function PackageCard({
       {/* HEADER */}
 
       <div className="flex items-start justify-between">
-
         <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-amber-300/15 bg-amber-300/5 text-xl text-amber-200">
-          {getTypeIcon(
-            item.type
-          )}
+          {getTypeIcon(item.type)}
         </div>
 
         <span
@@ -1399,109 +1031,72 @@ function PackageCard({
               : "bg-white/5 text-white/35"
           }`}
         >
-          {item.active
-            ? "AKTIF"
-            : "NONAKTIF"}
+          {item.active ? "AKTIF" : "NONAKTIF"}
         </span>
-
       </div>
 
       {/* NAME */}
 
       <div className="mt-5">
-
         <p className="text-xs uppercase tracking-[0.16em] text-white/30">
-          {getTypeLabel(
-            item.type
-          )}
+          {getTypeLabel(item.type)}
         </p>
 
         <h3 className="mt-1 truncate text-lg font-semibold text-white">
           {item.name}
         </h3>
-
       </div>
 
       {/* PRICE */}
 
       <div className="mt-5">
-
         <p className="text-2xl font-semibold tracking-tight text-amber-200">
-          {formatRupiah(
-            item.price
-          )}
+          {formatRupiah(item.price)}
         </p>
-
       </div>
 
       {/* DETAILS */}
 
       <div className="mt-5 space-y-2 border-t border-white/6 pt-4">
-
-        {item.type ===
-          "hourly" && (
+        {item.type === "hourly" && (
           <InfoRow
             label="Durasi"
-            value={formatDuration(
-              item.duration_minutes
-            )}
+            value={formatDuration(item.duration_minutes)}
           />
         )}
 
-        {item.type ===
-          "night" && (
+        {item.type === "night" && (
           <InfoRow
             label="Jam"
             value={`${item.start_time?.slice(0, 5) ?? "-"} — ${item.end_time?.slice(0, 5) ?? "-"}`}
           />
         )}
 
-        {(item.type ===
-          "daily" ||
-          item.type ===
-            "weekly" ||
-          item.type ===
-            "monthly") && (
+        {(item.type === "daily" ||
+          item.type === "weekly" ||
+          item.type === "monthly") && (
           <InfoRow
             label="Masa Aktif"
-            value={formatDuration(
-              item.duration_minutes
-            )}
+            value={formatDuration(item.duration_minutes)}
           />
         )}
 
-        {item.type ===
-          "quota" && (
-          <InfoRow
-            label="Kuota"
-            value={formatQuota(
-              item.quota_mb
-            )}
-          />
+        {item.type === "quota" && (
+          <InfoRow label="Kuota" value={formatQuota(item.quota_mb)} />
         )}
 
-        {item.speed_down_mbps !==
-          null && (
-          <InfoRow
-            label="Download"
-            value={`${item.speed_down_mbps} Mbps`}
-          />
+        {item.speed_down_mbps !== null && (
+          <InfoRow label="Download" value={`${item.speed_down_mbps} Mbps`} />
         )}
 
-        {item.speed_up_mbps !==
-          null && (
-          <InfoRow
-            label="Upload"
-            value={`${item.speed_up_mbps} Mbps`}
-          />
+        {item.speed_up_mbps !== null && (
+          <InfoRow label="Upload" value={`${item.speed_up_mbps} Mbps`} />
         )}
-
       </div>
 
       {/* ACTIONS */}
 
       <div className="mt-5 grid grid-cols-2 gap-2">
-
         <button
           type="button"
           onClick={onEdit}
@@ -1521,37 +1116,19 @@ function PackageCard({
               : "border-emerald-400/15 text-emerald-300/70 hover:bg-emerald-400/10"
           }`}
         >
-          {toggling
-            ? "Memproses..."
-            : item.active
-              ? "Nonaktifkan"
-              : "Aktifkan"}
+          {toggling ? "Memproses..." : item.active ? "Nonaktifkan" : "Aktifkan"}
         </button>
-
       </div>
-
     </div>
   );
 }
 
-function InfoRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-3 text-xs">
+      <span className="text-white/35">{label}</span>
 
-      <span className="text-white/35">
-        {label}
-      </span>
-
-      <span className="font-medium text-white/65">
-        {value}
-      </span>
-
+      <span className="font-medium text-white/65">{value}</span>
     </div>
   );
 }

@@ -8,8 +8,7 @@ export function proxy(request: NextRequest) {
     .getAll()
     .some(
       (cookie) =>
-        cookie.name.startsWith("sb-") &&
-        cookie.name.endsWith("-auth-token")
+        cookie.name.startsWith("sb-") && cookie.name.endsWith("-auth-token"),
     );
 
   if (hasSessionCookie) {
@@ -21,7 +20,7 @@ export function proxy(request: NextRequest) {
       {
         error: "Autentikasi diperlukan.",
       },
-      { status: 401 }
+      { status: 401 },
     );
   }
 

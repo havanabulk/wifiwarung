@@ -10,9 +10,7 @@ export default function SupportForm() {
     message: "",
   });
 
-  async function handleSubmit(
-    e: React.FormEvent
-  ) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     setLoading(true);
@@ -50,9 +48,7 @@ export default function SupportForm() {
         type="text"
         placeholder="Nama"
         value={form.name}
-        onChange={(e) =>
-          setForm({ ...form, name: e.target.value })
-        }
+        onChange={(e) => setForm({ ...form, name: e.target.value })}
         className="w-full rounded-xl border border-white/10 bg-[#111] p-4 text-white"
       />
 
@@ -60,9 +56,7 @@ export default function SupportForm() {
         type="text"
         placeholder="Nomor WhatsApp"
         value={form.phone}
-        onChange={(e) =>
-          setForm({ ...form, phone: e.target.value })
-        }
+        onChange={(e) => setForm({ ...form, phone: e.target.value })}
         className="w-full rounded-xl border border-white/10 bg-[#111] p-4 text-white"
       />
 
@@ -70,9 +64,7 @@ export default function SupportForm() {
         rows={5}
         placeholder="Tulis pesan..."
         value={form.message}
-        onChange={(e) =>
-          setForm({ ...form, message: e.target.value })
-        }
+        onChange={(e) => setForm({ ...form, message: e.target.value })}
         className="w-full rounded-xl border border-white/10 bg-[#111] p-4 text-white"
       />
 

@@ -33,12 +33,8 @@ export default function StatCard({
       "
     >
       <div className="flex items-start justify-between">
-
         <div>
-
-          <p className="text-xs text-white/40">
-            {label}
-          </p>
+          <p className="text-xs text-white/40">{label}</p>
 
           <p
             className="
@@ -51,7 +47,6 @@ export default function StatCard({
           >
             {value}
           </p>
-
         </div>
 
         <div
@@ -69,12 +64,9 @@ export default function StatCard({
         >
           {icon}
         </div>
-
       </div>
 
-      <p className="mt-4 text-[11px] text-white/30">
-        {description}
-      </p>
+      <p className="mt-4 text-[11px] text-white/30">{description}</p>
     </div>
   );
 }

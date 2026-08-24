@@ -6,16 +6,14 @@ import StatCard from "@/components/admin/StatCard";
 const JAKARTA_OFFSET_MS = 7 * 60 * 60 * 1000;
 
 function startOfJakartaDayISO(): string {
-  const shifted = new Date(
-    Date.now() + JAKARTA_OFFSET_MS
-  );
+  const shifted = new Date(Date.now() + JAKARTA_OFFSET_MS);
 
   return new Date(
     Date.UTC(
       shifted.getUTCFullYear(),
       shifted.getUTCMonth(),
-      shifted.getUTCDate()
-    ) - JAKARTA_OFFSET_MS
+      shifted.getUTCDate(),
+    ) - JAKARTA_OFFSET_MS,
   ).toISOString();
 }
 
@@ -47,10 +45,12 @@ type RecentTransaction = {
   amount: number | string;
   note: string | null;
   created_at: string;
-  profiles?: {
-    username: string | null;
-    full_name: string | null;
-  }[] | null;
+  profiles?:
+    | {
+        username: string | null;
+        full_name: string | null;
+      }[]
+    | null;
 };
 
 export default async function AdminPage() {
@@ -64,54 +64,46 @@ export default async function AdminPage() {
     redirect("/login");
   }
 
-  const { data: profile } =
-    await supabase
-      .from("profiles")
-      .select(
-        "username, full_name, role, status"
-      )
-      .eq("id", user.id)
-      .single();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username, full_name, role, status")
+    .eq("id", user.id)
+    .single();
 
   if (!profile || profile.role !== "admin") {
     redirect("/dashboard");
   }
 
-  const startOfDayISO =
-    startOfJakartaDayISO();
+  const startOfDayISO = startOfJakartaDayISO();
 
-  const [
-    customersCount,
-    transactionsToday,
-    depositsToday,
-    recentTransactions,
-  ] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("id", {
-        count: "exact",
-        head: true,
-      })
-      .neq("role", "admin"),
+  const [customersCount, transactionsToday, depositsToday, recentTransactions] =
+    await Promise.all([
+      supabase
+        .from("profiles")
+        .select("id", {
+          count: "exact",
+          head: true,
+        })
+        .neq("role", "admin"),
 
-    supabase
-      .from("wallet_transactions")
-      .select("id", {
-        count: "exact",
-        head: true,
-      })
-      .gte("created_at", startOfDayISO),
+      supabase
+        .from("wallet_transactions")
+        .select("id", {
+          count: "exact",
+          head: true,
+        })
+        .gte("created_at", startOfDayISO),
 
-    supabase
-      .from("wallet_transactions")
-      .select("amount")
-      .eq("type", "deposit")
-      .gte("created_at", startOfDayISO),
+      supabase
+        .from("wallet_transactions")
+        .select("amount")
+        .eq("type", "deposit")
+        .gte("created_at", startOfDayISO),
 
-    supabase
-      .from("wallet_transactions")
-      .select(
-        `
+      supabase
+        .from("wallet_transactions")
+        .select(
+          `
         id,
         type,
         amount,
@@ -121,35 +113,27 @@ export default async function AdminPage() {
           username,
           full_name
         )
-      `
-      )
-      .order("created_at", {
-        ascending: false,
-      })
-      .limit(5),
-  ]);
+      `,
+        )
+        .order("created_at", {
+          ascending: false,
+        })
+        .limit(5),
+    ]);
 
-  const totalCustomers =
-    customersCount.count ?? 0;
+  const totalCustomers = customersCount.count ?? 0;
 
-  const transactionsTodayCount =
-    transactionsToday.count ?? 0;
+  const transactionsTodayCount = transactionsToday.count ?? 0;
 
-  const revenueToday = (
-    depositsToday.data ?? []
-  ).reduce(
-    (total, row) =>
-      total + Number(row.amount ?? 0),
-    0
+  const revenueToday = (depositsToday.data ?? []).reduce(
+    (total, row) => total + Number(row.amount ?? 0),
+    0,
   );
 
-  const recent =
-    (recentTransactions.data ??
-      []) as RecentTransaction[];
+  const recent = (recentTransactions.data ?? []) as RecentTransaction[];
 
   return (
     <div className="min-h-screen">
-
       {/* Header */}
 
       <header
@@ -163,9 +147,7 @@ export default async function AdminPage() {
           lg:px-10
         "
       >
-
         <div className="mx-auto max-w-7xl">
-
           <div
             className="
               flex
@@ -176,9 +158,7 @@ export default async function AdminPage() {
               sm:items-center
             "
           >
-
             <div>
-
               <div
                 className="
                   text-[10px]
@@ -203,10 +183,8 @@ export default async function AdminPage() {
               </h1>
 
               <p className="mt-2 text-sm text-white/40">
-                Pantau aktivitas WARUNG28
-                HOTSPOT.
+                Pantau aktivitas WARUNG28 HOTSPOT.
               </p>
-
             </div>
 
             <div
@@ -219,34 +197,22 @@ export default async function AdminPage() {
                 py-3
               "
             >
-
               <p className="text-xs font-semibold">
-                {new Intl.DateTimeFormat(
-                  "id-ID",
-                  {
-                    dateStyle: "full",
-                    timeZone: "Asia/Jakarta",
-                  }
-                ).format(new Date())}
+                {new Intl.DateTimeFormat("id-ID", {
+                  dateStyle: "full",
+                  timeZone: "Asia/Jakarta",
+                }).format(new Date())}
               </p>
 
-              <p className="text-[10px] text-white/30">
-                Waktu Indonesia Barat
-              </p>
-
+              <p className="text-[10px] text-white/30">Waktu Indonesia Barat</p>
             </div>
-
           </div>
-
         </div>
-
       </header>
-
 
       {/* Content */}
 
       <div className="mx-auto max-w-7xl px-5 py-7 sm:px-8 lg:px-10">
-
         {/* Stats */}
 
         <div
@@ -257,7 +223,6 @@ export default async function AdminPage() {
             xl:grid-cols-4
           "
         >
-
           <StatCard
             label="Total Pelanggan"
             value={String(totalCustomers)}
@@ -288,9 +253,7 @@ export default async function AdminPage() {
             icon="Rp"
             accent="gold"
           />
-
         </div>
-
 
         {/* Main Grid */}
 
@@ -302,7 +265,6 @@ export default async function AdminPage() {
             xl:grid-cols-[1.5fr_1fr]
           "
         >
-
           {/* Recent Transactions */}
 
           <section
@@ -314,7 +276,6 @@ export default async function AdminPage() {
               bg-[#11110f]
             "
           >
-
             <div
               className="
                 flex
@@ -326,17 +287,12 @@ export default async function AdminPage() {
                 py-5
               "
             >
-
               <div>
-
-                <h2 className="font-bold">
-                  Transaksi Terbaru
-                </h2>
+                <h2 className="font-bold">Transaksi Terbaru</h2>
 
                 <p className="mt-1 text-xs text-white/30">
                   Aktivitas deposit pelanggan
                 </p>
-
               </div>
 
               <Link
@@ -349,14 +305,10 @@ export default async function AdminPage() {
               >
                 Lihat Semua →
               </Link>
-
             </div>
 
-
             <div className="p-5">
-
               {recent.length === 0 ? (
-
                 <div
                   className="
                     flex
@@ -367,24 +319,17 @@ export default async function AdminPage() {
                     bg-white/2
                   "
                 >
-                  <p className="text-xs text-white/30">
-                    Belum ada transaksi.
-                  </p>
+                  <p className="text-xs text-white/30">Belum ada transaksi.</p>
                 </div>
-
               ) : (
-
                 <ul className="divide-y divide-white/5">
-
                   {recent.map((tx) => {
-
                     const customerName =
                       tx.profiles?.[0]?.full_name ||
                       tx.profiles?.[0]?.username ||
                       "Tanpa nama";
 
                     return (
-
                       <li
                         key={tx.id}
                         className="
@@ -420,12 +365,8 @@ export default async function AdminPage() {
                               text-white/30
                             "
                           >
-                            {tx.note ||
-                              "Deposit"}{" "}
-                            •{" "}
-                            {formatDateTime(
-                              tx.created_at
-                            )}
+                            {tx.note || "Deposit"} •{" "}
+                            {formatDateTime(tx.created_at)}
                           </p>
                         </div>
 
@@ -437,26 +378,15 @@ export default async function AdminPage() {
                             text-emerald-300
                           "
                         >
-                          +
-                          {formatRupiah(
-                            Number(tx.amount)
-                          )}
+                          +{formatRupiah(Number(tx.amount))}
                         </span>
-
                       </li>
-
                     );
-
                   })}
-
                 </ul>
-
               )}
-
             </div>
-
           </section>
-
 
           {/* Router */}
 
@@ -469,53 +399,26 @@ export default async function AdminPage() {
               p-5
             "
           >
-
             <div className="flex items-center justify-between">
-
               <div>
+                <h2 className="font-bold">Router MikroTik</h2>
 
-                <h2 className="font-bold">
-                  Router MikroTik
-                </h2>
-
-                <p className="mt-1 text-xs text-white/30">
-                  Status perangkat
-                </p>
-
+                <p className="mt-1 text-xs text-white/30">Status perangkat</p>
               </div>
 
               <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
-
             </div>
 
-
             <div className="mt-6 space-y-4">
+              <StatusRow label="Connection" value="Belum terhubung" />
 
-              <StatusRow
-                label="Connection"
-                value="Belum terhubung"
-              />
+              <StatusRow label="Active Users" value="-" />
 
-              <StatusRow
-                label="Active Users"
-                value="-"
-              />
+              <StatusRow label="CPU Load" value="-" />
 
-              <StatusRow
-                label="CPU Load"
-                value="-"
-              />
+              <StatusRow label="Memory" value="-" />
 
-              <StatusRow
-                label="Memory"
-                value="-"
-              />
-
-              <StatusRow
-                label="Uptime"
-                value="-"
-              />
-
+              <StatusRow label="Uptime" value="-" />
             </div>
 
             <p
@@ -532,22 +435,16 @@ export default async function AdminPage() {
                 text-white/30
               "
             >
-              Integrasi MikroTik direncanakan pada
-              milestone M2 (lihat docs/PRD.md).
+              Integrasi MikroTik direncanakan pada milestone M2 (lihat
+              docs/PRD.md).
             </p>
-
           </section>
-
         </div>
-
 
         {/* Quick Actions */}
 
         <section className="mt-6">
-
-          <h2 className="text-sm font-bold">
-            Quick Actions
-          </h2>
+          <h2 className="text-sm font-bold">Quick Actions</h2>
 
           <div
             className="
@@ -558,7 +455,6 @@ export default async function AdminPage() {
               lg:grid-cols-4
             "
           >
-
             <QuickAction
               title="Tambah Paket"
               description="Buat paket internet"
@@ -586,40 +482,22 @@ export default async function AdminPage() {
               href="/admin/support"
               icon="◌"
             />
-
           </div>
-
         </section>
-
       </div>
-
     </div>
   );
 }
 
-
-function StatusRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function StatusRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between border-b border-white/6 pb-3">
+      <span className="text-xs text-white/40">{label}</span>
 
-      <span className="text-xs text-white/40">
-        {label}
-      </span>
-
-      <span className="text-xs font-semibold text-[#f2f0ea]">
-        {value}
-      </span>
-
+      <span className="text-xs font-semibold text-[#f2f0ea]">{value}</span>
     </div>
   );
 }
-
 
 function QuickAction({
   title,
@@ -647,9 +525,7 @@ function QuickAction({
         hover:bg-[#151511]
       "
     >
-
       <div className="flex items-center gap-3">
-
         <div
           className="
             flex
@@ -669,19 +545,11 @@ function QuickAction({
         </div>
 
         <div>
+          <p className="text-xs font-bold">{title}</p>
 
-          <p className="text-xs font-bold">
-            {title}
-          </p>
-
-          <p className="mt-1 text-[10px] text-white/30">
-            {description}
-          </p>
-
+          <p className="mt-1 text-[10px] text-white/30">{description}</p>
         </div>
-
       </div>
-
     </Link>
   );
 }

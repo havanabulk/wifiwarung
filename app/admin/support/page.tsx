@@ -11,23 +11,14 @@ type SearchParams = {
   }>;
 };
 
-export default async function AdminSupportPage({
-  searchParams,
-}: SearchParams) {
-  const { supabase } =
-    await requireAdminPage();
+export default async function AdminSupportPage({ searchParams }: SearchParams) {
+  const { supabase } = await requireAdminPage();
 
-  const resolvedSearchParams =
-    await searchParams;
+  const resolvedSearchParams = await searchParams;
 
-  const rawPage = Number(
-    resolvedSearchParams.page
-  );
+  const rawPage = Number(resolvedSearchParams.page);
 
-  const page =
-    Number.isInteger(rawPage) && rawPage > 0
-      ? rawPage
-      : 1;
+  const page = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
 
   const rangeFrom = (page - 1) * PAGE_SIZE;
   const rangeTo = rangeFrom + PAGE_SIZE - 1;
@@ -43,10 +34,7 @@ export default async function AdminSupportPage({
     .range(rangeFrom, rangeTo);
 
   if (error) {
-    console.error(
-      "SUPPORT PAGE ERROR:",
-      error
-    );
+    console.error("SUPPORT PAGE ERROR:", error);
 
     return (
       <div className="p-8">
@@ -67,15 +55,11 @@ export default async function AdminSupportPage({
 
   const total = count ?? 0;
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(total / PAGE_SIZE)
-  );
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="min-h-screen bg-[#080808] p-8 text-white">
       <div className="mx-auto max-w-7xl">
-
         <div className="mb-8 flex items-center justify-between">
           <div>
             <p className="text-xs tracking-[0.2em] text-[#b89b5e]">
@@ -94,12 +78,9 @@ export default async function AdminSupportPage({
 
         <div className="overflow-hidden rounded-3xl border border-white/10 bg-[#11110f]">
           <div className="overflow-x-auto">
-
             <table className="w-full">
-
               <thead>
                 <tr className="border-b border-white/10 bg-black/20">
-
                   <th className="p-4 text-left text-xs uppercase tracking-wider text-[#b89b5e]">
                     Nama
                   </th>
@@ -119,18 +100,13 @@ export default async function AdminSupportPage({
                   <th className="p-4 text-left text-xs uppercase tracking-wider text-[#b89b5e]">
                     Tanggal
                   </th>
-
                 </tr>
               </thead>
 
               <tbody>
-
                 {data?.length === 0 && (
                   <tr>
-                    <td
-                      colSpan={5}
-                      className="p-8 text-center text-gray-400"
-                    >
+                    <td colSpan={5} className="p-8 text-center text-gray-400">
                       Belum ada tiket support.
                     </td>
                   </tr>
@@ -141,13 +117,9 @@ export default async function AdminSupportPage({
                     key={item.id}
                     className="border-b border-white/5 hover:bg-white/[0.02]"
                   >
-                    <td className="p-4 font-medium">
-                      {item.name}
-                    </td>
+                    <td className="p-4 font-medium">{item.name}</td>
 
-                    <td className="p-4 text-gray-300">
-                      {item.phone ?? "-"}
-                    </td>
+                    <td className="p-4 text-gray-300">{item.phone ?? "-"}</td>
 
                     <td className="max-w-md p-4 text-gray-300">
                       {item.message}
@@ -160,17 +132,12 @@ export default async function AdminSupportPage({
                     </td>
 
                     <td className="p-4 text-sm text-gray-400">
-                      {new Date(
-                        item.created_at
-                      ).toLocaleString("id-ID")}
+                      {new Date(item.created_at).toLocaleString("id-ID")}
                     </td>
                   </tr>
                 ))}
-
               </tbody>
-
             </table>
-
           </div>
 
           {/* PAGINATION */}
@@ -178,8 +145,7 @@ export default async function AdminSupportPage({
           {totalPages > 1 && (
             <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 px-5 py-4 sm:flex-row">
               <p className="text-xs text-white/40">
-                Menampilkan {rangeFrom + 1}–
-                {Math.min(rangeTo + 1, total)} dari{" "}
+                Menampilkan {rangeFrom + 1}–{Math.min(rangeTo + 1, total)} dari{" "}
                 {total} tiket
               </p>
 
@@ -198,8 +164,7 @@ export default async function AdminSupportPage({
                 )}
 
                 <span className="px-2 text-xs text-white/50">
-                  Halaman {page} dari{" "}
-                  {totalPages}
+                  Halaman {page} dari {totalPages}
                 </span>
 
                 {page < totalPages ? (
@@ -217,9 +182,7 @@ export default async function AdminSupportPage({
               </div>
             </div>
           )}
-
         </div>
-
       </div>
     </div>
   );

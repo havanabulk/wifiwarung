@@ -6,8 +6,7 @@ export type UserContext = {
 };
 
 export type RequireUserResult =
-  | { ok: true; context: UserContext }
-  | { ok: false; response: NextResponse };
+  { ok: true; context: UserContext } | { ok: false; response: NextResponse };
 
 export async function requireUser(): Promise<RequireUserResult> {
   const supabase = await createClient();
@@ -19,7 +18,7 @@ export async function requireUser(): Promise<RequireUserResult> {
       ok: false,
       response: NextResponse.json(
         { error: "Autentikasi diperlukan." },
-        { status: 401 }
+        { status: 401 },
       ),
     };
   }
@@ -35,7 +34,7 @@ export async function requireUser(): Promise<RequireUserResult> {
       ok: false,
       response: NextResponse.json(
         { error: "Akun tidak aktif." },
-        { status: 403 }
+        { status: 403 },
       ),
     };
   }

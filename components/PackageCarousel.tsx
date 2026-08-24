@@ -18,9 +18,7 @@ type Props = {
   packages?: CatalogPackage[];
 };
 
-export default function PackageCarousel({
-  packages = [],
-}: Props) {
+export default function PackageCarousel({ packages = [] }: Props) {
   const [page, setPage] = useState(0);
   const [mobile, setMobile] = useState(false);
 
@@ -41,53 +39,35 @@ export default function PackageCarousel({
     };
   }, []);
 
-  const itemsPerPage = mobile
-    ? itemsPerPageMobile
-    : itemsPerPageDesktop;
+  const itemsPerPage = mobile ? itemsPerPageMobile : itemsPerPageDesktop;
 
-  const totalPages = Math.ceil(
-    packages.length / itemsPerPage
-  );
+  const totalPages = Math.ceil(packages.length / itemsPerPage);
 
   const visiblePackages = packages.slice(
     page * itemsPerPage,
-    page * itemsPerPage + itemsPerPage
+    page * itemsPerPage + itemsPerPage,
   );
 
   function nextPage() {
-    setPage((current) =>
-      current >= totalPages - 1 ? 0 : current + 1
-    );
+    setPage((current) => (current >= totalPages - 1 ? 0 : current + 1));
   }
 
   function previousPage() {
-    setPage((current) =>
-      current <= 0 ? totalPages - 1 : current - 1
-    );
+    setPage((current) => (current <= 0 ? totalPages - 1 : current - 1));
   }
 
-  function swipeStart(
-    event: React.TouchEvent<HTMLDivElement>
-  ) {
-    touchStart.current =
-      event.changedTouches[0].screenX;
+  function swipeStart(event: React.TouchEvent<HTMLDivElement>) {
+    touchStart.current = event.changedTouches[0].screenX;
   }
 
-  function swipeEnd(
-    event: React.TouchEvent<HTMLDivElement>
-  ) {
-    touchEnd.current =
-      event.changedTouches[0].screenX;
+  function swipeEnd(event: React.TouchEvent<HTMLDivElement>) {
+    touchEnd.current = event.changedTouches[0].screenX;
 
-    if (
-      touchStart.current === null ||
-      touchEnd.current === null
-    ) {
+    if (touchStart.current === null || touchEnd.current === null) {
       return;
     }
 
-    const distance =
-      touchStart.current - touchEnd.current;
+    const distance = touchStart.current - touchEnd.current;
 
     if (Math.abs(distance) < 50) {
       return;
@@ -117,17 +97,14 @@ export default function PackageCarousel({
             text-center
           "
         >
-          <div className="text-3xl text-[#b89b5e]/50">
-            📶
-          </div>
+          <div className="text-3xl text-[#b89b5e]/50">📶</div>
 
           <h3 className="mt-4 font-bold text-[#f2f0ea]">
             Daftar paket segera hadir
           </h3>
 
           <p className="mt-1 text-sm text-[#a7a39a]">
-            Silakan hubungi admin WARUNG28 untuk info paket
-            terbaru.
+            Silakan hubungi admin WARUNG28 untuk info paket terbaru.
           </p>
         </div>
       </div>
@@ -136,7 +113,6 @@ export default function PackageCarousel({
 
   return (
     <div className="w-full">
-
       {/* CARDS */}
 
       <div
@@ -173,7 +149,6 @@ export default function PackageCarousel({
                 hover:border-[#b89b5e]/45
               "
             >
-
               {/* decorative glow */}
 
               <div
@@ -192,7 +167,6 @@ export default function PackageCarousel({
               {/* category */}
 
               <div className="relative flex items-center justify-between">
-
                 <div
                   className="
                     flex
@@ -224,7 +198,6 @@ export default function PackageCarousel({
                 >
                   {item.category}
                 </span>
-
               </div>
 
               {/* name */}
@@ -276,9 +249,7 @@ export default function PackageCarousel({
 
               <button
                 onClick={() => {
-                  alert(
-                    `Anda memilih Paket ${item.name}`
-                  );
+                  alert(`Anda memilih Paket ${item.name}`);
                 }}
                 className="
                   relative
@@ -302,7 +273,6 @@ export default function PackageCarousel({
               >
                 Pilih Paket
               </button>
-
             </article>
           ))}
         </div>
@@ -319,7 +289,6 @@ export default function PackageCarousel({
           gap-4
         "
       >
-
         <button
           onClick={previousPage}
           aria-label="Paket sebelumnya"
@@ -343,7 +312,6 @@ export default function PackageCarousel({
         </button>
 
         <div className="flex items-center gap-2">
-
           {Array.from({
             length: totalPages,
           }).map((_, index) => (
@@ -356,15 +324,10 @@ export default function PackageCarousel({
                 rounded-full
                 transition-all
                 duration-300
-                ${
-                  page === index
-                    ? "w-7 bg-[#b89b5e]"
-                    : "w-2 bg-white/20"
-                }
+                ${page === index ? "w-7 bg-[#b89b5e]" : "w-2 bg-white/20"}
               `}
             />
           ))}
-
         </div>
 
         <button
@@ -388,9 +351,7 @@ export default function PackageCarousel({
         >
           →
         </button>
-
       </div>
-
     </div>
   );
 }

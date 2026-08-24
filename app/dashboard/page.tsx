@@ -45,10 +45,7 @@ function getTransactionLabel(type: string) {
     return "Deposit";
   }
 
-  return (
-    normalized.charAt(0).toUpperCase() +
-    normalized.slice(1)
-  );
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
 }
 
 type SearchParams = {
@@ -57,9 +54,7 @@ type SearchParams = {
   }>;
 };
 
-export default async function DashboardPage({
-  searchParams,
-}: SearchParams) {
+export default async function DashboardPage({ searchParams }: SearchParams) {
   const supabase = await createClient();
 
   const {
@@ -70,25 +65,21 @@ export default async function DashboardPage({
     redirect("/login");
   }
 
-  const { data: profile } =
-    await supabase
-      .from("profiles")
-      .select(
-        "username, full_name, role, status"
-      )
-      .eq("id", user.id)
-      .single();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username, full_name, role, status")
+    .eq("id", user.id)
+    .single();
 
   if (!profile) {
     redirect("/login");
   }
 
-  const { data: wallet } =
-    await supabase
-      .from("wallets")
-      .select("balance")
-      .eq("user_id", user.id)
-      .maybeSingle();
+  const { data: wallet } = await supabase
+    .from("wallets")
+    .select("balance")
+    .eq("user_id", user.id)
+    .maybeSingle();
 
   if (profile.status !== "active") {
     return (
@@ -99,8 +90,8 @@ export default async function DashboardPage({
           </h1>
 
           <p className="mt-3 text-sm text-[#a7a39a]">
-            Akun Anda sedang dinonaktifkan. Silakan hubungi admin WARUNG28
-            untuk mengaktifkan kembali akun Anda.
+            Akun Anda sedang dinonaktifkan. Silakan hubungi admin WARUNG28 untuk
+            mengaktifkan kembali akun Anda.
           </p>
 
           <LogoutButton
@@ -126,64 +117,49 @@ export default async function DashboardPage({
     );
   }
 
-  const resolvedSearchParams =
-    await searchParams;
+  const resolvedSearchParams = await searchParams;
 
-  const rawPage = Number(
-    resolvedSearchParams.page
-  );
+  const rawPage = Number(resolvedSearchParams.page);
 
-  const page =
-    Number.isInteger(rawPage) && rawPage > 0
-      ? rawPage
-      : 1;
+  const page = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
 
-  const rangeFrom =
-    (page - 1) * TRANSACTIONS_PAGE_SIZE;
+  const rangeFrom = (page - 1) * TRANSACTIONS_PAGE_SIZE;
 
-  const rangeTo =
-    rangeFrom + TRANSACTIONS_PAGE_SIZE - 1;
+  const rangeTo = rangeFrom + TRANSACTIONS_PAGE_SIZE - 1;
 
-  const { data: transactions, count } =
-    await supabase
-      .from("wallet_transactions")
-      .select(
-        `
+  const { data: transactions, count } = await supabase
+    .from("wallet_transactions")
+    .select(
+      `
         id,
         type,
         amount,
         note,
         created_at
       `,
-        {
-          count: "exact",
-        }
-      )
-      .eq("user_id", user.id)
-      .order("created_at", {
-        ascending: false,
-      })
-      .range(rangeFrom, rangeTo);
+      {
+        count: "exact",
+      },
+    )
+    .eq("user_id", user.id)
+    .order("created_at", {
+      ascending: false,
+    })
+    .range(rangeFrom, rangeTo);
 
   const totalTransactions = count ?? 0;
 
-  const transactionRows =
-    (transactions ??
-      []) as TransactionRow[];
+  const transactionRows = (transactions ?? []) as TransactionRow[];
 
   const totalPages = Math.max(
     1,
-    Math.ceil(
-      totalTransactions /
-        TRANSACTIONS_PAGE_SIZE
-    )
+    Math.ceil(totalTransactions / TRANSACTIONS_PAGE_SIZE),
   );
 
-  const { data: packageRows } =
-    await supabase
-      .from("packages")
-      .select(
-        `
+  const { data: packageRows } = await supabase
+    .from("packages")
+    .select(
+      `
         id,
         name,
         price,
@@ -193,34 +169,31 @@ export default async function DashboardPage({
         speed_up_mbps,
         start_time,
         end_time
-      `
-      )
-      .eq("active", true)
-      .order("price", {
-        ascending: true,
-      });
+      `,
+    )
+    .eq("active", true)
+    .order("price", {
+      ascending: true,
+    });
 
-  const activePackages: PurchasePackageItem[] =
-    (packageRows ?? []).map((row) => ({
+  const activePackages: PurchasePackageItem[] = (packageRows ?? []).map(
+    (row) => ({
       id: row.id,
       name: row.name,
       price: Number(row.price),
-      durationMinutes:
-        row.duration_minutes ?? null,
+      durationMinutes: row.duration_minutes ?? null,
       quotaMb: row.quota_mb ?? null,
-      speedDownMbps:
-        row.speed_down_mbps ?? null,
-      speedUpMbps:
-        row.speed_up_mbps ?? null,
+      speedDownMbps: row.speed_down_mbps ?? null,
+      speedUpMbps: row.speed_up_mbps ?? null,
       startTime: row.start_time ?? null,
       endTime: row.end_time ?? null,
-    }));
+    }),
+  );
 
-  const { data: activeOrderRow } =
-    await supabase
-      .from("package_orders")
-      .select(
-        `
+  const { data: activeOrderRow } = await supabase
+    .from("package_orders")
+    .select(
+      `
         id,
         status,
         start_at,
@@ -228,15 +201,15 @@ export default async function DashboardPage({
         packages (
           name
         )
-      `
-      )
-      .eq("user_id", user.id)
-      .eq("status", "active")
-      .order("start_at", {
-        ascending: false,
-      })
-      .limit(1)
-      .maybeSingle();
+      `,
+    )
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .order("start_at", {
+      ascending: false,
+    })
+    .limit(1)
+    .maybeSingle();
 
   type ActiveOrderView = {
     packageName: string;
@@ -244,35 +217,26 @@ export default async function DashboardPage({
     endAt: string | null;
   };
 
-  let activeOrder: ActiveOrderView | null =
-    null;
+  let activeOrder: ActiveOrderView | null = null;
 
   if (activeOrderRow) {
-
     const notYetEnded =
-      !activeOrderRow.end_at ||
-      new Date(activeOrderRow.end_at) >
-        new Date();
+      !activeOrderRow.end_at || new Date(activeOrderRow.end_at) > new Date();
 
     if (notYetEnded) {
       activeOrder = {
         packageName:
-          (activeOrderRow.packages as
-            | { name?: string }[]
-            | undefined)?.[0]?.name ??
-          "Paket",
+          (activeOrderRow.packages as { name?: string }[] | undefined)?.[0]
+            ?.name ?? "Paket",
         startAt: activeOrderRow.start_at,
         endAt: activeOrderRow.end_at,
       };
     }
-
   }
 
   return (
     <main className="min-h-screen bg-[#080808] px-4 py-8">
-
       <div className="mx-auto max-w-5xl">
-
         <header
           className="
             flex
@@ -283,9 +247,7 @@ export default async function DashboardPage({
             pb-6
           "
         >
-
           <div>
-
             <p
               className="
                 text-[10px]
@@ -307,7 +269,6 @@ export default async function DashboardPage({
             >
               Dashboard
             </h1>
-
           </div>
 
           <div className="flex items-center gap-3">
@@ -343,9 +304,7 @@ export default async function DashboardPage({
               "
             />
           </div>
-
         </header>
-
 
         {/* SALDO */}
 
@@ -359,7 +318,6 @@ export default async function DashboardPage({
             p-7
           "
         >
-
           <p
             className="
               text-xs
@@ -377,10 +335,7 @@ export default async function DashboardPage({
               text-[#c8ad72]
             "
           >
-            Rp{" "}
-            {Number(
-              wallet?.balance ?? 0
-            ).toLocaleString("id-ID")}
+            Rp {Number(wallet?.balance ?? 0).toLocaleString("id-ID")}
           </h2>
 
           <Link
@@ -399,9 +354,7 @@ export default async function DashboardPage({
           >
             + Top Up Saldo
           </Link>
-
         </section>
-
 
         {/* USER */}
 
@@ -413,28 +366,15 @@ export default async function DashboardPage({
             sm:grid-cols-3
           "
         >
-
           <Info
             label="Username"
-            value={
-              profile.username ??
-              user.email ??
-              "-"
-            }
+            value={profile.username ?? user.email ?? "-"}
           />
 
-          <Info
-            label="Status"
-            value={profile.status}
-          />
+          <Info label="Status" value={profile.status} />
 
-          <Info
-            label="Role"
-            value={profile.role}
-          />
-
+          <Info label="Role" value={profile.role} />
         </section>
-
 
         {/* ACTIVE PACKAGE */}
 
@@ -449,7 +389,6 @@ export default async function DashboardPage({
           "
         >
           {activeOrder ? (
-
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <p
@@ -479,10 +418,7 @@ export default async function DashboardPage({
                     text-[#a7a39a]
                   "
                 >
-                  Mulai{" "}
-                  {formatDateTimeWIB(
-                    activeOrder.startAt
-                  )}
+                  Mulai {formatDateTimeWIB(activeOrder.startAt)}
                   {activeOrder.endAt
                     ? ` • Berakhir ${formatDateTimeWIB(activeOrder.endAt)}`
                     : " • Tanpa batas waktu"}
@@ -505,27 +441,21 @@ export default async function DashboardPage({
                 Aktif
               </span>
             </div>
-
           ) : (
-
             <p
               className="
                 text-sm
                 text-[#a7a39a]
               "
             >
-              Tidak ada paket aktif. Pilih
-              paket di bawah untuk berlangganan.
+              Tidak ada paket aktif. Pilih paket di bawah untuk berlangganan.
             </p>
-
           )}
         </section>
-
 
         {/* TRANSACTIONS */}
 
         <section className="mt-10">
-
           <h2
             className="
               text-xl
@@ -543,8 +473,7 @@ export default async function DashboardPage({
               text-[#a7a39a]
             "
           >
-            Semua deposit dan pembelian paket
-            pada akun Anda.
+            Semua deposit dan pembelian paket pada akun Anda.
           </p>
 
           <div
@@ -557,31 +486,19 @@ export default async function DashboardPage({
               bg-[#11110f]
             "
           >
-
             {transactionRows.length === 0 ? (
-
               <div className="p-8 text-center">
-                <p className="text-sm text-[#a7a39a]">
-                  Belum ada transaksi.
-                </p>
+                <p className="text-sm text-[#a7a39a]">Belum ada transaksi.</p>
               </div>
-
             ) : (
-
               <ul className="divide-y divide-white/5">
+                {transactionRows.map((tx) => {
+                  const isCredit = tx.type.toLowerCase() === "deposit";
 
-                {transactionRows.map(
-                  (tx) => {
-
-                    const isCredit =
-                      tx.type.toLowerCase() ===
-                      "deposit";
-
-                    return (
-
-                      <li
-                        key={String(tx.id)}
-                        className="
+                  return (
+                    <li
+                      key={String(tx.id)}
+                      className="
                           flex
                           items-center
                           justify-between
@@ -589,71 +506,49 @@ export default async function DashboardPage({
                           px-6
                           py-4
                         "
-                      >
-                        <div className="min-w-0">
-
-                          <p
-                            className="
+                    >
+                      <div className="min-w-0">
+                        <p
+                          className="
                               truncate
                               text-sm
                               font-semibold
                               text-[#f2f0ea]
                             "
-                          >
-                            {getTransactionLabel(
-                              tx.type
-                            )}
-                          </p>
+                        >
+                          {getTransactionLabel(tx.type)}
+                        </p>
 
-                          <p
-                            className="
+                        <p
+                          className="
                               mt-0.5
                               truncate
                               text-xs
                               text-[#a7a39a]
                             "
-                          >
-                            {tx.note ??
-                              "-"}{" "}
-                            •{" "}
-                            {formatDateTimeWIB(
-                              tx.created_at
-                            )}
-                          </p>
+                        >
+                          {tx.note ?? "-"} • {formatDateTimeWIB(tx.created_at)}
+                        </p>
+                      </div>
 
-                        </div>
-
-                        <span
-                          className={`
+                      <span
+                        className={`
                             shrink-0
                             text-sm
                             font-black
-                            ${
-                              isCredit
-                                ? "text-emerald-300"
-                                : "text-red-300"
-                            }
+                            ${isCredit ? "text-emerald-300" : "text-red-300"}
                           `}
-                        >
-                          {isCredit ? "+" : "−"}
-                          {formatRupiah(
-                            Number(tx.amount)
-                          )}
-                        </span>
-
-                      </li>
-
-                    );
-
-                  }
-                )}
-
+                      >
+                        {isCredit ? "+" : "−"}
+                        {formatRupiah(Number(tx.amount))}
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
-
             )}
 
             {totalPages > 1 && (
-
               <div
                 className="
                   flex
@@ -672,15 +567,12 @@ export default async function DashboardPage({
                     text-[#a7a39a]
                   "
                 >
-                  Halaman {page} dari{" "}
-                  {totalPages} •{" "}
-                  {totalTransactions}{" "}
+                  Halaman {page} dari {totalPages} • {totalTransactions}{" "}
                   transaksi
                 </p>
 
                 <div className="flex items-center gap-2">
                   {page > 1 ? (
-
                     <Link
                       href={`/dashboard?page=${page - 1}`}
                       className="
@@ -697,9 +589,7 @@ export default async function DashboardPage({
                     >
                       ← Sebelumnya
                     </Link>
-
                   ) : (
-
                     <span
                       className="
                         rounded-lg
@@ -713,11 +603,9 @@ export default async function DashboardPage({
                     >
                       ← Sebelumnya
                     </span>
-
                   )}
 
                   {page < totalPages ? (
-
                     <Link
                       href={`/dashboard?page=${page + 1}`}
                       className="
@@ -734,9 +622,7 @@ export default async function DashboardPage({
                     >
                       Berikutnya →
                     </Link>
-
                   ) : (
-
                     <span
                       className="
                         rounded-lg
@@ -750,24 +636,16 @@ export default async function DashboardPage({
                     >
                       Berikutnya →
                     </span>
-
                   )}
-
                 </div>
-
               </div>
-
             )}
-
           </div>
-
         </section>
-
 
         {/* PACKAGES */}
 
         <section className="mt-10">
-
           <h2
             className="
               text-xl
@@ -785,33 +663,20 @@ export default async function DashboardPage({
               text-[#a7a39a]
             "
           >
-            Pilih paket yang sesuai
-            kebutuhan Anda.
+            Pilih paket yang sesuai kebutuhan Anda.
           </p>
 
           <PurchasePackages
             packages={activePackages}
-            balance={Number(
-              wallet?.balance ?? 0
-            )}
+            balance={Number(wallet?.balance ?? 0)}
           />
-
         </section>
-
       </div>
-
     </main>
   );
 }
 
-
-function Info({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function Info({ label, value }: { label: string; value: string }) {
   return (
     <div
       className="
@@ -822,7 +687,6 @@ function Info({
         p-5
       "
     >
-
       <p
         className="
           text-[10px]
@@ -845,7 +709,6 @@ function Info({
       >
         {value}
       </p>
-
     </div>
   );
 }

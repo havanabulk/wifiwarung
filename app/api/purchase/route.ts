@@ -16,15 +16,12 @@ export async function POST(request: Request) {
 
     const parsedPackageId = Number(packageId);
 
-    if (
-      !Number.isInteger(parsedPackageId) ||
-      parsedPackageId <= 0
-    ) {
+    if (!Number.isInteger(parsedPackageId) || parsedPackageId <= 0) {
       return NextResponse.json(
         {
           error: "Paket tidak valid.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -35,21 +32,18 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json(
         {
-          error:
-            "Idempotency key tidak valid.",
+          error: "Idempotency key tidak valid.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const supabase = await createClient();
 
-    const { data, error: rpcError } =
-      await supabase.rpc("purchase_package", {
-        p_package_id: parsedPackageId,
-        p_idempotency_key:
-          idempotencyKey.trim(),
-      });
+    const { data, error: rpcError } = await supabase.rpc("purchase_package", {
+      p_package_id: parsedPackageId,
+      p_idempotency_key: idempotencyKey.trim(),
+    });
 
     if (rpcError) {
       console.error("PURCHASE RPC ERROR:", rpcError);
@@ -59,17 +53,16 @@ export async function POST(request: Request) {
           {
             error: "Paket tidak tersedia.",
           },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
       if (rpcError.code === "P0001") {
         return NextResponse.json(
           {
-            error:
-              "Saldo tidak cukup untuk membeli paket ini.",
+            error: "Saldo tidak cukup untuk membeli paket ini.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -78,29 +71,24 @@ export async function POST(request: Request) {
           {
             error: "Akses ditolak.",
           },
-          { status: 403 }
+          { status: 403 },
         );
       }
 
-      if (
-        rpcError.code === "22023" ||
-        rpcError.code === "22P02"
-      ) {
+      if (rpcError.code === "22023" || rpcError.code === "22P02") {
         return NextResponse.json(
           {
-            error:
-              "Data pembelian tidak valid.",
+            error: "Data pembelian tidak valid.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       return NextResponse.json(
         {
-          error:
-            "Pembelian gagal diproses.",
+          error: "Pembelian gagal diproses.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -109,7 +97,7 @@ export async function POST(request: Request) {
         success: true,
         ...data,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("PURCHASE API ERROR:", error);
@@ -117,11 +105,9 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          error instanceof Error
-            ? error.message
-            : "Terjadi kesalahan server.",
+          error instanceof Error ? error.message : "Terjadi kesalahan server.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
