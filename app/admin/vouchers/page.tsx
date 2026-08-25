@@ -8,13 +8,10 @@ export default async function AdminVouchersPage() {
     <div className="min-h-screen bg-[#080808] px-4 py-8">
       <div className="mx-auto max-w-6xl">
         <header className="mb-8">
-          <h1 className="text-2xl font-black text-[#f2f0ea]">
-            Voucher
-          </h1>
+          <h1 className="text-2xl font-black text-[#f2f0ea]">Voucher</h1>
 
           <p className="mt-1 text-sm text-[#a7a39a]">
-            Buat batch voucher dan pantau
-            pemakaiannya.
+            Buat batch voucher dan pantau pemakaiannya.
           </p>
         </header>
 

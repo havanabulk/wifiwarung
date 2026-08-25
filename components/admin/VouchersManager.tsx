@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  MAX_VOUCHERS_PER_BATCH,
-  formatVoucherValue,
-} from "@/lib/voucher";
+import { MAX_VOUCHERS_PER_BATCH, formatVoucherValue } from "@/lib/voucher";
 
 type BatchRow = {
   id: number;
@@ -43,17 +40,13 @@ function formatDateTimeWIB(value: string) {
 }
 
 export default function VouchersManager() {
-  const [batches, setBatches] = useState<
-    BatchRow[]
-  >([]);
+  const [batches, setBatches] = useState<BatchRow[]>([]);
 
   const [page, setPage] = useState(1);
 
-  const [totalPages, setTotalPages] =
-    useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({
     label: "",
@@ -63,15 +56,11 @@ export default function VouchersManager() {
     expiresInDays: "",
   });
 
-  const [creating, setCreating] =
-    useState(false);
+  const [creating, setCreating] = useState(false);
 
-  const [formError, setFormError] = useState<
-    string | null
-  >(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const [generatedCodes, setGeneratedCodes] =
-    useState<string[] | null>(null);
+  const [generatedCodes, setGeneratedCodes] = useState<string[] | null>(null);
 
   const [codesModal, setCodesModal] = useState<{
     batch: BatchRow;
@@ -81,15 +70,11 @@ export default function VouchersManager() {
     loading: boolean;
   } | null>(null);
 
-  async function loadBatches(
-    targetPage: number
-  ) {
+  async function loadBatches(targetPage: number) {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `/api/admin/vouchers?page=${targetPage}`
-      );
+      const response = await fetch(`/api/admin/vouchers?page=${targetPage}`);
 
       const result = await response.json();
 
@@ -110,23 +95,16 @@ export default function VouchersManager() {
 
     (async () => {
       try {
-        const response = await fetch(
-          "/api/admin/vouchers?page=1"
-        );
+        const response = await fetch("/api/admin/vouchers?page=1");
 
-        const result =
-          await response.json();
+        const result = await response.json();
 
         if (!cancelled && response.ok) {
-          setBatches(
-            result.batches ?? []
-          );
+          setBatches(result.batches ?? []);
 
           setPage(result.page ?? 1);
 
-          setTotalPages(
-            result.totalPages ?? 1
-          );
+          setTotalPages(result.totalPages ?? 1);
         }
       } catch {
         // Tampilan kosong + loading selesai.
@@ -152,26 +130,20 @@ export default function VouchersManager() {
     setGeneratedCodes(null);
 
     try {
-      const response = await fetch(
-        "/api/admin/vouchers",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-          body: JSON.stringify({
-            label: form.label,
-            type: form.type,
-            value: Number(form.value),
-            count: Number(form.count),
-            expiresInDays:
-              form.expiresInDays === ""
-                ? null
-                : Number(form.expiresInDays),
-          }),
-        }
-      );
+      const response = await fetch("/api/admin/vouchers", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          label: form.label,
+          type: form.type,
+          value: Number(form.value),
+          count: Number(form.count),
+          expiresInDays:
+            form.expiresInDays === "" ? null : Number(form.expiresInDays),
+        }),
+      });
 
       const result = await response.json();
 
@@ -179,7 +151,7 @@ export default function VouchersManager() {
         setFormError(
           typeof result.error === "string"
             ? result.error
-            : "Batch gagal dibuat."
+            : "Batch gagal dibuat.",
         );
 
         return;
@@ -196,9 +168,7 @@ export default function VouchersManager() {
 
       await loadBatches(1);
     } catch {
-      setFormError(
-        "Terjadi kesalahan jaringan."
-      );
+      setFormError("Terjadi kesalahan jaringan.");
     } finally {
       setCreating(false);
     }
@@ -216,13 +186,10 @@ export default function VouchersManager() {
     await loadCodes(batch, 1);
   }
 
-  async function loadCodes(
-    batch: BatchRow,
-    targetPage: number
-  ) {
+  async function loadCodes(batch: BatchRow, targetPage: number) {
     try {
       const response = await fetch(
-        `/api/admin/vouchers/codes?batchId=${batch.id}&page=${targetPage}`
+        `/api/admin/vouchers/codes?batchId=${batch.id}&page=${targetPage}`,
       );
 
       const result = await response.json();
@@ -237,34 +204,26 @@ export default function VouchersManager() {
               ...prev,
               vouchers: result.vouchers ?? [],
               page: result.page ?? 1,
-              totalPages:
-                result.totalPages ?? 1,
+              totalPages: result.totalPages ?? 1,
               loading: false,
             }
-          : prev
+          : prev,
       );
     } catch {
-      setCodesModal((prev) =>
-        prev ? { ...prev, loading: false } : prev
-      );
+      setCodesModal((prev) => (prev ? { ...prev, loading: false } : prev));
     }
   }
 
   function copyAllCodes(codes: string[]) {
-    void navigator.clipboard.writeText(
-      codes.join("\n")
-    );
+    void navigator.clipboard.writeText(codes.join("\n"));
   }
 
   return (
     <div className="space-y-10">
-
       {/* FORM GENERATE */}
 
       <section className="rounded-2xl border border-white/6 bg-[#11110f] p-6">
-        <h2 className="text-lg font-bold text-[#f2f0ea]">
-          Buat Batch Voucher
-        </h2>
+        <h2 className="text-lg font-bold text-[#f2f0ea]">Buat Batch Voucher</h2>
 
         <form
           onSubmit={submitBatch}
@@ -292,9 +251,7 @@ export default function VouchersManager() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs text-[#a7a39a]">
-              Tipe
-            </label>
+            <label className="mb-1.5 block text-xs text-[#a7a39a]">Tipe</label>
 
             <select
               value={form.type}
@@ -306,20 +263,14 @@ export default function VouchersManager() {
               }
               className="w-full rounded-xl border border-white/10 bg-white/2 px-3 py-2.5 text-sm text-[#f2f0ea] outline-none focus:border-[#c8ad72]/50"
             >
-              <option value="balance">
-                Saldo
-              </option>
-              <option value="duration">
-                Durasi Paket
-              </option>
+              <option value="balance">Saldo</option>
+              <option value="duration">Durasi Paket</option>
             </select>
           </div>
 
           <div>
             <label className="mb-1.5 block text-xs text-[#a7a39a]">
-              {form.type === "balance"
-                ? "Nilai (Rp)"
-                : "Durasi (menit)"}
+              {form.type === "balance" ? "Nilai (Rp)" : "Durasi (menit)"}
             </label>
 
             <input
@@ -371,8 +322,7 @@ export default function VouchersManager() {
               onChange={(event) =>
                 setForm((prev) => ({
                   ...prev,
-                  expiresInDays:
-                    event.target.value,
+                  expiresInDays: event.target.value,
                 }))
               }
               className="w-full rounded-xl border border-white/10 bg-white/2 px-3.5 py-2.5 text-sm text-[#f2f0ea] outline-none focus:border-[#c8ad72]/50"
@@ -385,32 +335,23 @@ export default function VouchersManager() {
               disabled={creating}
               className="rounded-xl bg-[#c8ad72] px-5 py-2.5 text-sm font-bold text-[#17130c] transition hover:bg-[#d9c48d] disabled:opacity-50"
             >
-              {creating
-                ? "Membuat..."
-                : "Generate"}
+              {creating ? "Membuat..." : "Generate"}
             </button>
           </div>
         </form>
 
-        {formError && (
-          <p className="mt-3 text-sm text-red-300">
-            {formError}
-          </p>
-        )}
+        {formError && <p className="mt-3 text-sm text-red-300">{formError}</p>}
 
         {generatedCodes && (
           <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-semibold text-emerald-300">
-                {generatedCodes.length}{" "}
-                kode berhasil dibuat.
+                {generatedCodes.length} kode berhasil dibuat.
               </p>
 
               <button
                 type="button"
-                onClick={() =>
-                  copyAllCodes(generatedCodes)
-                }
+                onClick={() => copyAllCodes(generatedCodes)}
                 className="rounded-lg border border-emerald-500/30 px-3 py-1.5 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-500/10"
               >
                 Salin semua
@@ -431,44 +372,26 @@ export default function VouchersManager() {
         )}
       </section>
 
-
       {/* DAFTAR BATCH */}
 
       <section>
-        <h2 className="text-lg font-bold text-[#f2f0ea]">
-          Daftar Batch
-        </h2>
+        <h2 className="text-lg font-bold text-[#f2f0ea]">Daftar Batch</h2>
 
         {loading ? (
-
-          <p className="mt-4 text-sm text-[#a7a39a]">
-            Memuat...
-          </p>
-
+          <p className="mt-4 text-sm text-[#a7a39a]">Memuat...</p>
         ) : batches.length === 0 ? (
-
           <p className="mt-4 text-sm text-[#a7a39a]">
             Belum ada batch voucher.
           </p>
-
         ) : (
-
           <div className="mt-4 overflow-x-auto rounded-2xl border border-white/6">
             <table className="w-full min-w-[720px] text-left text-sm">
               <thead className="bg-white/2 text-xs uppercase tracking-wide text-[#a7a39a]">
                 <tr>
-                  <th className="px-5 py-3 font-semibold">
-                    Label
-                  </th>
-                  <th className="px-5 py-3 font-semibold">
-                    Nilai
-                  </th>
-                  <th className="px-5 py-3 font-semibold">
-                    Terpakai
-                  </th>
-                  <th className="px-5 py-3 font-semibold">
-                    Dibuat
-                  </th>
+                  <th className="px-5 py-3 font-semibold">Label</th>
+                  <th className="px-5 py-3 font-semibold">Nilai</th>
+                  <th className="px-5 py-3 font-semibold">Terpakai</th>
+                  <th className="px-5 py-3 font-semibold">Dibuat</th>
                   <th className="px-5 py-3" />
                 </tr>
               </thead>
@@ -476,15 +399,10 @@ export default function VouchersManager() {
               <tbody className="divide-y divide-white/5 text-[#f2f0ea]">
                 {batches.map((batch) => (
                   <tr key={batch.id}>
-                    <td className="px-5 py-3.5">
-                      {batch.label}
-                    </td>
+                    <td className="px-5 py-3.5">{batch.label}</td>
 
                     <td className="px-5 py-3.5">
-                      {formatVoucherValue(
-                        batch.type,
-                        Number(batch.value)
-                      )}
+                      {formatVoucherValue(batch.type, Number(batch.value))}
                     </td>
 
                     <td className="px-5 py-3.5">
@@ -494,17 +412,13 @@ export default function VouchersManager() {
                     </td>
 
                     <td className="px-5 py-3.5 text-[#a7a39a]">
-                      {formatDateTimeWIB(
-                        batch.created_at
-                      )}
+                      {formatDateTimeWIB(batch.created_at)}
                     </td>
 
                     <td className="px-5 py-3.5 text-right">
                       <button
                         type="button"
-                        onClick={() =>
-                          openCodesModal(batch)
-                        }
+                        onClick={() => openCodesModal(batch)}
                         className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/70 transition hover:bg-white/5"
                       >
                         Lihat Kode
@@ -520,17 +434,14 @@ export default function VouchersManager() {
         {totalPages > 1 && !loading && (
           <div className="mt-4 flex items-center justify-between gap-3">
             <p className="text-xs text-[#a7a39a]">
-              Halaman {page} dari{" "}
-              {totalPages}
+              Halaman {page} dari {totalPages}
             </p>
 
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 disabled={page <= 1}
-                onClick={() =>
-                  void loadBatches(page - 1)
-                }
+                onClick={() => void loadBatches(page - 1)}
                 className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/60 transition hover:bg-white/5 disabled:text-white/20"
               >
                 ← Sebelumnya
@@ -539,9 +450,7 @@ export default function VouchersManager() {
               <button
                 type="button"
                 disabled={page >= totalPages}
-                onClick={() =>
-                  void loadBatches(page + 1)
-                }
+                onClick={() => void loadBatches(page + 1)}
                 className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/60 transition hover:bg-white/5 disabled:text-white/20"
               >
                 Berikutnya →
@@ -550,7 +459,6 @@ export default function VouchersManager() {
           </div>
         )}
       </section>
-
 
       {/* MODAL KODE */}
 
@@ -566,21 +474,16 @@ export default function VouchersManager() {
                 <p className="mt-1 text-xs text-[#a7a39a]">
                   {formatVoucherValue(
                     codesModal.batch.type,
-                    Number(codesModal.batch.value)
+                    Number(codesModal.batch.value),
                   )}{" "}
-                  •{" "}
-                  {codesModal.batch.redeemedCount ?? 0}
-                  /
-                  {codesModal.batch.count}{" "}
-                  terpakai
+                  • {codesModal.batch.redeemedCount ?? 0}/
+                  {codesModal.batch.count} terpakai
                 </p>
               </div>
 
               <button
                 type="button"
-                onClick={() =>
-                  setCodesModal(null)
-                }
+                onClick={() => setCodesModal(null)}
                 className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/60 transition hover:bg-white/5"
               >
                 Tutup
@@ -588,74 +491,52 @@ export default function VouchersManager() {
             </div>
 
             {codesModal.loading ? (
-
-              <p className="mt-6 text-sm text-[#a7a39a]">
-                Memuat kode...
-              </p>
-
-            ) : codesModal.vouchers.length ===
-              0 ? (
-
-              <p className="mt-6 text-sm text-[#a7a39a]">
-                Tidak ada kode.
-              </p>
-
+              <p className="mt-6 text-sm text-[#a7a39a]">Memuat kode...</p>
+            ) : codesModal.vouchers.length === 0 ? (
+              <p className="mt-6 text-sm text-[#a7a39a]">Tidak ada kode.</p>
             ) : (
               <>
                 <ul className="mt-5 divide-y divide-white/5 rounded-xl border border-white/6">
-                  {codesModal.vouchers.map(
-                    (voucher) => (
-                      <li
-                        key={voucher.id}
-                        className="flex items-center justify-between gap-3 px-4 py-2.5"
-                      >
-                        <span className="font-mono text-sm text-[#f2f0ea]">
-                          {voucher.code}
-                        </span>
+                  {codesModal.vouchers.map((voucher) => (
+                    <li
+                      key={voucher.id}
+                      className="flex items-center justify-between gap-3 px-4 py-2.5"
+                    >
+                      <span className="font-mono text-sm text-[#f2f0ea]">
+                        {voucher.code}
+                      </span>
 
-                        {voucher.redeemed_at ? (
-                          <span className="text-right text-xs text-emerald-300">
-                            Ditebus{" "}
-                            {voucher.redeemedByUsername
-                              ? `oleh ${voucher.redeemedByUsername}`
-                              : ""}
-                            {" "}
-                            {formatDateTimeWIB(
-                              voucher.redeemed_at
-                            )}
-                          </span>
-                        ) : voucher.active ? (
-                          <span className="text-xs text-[#a7a39a]">
-                            Belum ditebus
-                          </span>
-                        ) : (
-                          <span className="text-xs text-red-300">
-                            Nonaktif
-                          </span>
-                        )}
-                      </li>
-                    )
-                  )}
+                      {voucher.redeemed_at ? (
+                        <span className="text-right text-xs text-emerald-300">
+                          Ditebus{" "}
+                          {voucher.redeemedByUsername
+                            ? `oleh ${voucher.redeemedByUsername}`
+                            : ""}{" "}
+                          {formatDateTimeWIB(voucher.redeemed_at)}
+                        </span>
+                      ) : voucher.active ? (
+                        <span className="text-xs text-[#a7a39a]">
+                          Belum ditebus
+                        </span>
+                      ) : (
+                        <span className="text-xs text-red-300">Nonaktif</span>
+                      )}
+                    </li>
+                  ))}
                 </ul>
 
                 {codesModal.totalPages > 1 && (
                   <div className="mt-4 flex items-center justify-between text-xs text-[#a7a39a]">
                     <span>
-                      Halaman {codesModal.page}{" "}
-                      dari {codesModal.totalPages}
+                      Halaman {codesModal.page} dari {codesModal.totalPages}
                     </span>
 
                     <div className="flex gap-2">
                       <button
                         type="button"
-                        disabled={
-                          codesModal.page <= 1
-                        }
+                        disabled={codesModal.page <= 1}
                         onClick={() =>
-                          void loadCodes(
-                            codesModal.batch,
-                            codesModal.page - 1
-                          )
+                          void loadCodes(codesModal.batch, codesModal.page - 1)
                         }
                         className="rounded-lg border border-white/10 px-3 py-1.5 text-white/60 transition hover:bg-white/5 disabled:text-white/20"
                       >
@@ -664,15 +545,9 @@ export default function VouchersManager() {
 
                       <button
                         type="button"
-                        disabled={
-                          codesModal.page >=
-                          codesModal.totalPages
-                        }
+                        disabled={codesModal.page >= codesModal.totalPages}
                         onClick={() =>
-                          void loadCodes(
-                            codesModal.batch,
-                            codesModal.page + 1
-                          )
+                          void loadCodes(codesModal.batch, codesModal.page + 1)
                         }
                         className="rounded-lg border border-white/10 px-3 py-1.5 text-white/60 transition hover:bg-white/5 disabled:text-white/20"
                       >
@@ -686,7 +561,6 @@ export default function VouchersManager() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -460,7 +460,6 @@ export default async function DashboardPage({ searchParams }: SearchParams) {
           )}
         </section>
 
-
         {/* VOUCHER */}
 
         <section className="mt-5">

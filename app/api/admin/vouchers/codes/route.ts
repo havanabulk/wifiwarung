@@ -12,35 +12,24 @@ export async function GET(request: Request) {
       return auth.response;
     }
 
-    const { searchParams } = new URL(
-      request.url
-    );
+    const { searchParams } = new URL(request.url);
 
-    const batchId = Number(
-      searchParams.get("batchId")
-    );
+    const batchId = Number(searchParams.get("batchId"));
 
-    if (
-      !Number.isInteger(batchId) ||
-      batchId <= 0
-    ) {
+    if (!Number.isInteger(batchId) || batchId <= 0) {
       return NextResponse.json(
         {
           error: "Batch ID tidak valid.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const page = Math.max(
-      1,
-      Number(searchParams.get("page")) || 1
-    );
+    const page = Math.max(1, Number(searchParams.get("page")) || 1);
 
     const supabase = await createClient();
 
-    const rangeFrom =
-      (page - 1) * CODES_PAGE_SIZE;
+    const rangeFrom = (page - 1) * CODES_PAGE_SIZE;
 
     const {
       data: vouchers,
@@ -59,24 +48,20 @@ export async function GET(request: Request) {
         redeemed_at,
         expires_at
       `,
-        { count: "exact" }
+        { count: "exact" },
       )
       .eq("batch_id", batchId)
       .order("id", { ascending: true })
       .range(rangeFrom, rangeFrom + CODES_PAGE_SIZE - 1);
 
     if (error) {
-      console.error(
-        "VOUCHER CODES LIST ERROR:",
-        error
-      );
+      console.error("VOUCHER CODES LIST ERROR:", error);
 
       return NextResponse.json(
         {
-          error:
-            "Gagal memuat kode voucher.",
+          error: "Gagal memuat kode voucher.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -84,49 +69,33 @@ export async function GET(request: Request) {
       new Set(
         (vouchers ?? [])
           .map((voucher) => voucher.redeemed_by)
-          .filter(
-            (id): id is string => id !== null
-          )
-      )
+          .filter((id): id is string => id !== null),
+      ),
     );
 
-    const usernameMap: Record<
-      string,
-      string | null
-    > = {};
+    const usernameMap: Record<string, string | null> = {};
 
     if (redeemedIds.length > 0) {
-      const { data: profiles } =
-        await supabase
-          .from("profiles")
-          .select("id, username")
-          .in("id", redeemedIds);
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, username")
+        .in("id", redeemedIds);
 
-      for (const profile of profiles ??
-        []) {
-        usernameMap[profile.id] =
-          profile.username;
+      for (const profile of profiles ?? []) {
+        usernameMap[profile.id] = profile.username;
       }
     }
 
     const totalPages =
-      Math.max(
-        1,
-        Math.ceil((count ?? 0) / CODES_PAGE_SIZE)
-      ) || 1;
+      Math.max(1, Math.ceil((count ?? 0) / CODES_PAGE_SIZE)) || 1;
 
     return NextResponse.json({
-      vouchers: (vouchers ?? []).map(
-        (voucher) => ({
-          ...voucher,
-          redeemedByUsername:
-            voucher.redeemed_by
-              ? (usernameMap[
-                  voucher.redeemed_by
-                ] ?? null)
-              : null,
-        })
-      ),
+      vouchers: (vouchers ?? []).map((voucher) => ({
+        ...voucher,
+        redeemedByUsername: voucher.redeemed_by
+          ? (usernameMap[voucher.redeemed_by] ?? null)
+          : null,
+      })),
       page,
       totalPages,
       totalCodes: count ?? 0,
@@ -137,11 +106,9 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         error:
-          error instanceof Error
-            ? error.message
-            : "Terjadi kesalahan server.",
+          error instanceof Error ? error.message : "Terjadi kesalahan server.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

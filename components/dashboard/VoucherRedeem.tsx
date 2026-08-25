@@ -8,20 +8,13 @@ export default function VoucherRedeem() {
 
   const [code, setCode] = useState("");
 
-  const [submitting, setSubmitting] =
-    useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const [error, setError] = useState<
-    string | null
-  >(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const [success, setSuccess] = useState<
-    string | null
-  >(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  async function handleSubmit(
-    event: React.FormEvent
-  ) {
+  async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
     if (submitting || code.trim() === "") {
@@ -33,19 +26,15 @@ export default function VoucherRedeem() {
     setSuccess(null);
 
     try {
-      const response = await fetch(
-        "/api/redeem",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-          body: JSON.stringify({
-            code: code.trim(),
-          }),
-        }
-      );
+      const response = await fetch("/api/redeem", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          code: code.trim(),
+        }),
+      });
 
       const result = await response.json();
 
@@ -53,7 +42,7 @@ export default function VoucherRedeem() {
         setError(
           typeof result.error === "string"
             ? result.error
-            : "Voucher gagal ditebus."
+            : "Voucher gagal ditebus.",
         );
 
         return;
@@ -65,9 +54,7 @@ export default function VoucherRedeem() {
 
       router.refresh();
     } catch {
-      setError(
-        "Terjadi kesalahan jaringan. Coba lagi."
-      );
+      setError("Terjadi kesalahan jaringan. Coba lagi.");
     } finally {
       setSubmitting(false);
     }
@@ -101,8 +88,8 @@ export default function VoucherRedeem() {
           text-[#a7a39a]
         "
       >
-        Masukkan kode voucher untuk menambah
-        saldo atau memperpanjang paket aktif.
+        Masukkan kode voucher untuk menambah saldo atau memperpanjang paket
+        aktif.
       </p>
 
       <form
@@ -114,9 +101,7 @@ export default function VoucherRedeem() {
           required
           maxLength={40}
           value={code}
-          onChange={(event) =>
-            setCode(event.target.value.toUpperCase())
-          }
+          onChange={(event) => setCode(event.target.value.toUpperCase())}
           placeholder="W28-XXXX-XXXX"
           className="
             flex-1
@@ -151,23 +136,13 @@ export default function VoucherRedeem() {
             disabled:opacity-50
           "
         >
-          {submitting
-            ? "Memproses..."
-            : "Tebus"}
+          {submitting ? "Memproses..." : "Tebus"}
         </button>
       </form>
 
-      {error && (
-        <p className="mt-3 text-xs text-red-300">
-          {error}
-        </p>
-      )}
+      {error && <p className="mt-3 text-xs text-red-300">{error}</p>}
 
-      {success && (
-        <p className="mt-3 text-xs text-emerald-300">
-          {success}
-        </p>
-      )}
+      {success && <p className="mt-3 text-xs text-emerald-300">{success}</p>}
     </div>
   );
 }

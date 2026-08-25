@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     const rateLimit = checkRateLimit(
       `redeem:${auth.context.userId}`,
       10,
-      60_000
+      60_000,
     );
 
     if (!rateLimit.ok) {
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
         {
           error: `Terlalu banyak percobaan. Coba lagi dalam ${rateLimit.retryAfterSeconds} detik.`,
         },
-        { status: 429 }
+        { status: 429 },
       );
     }
 
@@ -37,19 +37,17 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json(
         {
-          error:
-            "Format kode voucher tidak valid.",
+          error: "Format kode voucher tidak valid.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const supabase = await createClient();
 
-    const { data, error: rpcError } =
-      await supabase.rpc("redeem_voucher", {
-        p_code: code.trim(),
-      });
+    const { data, error: rpcError } = await supabase.rpc("redeem_voucher", {
+      p_code: code.trim(),
+    });
 
     if (rpcError) {
       console.error("REDEEM RPC ERROR:", rpcError);
@@ -59,24 +57,18 @@ export async function POST(request: Request) {
       if (message.includes("VOUCHER_NOT_FOUND")) {
         return NextResponse.json(
           {
-            error:
-              "Kode voucher tidak ditemukan.",
+            error: "Kode voucher tidak ditemukan.",
           },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
-      if (
-        message.includes(
-          "VOUCHER_ALREADY_REDEEMED"
-        )
-      ) {
+      if (message.includes("VOUCHER_ALREADY_REDEEMED")) {
         return NextResponse.json(
           {
-            error:
-              "Voucher sudah pernah ditebus.",
+            error: "Voucher sudah pernah ditebus.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -85,7 +77,7 @@ export async function POST(request: Request) {
           {
             error: "Voucher sudah kedaluwarsa.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -94,7 +86,7 @@ export async function POST(request: Request) {
           {
             error: "Voucher tidak aktif.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -104,7 +96,7 @@ export async function POST(request: Request) {
             error:
               "Anda belum punya paket aktif untuk diperpanjang. Beli paket terlebih dahulu.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -113,23 +105,21 @@ export async function POST(request: Request) {
           {
             error: "Akses ditolak.",
           },
-          { status: 403 }
+          { status: 403 },
         );
       }
 
       return NextResponse.json(
         {
-          error:
-            "Voucher gagal ditebus. Coba lagi.",
+          error: "Voucher gagal ditebus. Coba lagi.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     const resultType =
       typeof data === "object" && data !== null
-        ? ((data as Record<string, unknown>)
-            .type as string)
+        ? ((data as Record<string, unknown>).type as string)
         : null;
 
     return NextResponse.json({
@@ -146,11 +136,9 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          error instanceof Error
-            ? error.message
-            : "Terjadi kesalahan server.",
+          error instanceof Error ? error.message : "Terjadi kesalahan server.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
