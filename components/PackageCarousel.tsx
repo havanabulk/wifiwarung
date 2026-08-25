@@ -43,10 +43,12 @@ export default function PackageCarousel({ packages = [] }: Props) {
 
   const totalPages = Math.ceil(packages.length / itemsPerPage);
 
-  const visiblePackages = packages.slice(
-    page * itemsPerPage,
-    page * itemsPerPage + itemsPerPage,
-  );
+  const visiblePackages = mobile
+    ? packages.slice(0, 4)
+    : packages.slice(
+        page * itemsPerPageDesktop,
+        page * itemsPerPageDesktop + itemsPerPageDesktop,
+      );
 
   function nextPage() {
     setPage((current) => (current >= totalPages - 1 ? 0 : current + 1));
@@ -120,14 +122,68 @@ export default function PackageCarousel({ packages = [] }: Props) {
         onTouchStart={swipeStart}
         onTouchEnd={swipeEnd}
       >
+        {/* MOBILE: 2x2 compact grid like top-up pulsa */}
         <div
-          key={page}
+          key={`m-${page}`}
           className="
             grid
-            grid-cols-1
-            md:grid-cols-3
+            grid-cols-2
+            gap-3
+            animate-fade-up
+            md:hidden
+          "
+        >
+          {visiblePackages.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => alert(`Anda memilih Paket ${item.name}`)}
+              className="
+                group
+                relative
+                aspect-square
+                overflow-hidden
+                rounded-2xl
+                border
+                border-[#b89b5e]/15
+                bg-[#11110f]
+                p-4
+                text-left
+                transition-all
+                duration-300
+                active:scale-95
+                active:border-[#b89b5e]/50
+              "
+            >
+              <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-[#b89b5e]/5 blur-xl" />
+
+              <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-[#b89b5e]/20 bg-[#b89b5e]/5 text-lg">
+                {item.icon}
+              </div>
+
+              <div className="relative mt-3 text-sm font-bold text-[#f2f0ea] leading-tight">
+                {item.name}
+              </div>
+
+              <div className="relative mt-1 text-[10px] text-[#a7a39a] leading-tight line-clamp-2">
+                {item.description}
+              </div>
+
+              <div className="relative mt-auto pt-2 text-base font-extrabold text-[#c8ad72]">
+                {item.price}
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* DESKTOP: 3-column carousel */}
+        <div
+          key={`d-${page}`}
+          className="
+            hidden
+            grid-cols-3
             gap-4
             animate-fade-up
+            md:grid
           "
         >
           {visiblePackages.map((item) => (
@@ -278,15 +334,16 @@ export default function PackageCarousel({ packages = [] }: Props) {
         </div>
       </div>
 
-      {/* CONTROLS */}
+      {/* CONTROLS - desktop only */}
 
       <div
         className="
           mt-7
-          flex
+          hidden
           items-center
           justify-center
           gap-4
+          md:flex
         "
       >
         <button
