@@ -5,6 +5,12 @@ import { requireAdmin } from "@/lib/auth/admin";
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_PAGE_SIZE = 100;
 
+type CustomersSummary = {
+  activeCustomers?: number | string;
+  activePackages?: number | string;
+  totalBalance?: number | string;
+};
+
 export async function GET(request: Request) {
   try {
     const auth = await requireAdmin();
@@ -30,12 +36,11 @@ export async function GET(request: Request) {
     const rangeFrom = (page - 1) * pageSize;
     const rangeTo = rangeFrom + pageSize - 1;
 
-    const [customersRes, activeCountRes, walletRowsRes, orderRowsRes] =
-      await Promise.all([
-        supabase
-          .from("profiles")
-          .select(
-            `
+    const [customersRes, summaryRes] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select(
+          `
           id,
           username,
           full_name,
@@ -63,22 +68,16 @@ export async function GET(request: Request) {
             )
           )
         `,
-          )
-          .order("created_at", {
-            ascending: false,
-          })
-          .range(rangeFrom, rangeTo),
-        supabase
-          .from("profiles")
-          .select("id", {
+          {
             count: "exact",
-            head: true,
-          })
-          .neq("role", "admin")
-          .eq("status", "active"),
-        supabase.from("wallets").select("balance"),
-        supabase.from("package_orders").select("user_id, status, end_at"),
-      ]);
+          },
+        )
+        .order("created_at", {
+          ascending: false,
+        })
+        .range(rangeFrom, rangeTo),
+      supabase.rpc("admin_customers_summary"),
+    ]);
 
     if (customersRes.error) {
       console.error("CUSTOMERS GET ERROR:", customersRes.error);
@@ -91,39 +90,26 @@ export async function GET(request: Request) {
       );
     }
 
-    if (walletRowsRes.error) {
-      console.error("CUSTOMER WALLETS GET ERROR:", walletRowsRes.error);
+    if (summaryRes.error) {
+      console.error("CUSTOMERS SUMMARY RPC ERROR:", summaryRes.error);
+
+      return NextResponse.json(
+        {
+          error: "Gagal mengambil ringkasan pelanggan.",
+        },
+        { status: 500 },
+      );
     }
 
-    if (orderRowsRes.error) {
-      console.error("CUSTOMER ORDERS GET ERROR:", orderRowsRes.error);
-    }
-
-    const now = Date.now();
-
-    const activePackageUsers = new Set<string>();
-
-    for (const row of orderRowsRes.data ?? []) {
-      if (
-        row.status === "active" &&
-        (!row.end_at || new Date(row.end_at).getTime() > now)
-      ) {
-        activePackageUsers.add(row.user_id);
-      }
-    }
-
-    const totalBalance = (walletRowsRes.data ?? []).reduce(
-      (total, wallet) => total + Number(wallet.balance ?? 0),
-      0,
-    );
+    const summary = (summaryRes.data ?? {}) as CustomersSummary;
 
     return NextResponse.json({
       customers: customersRes.data ?? [],
       summary: {
         totalCustomers: customersRes.count ?? 0,
-        activeCustomers: activeCountRes.count ?? 0,
-        activePackages: activePackageUsers.size,
-        totalBalance,
+        activeCustomers: Number(summary.activeCustomers ?? 0),
+        activePackages: Number(summary.activePackages ?? 0),
+        totalBalance: Number(summary.totalBalance ?? 0),
       },
       pagination: {
         page,
