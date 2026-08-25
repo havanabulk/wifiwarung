@@ -122,7 +122,44 @@ export async function POST(request: Request) {
     const random = Math.random().toString(36).slice(2, 8).toUpperCase();
     const merchantRef = `W28-${timestamp}-${random}`;
 
-    /* ---------- buat transaksi Tripay ---------- */
+    /* ---------- CASH: langsung simpan tanpa Tripay ---------- */
+
+    const isCash = methodName.trim().toUpperCase() === "CASH";
+
+    if (isCash) {
+      const { error: insertError } = await service.from("transactions").insert({
+        user_id: userId,
+        package_id: parsedPackageId,
+        guest_name: customerName.trim(),
+        guest_email: customerEmail.trim().toLowerCase(),
+        guest_phone: customerPhone ? String(customerPhone).trim() : null,
+        merchant_ref: merchantRef,
+        payment_method: "Tunai di Tempat",
+        payment_method_code: "CASH",
+        amount: Math.round(pkg.price),
+        status: "pending",
+        expired_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      });
+
+      if (insertError) {
+        console.error("CASH TRANSACTION INSERT ERROR:", insertError);
+
+        return NextResponse.json(
+          { error: "Gagal menyimpan data transaksi." },
+          { status: 500 },
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        payment_type: "cash",
+        merchant_ref: merchantRef,
+        payment_name: "Tunai di Tempat",
+        amount: Math.round(pkg.price),
+      });
+    }
+
+    /* ---------- TRIPAY: buat transaksi online ---------- */
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
     const expiredTime = Math.floor(Date.now() / 1000) + 3600;

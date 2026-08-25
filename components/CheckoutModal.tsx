@@ -106,6 +106,8 @@ export default function CheckoutModal({ pkg, onClose }: Props) {
   const [payCode, setPayCode] = useState<string | null>(null);
   const [paymentName, setPaymentName] = useState<string>("");
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+  const [paymentType, setPaymentType] = useState<"tripay" | "cash">("tripay");
+  const [merchantRef, setMerchantRef] = useState<string>("");
   const [instructions, setInstructions] = useState<
     Array<{ title: string; steps: string[] }>
   >([]);
@@ -176,9 +178,11 @@ export default function CheckoutModal({ pkg, onClose }: Props) {
         return;
       }
 
-      setPayCode(data.pay_code);
+      setPayCode(data.pay_code ?? null);
       setPaymentName(data.payment_name);
-      setCheckoutUrl(data.checkout_url);
+      setCheckoutUrl(data.checkout_url ?? null);
+      setPaymentType(data.payment_type === "cash" ? "cash" : "tripay");
+      setMerchantRef(data.merchant_ref ?? "");
       setInstructions(data.instructions ?? []);
       setStep("payment");
     } catch {
@@ -279,6 +283,31 @@ export default function CheckoutModal({ pkg, onClose }: Props) {
                 METODE PEMBAYARAN
               </label>
 
+              {/* cash option */}
+              <button
+                type="button"
+                onClick={() => setSelectedMethod("CASH")}
+                className={`mb-3 flex w-full items-center gap-3 rounded-xl border p-4 text-left transition ${
+                  selectedMethod === "CASH"
+                    ? "border-[#b89b5e]/60 bg-[#b89b5e]/10 text-[#f2f0ea]"
+                    : "border-white/10 bg-white/[0.02] text-[#a7a39a] hover:border-white/20"
+                }`}
+              >
+                <span className="text-xl">💵</span>
+
+                <div>
+                  <div className="text-sm font-semibold">Tunai di Tempat</div>
+
+                  <div className="mt-0.5 text-[10px] text-white/40">
+                    Bayar langsung ke kasir saat datang
+                  </div>
+                </div>
+              </button>
+
+              <div className="mb-2 text-[10px] uppercase tracking-widest text-white/30">
+                atau bayar online
+              </div>
+
               {loadingChannels ? (
                 <div className="py-8 text-center text-sm text-white/30">
                   Memuat metode pembayaran...
@@ -366,7 +395,77 @@ export default function CheckoutModal({ pkg, onClose }: Props) {
 
         {/* -------- STEP: PAYMENT -------- */}
 
-        {step === "payment" && (
+        {step === "payment" && paymentType === "cash" && (
+          <>
+            <div className="mb-5">
+              <div className="text-[11px] font-bold tracking-[0.2em] text-[#b89b5e]">
+                TUNAI DI TEMPAT
+              </div>
+
+              <h3 className="mt-1 text-lg font-bold text-[#f2f0ea]">
+                Tunjukkan kode ini ke kasir
+              </h3>
+            </div>
+
+            <div className="rounded-xl border border-[#b89b5e]/20 bg-[#b89b5e]/5 p-6 text-center">
+              <div className="text-[10px] uppercase tracking-widest text-[#a7a39a]">
+                Kode Transaksi
+              </div>
+
+              <div className="mt-2 text-xl font-black tracking-wider text-[#f2f0ea]">
+                {merchantRef}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => navigator.clipboard.writeText(merchantRef)}
+                className="mt-3 rounded-lg border border-white/10 px-4 py-1.5 text-xs text-[#a7a39a] transition hover:border-[#b89b5e]/40 hover:text-[#c8ad72]"
+              >
+                Salin Kode
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-3 text-sm text-[#a7a39a]">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 text-lg">1️⃣</span>
+                <span>
+                  Datang ke lokasi{" "}
+                  <strong className="text-[#f2f0ea]">WARUNG28</strong>
+                </span>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 text-lg">2️⃣</span>
+                <span>Tunjukkan kode transaksi di atas ke kasir</span>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 text-lg">3️⃣</span>
+                <span>
+                  Bayar{" "}
+                  <strong className="text-emerald-300">
+                    Rp{pkg.price.toLocaleString("id-ID")}
+                  </strong>{" "}
+                  dan paket langsung aktif
+                </span>
+              </div>
+            </div>
+
+            <p className="mt-5 text-center text-[11px] text-white/30">
+              Kode ini berlaku selama 24 jam. Hubungi admin jika ada kendala.
+            </p>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="mt-4 w-full rounded-xl bg-[#b89b5e] py-3.5 text-sm font-bold text-[#17130c] transition hover:bg-[#c8ad72]"
+            >
+              Mengerti
+            </button>
+          </>
+        )}
+
+        {step === "payment" && paymentType === "tripay" && (
           <>
             <div className="mb-5">
               <div className="text-[11px] font-bold tracking-[0.2em] text-emerald-400">
@@ -438,8 +537,7 @@ export default function CheckoutModal({ pkg, onClose }: Props) {
             )}
 
             <p className="mt-5 text-center text-[11px] text-white/30">
-              Pembayaran akan terverifikasi otomatis. Halaman ini akan
-              memperbarui status secara berkali.
+              Pembayaran akan terverifikasi otomatis.
             </p>
 
             <button
