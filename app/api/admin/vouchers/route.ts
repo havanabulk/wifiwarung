@@ -79,8 +79,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(
       {
-        error:
-          error instanceof Error ? error.message : "Terjadi kesalahan server.",
+        error: "Terjadi kesalahan server.",
       },
       { status: 500 },
     );
@@ -207,8 +206,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        error:
-          error instanceof Error ? error.message : "Terjadi kesalahan server.",
+        error: "Terjadi kesalahan server.",
       },
       { status: 500 },
     );

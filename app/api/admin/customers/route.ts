@@ -72,6 +72,7 @@ export async function GET(request: Request) {
             count: "exact",
           },
         )
+        .neq("role", "admin")
         .order("created_at", {
           ascending: false,
         })

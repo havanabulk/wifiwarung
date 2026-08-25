@@ -25,9 +25,11 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const email = username.includes("@")
-      ? username
-      : `${username}@warung28.my.id`;
+    const normalizedUsername = username.trim().toLowerCase();
+
+    const email = normalizedUsername.includes("@")
+      ? normalizedUsername
+      : `${normalizedUsername}@warung28.my.id`;
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,

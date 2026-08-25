@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth/user";
-import { checkRateLimit } from "@/lib/rate-limit";
+
+const REDEEM_RATE_LIMIT = 10;
+const REDEEM_RATE_LIMIT_WINDOW_SECONDS = 60;
 
 export async function POST(request: Request) {
   try {
@@ -11,18 +13,32 @@ export async function POST(request: Request) {
       return auth.response;
     }
 
-    const rateLimit = checkRateLimit(
-      `redeem:${auth.context.userId}`,
-      10,
-      60_000,
+    const supabase = await createClient();
+
+    const { data: retryAfter, error: rateLimitError } = await supabase.rpc(
+      "consume_rate_limit",
+      {
+        p_bucket: `redeem:${auth.context.userId}`.slice(0, 128),
+        p_limit: REDEEM_RATE_LIMIT,
+        p_window_seconds: REDEEM_RATE_LIMIT_WINDOW_SECONDS,
+      },
     );
 
-    if (!rateLimit.ok) {
+    if (rateLimitError) {
+      console.error("REDEEM RATE LIMIT RPC ERROR:", rateLimitError);
+    }
+
+    if (Number(retryAfter ?? 0) > 0) {
       return NextResponse.json(
         {
-          error: `Terlalu banyak percobaan. Coba lagi dalam ${rateLimit.retryAfterSeconds} detik.`,
+          error: `Terlalu banyak percobaan. Coba lagi dalam ${retryAfter} detik.`,
         },
-        { status: 429 },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(retryAfter),
+          },
+        },
       );
     }
 
@@ -42,8 +58,6 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-
-    const supabase = await createClient();
 
     const { data, error: rpcError } = await supabase.rpc("redeem_voucher", {
       p_code: code.trim(),
@@ -135,8 +149,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        error:
-          error instanceof Error ? error.message : "Terjadi kesalahan server.",
+        error: "Terjadi kesalahan server.",
       },
       { status: 500 },
     );

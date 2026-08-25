@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/rate-limit";
 
 const RATE_LIMIT = 5;
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+const RATE_LIMIT_WINDOW_SECONDS = 10 * 60;
 
 const MAX_NAME_LENGTH = 100;
 const MAX_PHONE_LENGTH = 20;
@@ -13,30 +13,37 @@ const PHONE_PATTERN = /^[0-9+\-()\s]*$/;
 
 export async function POST(req: Request) {
   try {
-    const rateLimit = checkRateLimit(
-      `support:${getClientIp(req)}`,
-      RATE_LIMIT,
-      RATE_LIMIT_WINDOW_MS,
-    );
-
-    if (!rateLimit.ok) {
-      return NextResponse.json(
-        {
-          error: `Terlalu banyak percobaan. Coba lagi dalam ${rateLimit.retryAfterSeconds} detik.`,
-        },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": String(rateLimit.retryAfterSeconds),
-          },
-        },
-      );
-    }
-
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     );
+
+    const { data: retryAfter, error: rateLimitError } = await supabase.rpc(
+      "consume_rate_limit",
+      {
+        p_bucket: `support:${getClientIp(req)}`.slice(0, 128),
+        p_limit: RATE_LIMIT,
+        p_window_seconds: RATE_LIMIT_WINDOW_SECONDS,
+      },
+    );
+
+    if (rateLimitError) {
+      console.error("SUPPORT RATE LIMIT RPC ERROR:", rateLimitError);
+    }
+
+    if (Number(retryAfter ?? 0) > 0) {
+      return NextResponse.json(
+        {
+          error: `Terlalu banyak percobaan. Coba lagi dalam ${retryAfter} detik.`,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(retryAfter),
+          },
+        },
+      );
+    }
 
     const body = await req.json();
 
