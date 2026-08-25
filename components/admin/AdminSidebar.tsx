@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import LogoutButton from "@/components/auth/LogoutButton";
 
 const menus = [
@@ -39,6 +40,7 @@ const menus = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <>
@@ -76,26 +78,40 @@ export default function AdminSidebar() {
           </div>
         </div>
 
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#b89b5e]/20 bg-[#b89b5e]/5 text-[#c8ad72]">
-          W
-        </div>
+        <button
+          type="button"
+          onClick={() => setMobileOpen((prev) => !prev)}
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#b89b5e]/20 bg-[#b89b5e]/5 text-[#c8ad72] text-lg"
+        >
+          {mobileOpen ? "✕" : "☰"}
+        </button>
       </div>
+
+      {/* Mobile Overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
 
       {/* Sidebar */}
 
       <aside
-        className="
+        className={`
           fixed
           inset-y-0
           left-0
           z-50
-          hidden
           w-72
           border-r
           border-white/6
           bg-[#0c0c0b]
+          transition-transform
+          duration-200
           lg:block
-        "
+          ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        `}
       >
         <div className="flex h-full flex-col">
           {/* Brand */}
@@ -165,6 +181,7 @@ export default function AdminSidebar() {
                   <Link
                     key={menu.href}
                     href={menu.href}
+                    onClick={() => setMobileOpen(false)}
                     className={`
                       flex
                       items-center
@@ -212,6 +229,7 @@ export default function AdminSidebar() {
           <div className="border-t border-white/6 p-5">
             <Link
               href="/"
+              onClick={() => setMobileOpen(false)}
               className="
                 block
                 rounded-xl
