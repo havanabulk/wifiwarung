@@ -71,14 +71,31 @@ export async function POST(request: Request) {
 
         const aboveMaximum = message.includes("AMOUNT_ABOVE_MAXIMUM");
 
-        return NextResponse.json(
-          {
-            error: aboveMaximum
-              ? `Maksimal deposit Rp ${MAX_DEPOSIT.toLocaleString("id-ID")} per transaksi.`
-              : "Data deposit tidak valid.",
-          },
-          { status: 400 },
-        );
+        const belowMinimum = message.includes("AMOUNT_BELOW_MINIMUM");
+
+        const notInteger = message.includes("AMOUNT_NOT_INTEGER");
+
+        const amountInvalid = message.includes("AMOUNT_INVALID");
+
+        const userRequired = message.includes("USER_ID_REQUIRED");
+
+        let detail = "Data deposit tidak valid.";
+
+        if (aboveMaximum) {
+          detail = `Maksimal deposit Rp ${MAX_DEPOSIT.toLocaleString("id-ID")} per transaksi.`;
+        } else if (belowMinimum) {
+          detail = "Minimal deposit Rp 1.000.";
+        } else if (notInteger) {
+          detail = "Nominal deposit harus bilangan bulat.";
+        } else if (amountInvalid) {
+          detail = "Jumlah deposit tidak valid.";
+        } else if (userRequired) {
+          detail = "Pelanggan tidak ditemukan.";
+        } else {
+          detail = `Data deposit tidak valid (rpc: ${message}).`;
+        }
+
+        return NextResponse.json({ error: detail }, { status: 400 });
       }
 
       if (rpcError.code === "42501") {
