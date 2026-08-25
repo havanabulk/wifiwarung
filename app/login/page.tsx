@@ -88,6 +88,8 @@ export default function LoginPage() {
 
     if (profile.role === "admin") {
       router.replace("/admin");
+    } else if (profile.role === "kasir") {
+      router.replace("/kasir");
     } else {
       router.replace("/dashboard");
     }

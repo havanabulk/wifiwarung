@@ -16,6 +16,11 @@ const menus = [
     icon: "♙",
   },
   {
+    label: "Kasir",
+    href: "/kasir",
+    icon: "₪",
+  },
+  {
     label: "Paket Internet",
     href: "/admin/packages",
     icon: "◈",

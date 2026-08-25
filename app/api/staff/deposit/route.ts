@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { requireAdmin } from "@/lib/auth/admin";
-import { parseDepositInput, MAX_DEPOSIT } from "@/lib/validation/deposit";
+import { requireStaff } from "@/lib/auth/staff";
+import { parseDepositInput } from "@/lib/validation/deposit";
 
 export async function POST(request: Request) {
   try {
-    const auth = await requireAdmin();
+    const auth = await requireStaff();
 
     if (!auth.ok) {
       return auth.response;
@@ -32,13 +32,15 @@ export async function POST(request: Request) {
       {
         p_user_id: parsed.data.userId,
         p_amount: parsed.data.amount,
-        p_note: parsed.data.note,
+        p_note:
+          parsed.data.note ??
+          (auth.context.role === "kasir" ? "Deposit oleh kasir" : null),
         p_idempotency_key: parsed.data.idempotencyKey,
       },
     );
 
     if (rpcError) {
-      console.error("DEPOSIT RPC ERROR:", rpcError);
+      console.error("STAFF DEPOSIT RPC ERROR:", rpcError);
 
       const message = String(rpcError.message ?? "");
 
@@ -62,7 +64,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             error: aboveMaximum
-              ? `Maksimal deposit Rp ${MAX_DEPOSIT.toLocaleString("id-ID")} per transaksi.`
+              ? `Maksimal deposit Rp ${Number(10_000_000).toLocaleString("id-ID")} per transaksi.`
               : "Data deposit tidak valid.",
           },
           { status: 400 },
@@ -85,7 +87,7 @@ export async function POST(request: Request) {
       wallet,
     });
   } catch (error) {
-    console.error("DEPOSIT API ERROR:", error);
+    console.error("STAFF DEPOSIT API ERROR:", error);
 
     return NextResponse.json(
       { error: "Terjadi kesalahan server." },
