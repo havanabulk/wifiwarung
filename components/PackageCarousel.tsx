@@ -12,7 +12,7 @@ export type CatalogPackage = {
 };
 
 const itemsPerPageDesktop = 3;
-const itemsPerPageMobile = 1;
+const itemsPerPageMobile = 4;
 
 type Props = {
   packages?: CatalogPackage[];
@@ -43,12 +43,10 @@ export default function PackageCarousel({ packages = [] }: Props) {
 
   const totalPages = Math.ceil(packages.length / itemsPerPage);
 
-  const visiblePackages = mobile
-    ? packages.slice(0, 4)
-    : packages.slice(
-        page * itemsPerPageDesktop,
-        page * itemsPerPageDesktop + itemsPerPageDesktop,
-      );
+  const visiblePackages = packages.slice(
+    page * itemsPerPage,
+    page * itemsPerPage + itemsPerPage,
+  );
 
   function nextPage() {
     setPage((current) => (current >= totalPages - 1 ? 0 : current + 1));
@@ -124,7 +122,7 @@ export default function PackageCarousel({ packages = [] }: Props) {
       >
         {/* MOBILE: 2x2 compact grid like top-up pulsa */}
         <div
-          key={`m-${page}`}
+          key={page}
           className="
             grid
             grid-cols-2
@@ -177,7 +175,7 @@ export default function PackageCarousel({ packages = [] }: Props) {
 
         {/* DESKTOP: 3-column carousel */}
         <div
-          key={`d-${page}`}
+          key={page}
           className="
             hidden
             grid-cols-3
@@ -339,11 +337,10 @@ export default function PackageCarousel({ packages = [] }: Props) {
       <div
         className="
           mt-7
-          hidden
+          flex
           items-center
           justify-center
           gap-4
-          md:flex
         "
       >
         <button

@@ -142,7 +142,7 @@ export default function PurchasePackages({
         </div>
       )}
 
-      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
         {packages.map((item) => {
           const affordable = balance >= item.price;
 
@@ -178,64 +178,74 @@ export default function PurchasePackages({
               key={item.id}
               className="
                 flex
+                aspect-square
                 flex-col
+                justify-between
+                overflow-hidden
                 rounded-2xl
                 border
                 border-white/6
                 bg-[#11110f]
-                p-5
+                p-4
+                transition-all
+                active:scale-[0.97]
+                lg:p-5
               "
             >
-              <p
-                className="
-                  text-sm
-                  font-bold
-                  text-[#f2f0ea]
-                "
-              >
-                {item.name}
-              </p>
-
-              <p
-                className="
-                  mt-1
-                  text-lg
-                  font-black
-                  text-emerald-300
-                "
-              >
-                {formatRupiah(item.price)}
-              </p>
-
-              {metaLines.length > 0 && (
-                <ul
+              <div>
+                <p
                   className="
-                    mt-3
-                    space-y-1
-                    text-xs
-                    text-[#a7a39a]
+                    text-sm
+                    font-bold
+                    text-[#f2f0ea]
+                    leading-tight
                   "
                 >
-                  {metaLines.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
-              )}
+                  {item.name}
+                </p>
+
+                <p
+                  className="
+                    mt-1
+                    text-base
+                    font-black
+                    text-emerald-300
+                    lg:text-lg
+                  "
+                >
+                  {formatRupiah(item.price)}
+                </p>
+
+                {metaLines.length > 0 && (
+                  <ul
+                    className="
+                      mt-2
+                      space-y-0.5
+                      text-[10px]
+                      text-[#a7a39a]
+                      lg:text-xs
+                    "
+                  >
+                    {metaLines.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
 
               <button
                 type="button"
                 onClick={() => openPurchaseModal(item)}
                 disabled={!affordable}
                 className="
-                  mt-4
+                  mt-3
                   w-full
                   rounded-xl
                   border
                   border-emerald-500/30
                   bg-emerald-500/10
-                  px-4
-                  py-2.5
-                  text-sm
+                  py-2
+                  text-xs
                   font-semibold
                   text-emerald-300
                   transition
@@ -244,6 +254,7 @@ export default function PurchasePackages({
                   disabled:border-white/10
                   disabled:bg-transparent
                   disabled:text-white/30
+                  lg:text-sm
                 "
               >
                 {affordable ? "Beli" : "Saldo kurang"}
