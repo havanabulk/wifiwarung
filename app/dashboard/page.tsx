@@ -507,8 +507,6 @@ export default async function DashboardPage({ searchParams }: SearchParams) {
             ) : (
               <ul className="divide-y divide-white/5">
                 {transactionRows.map((tx) => {
-                  const isCredit = tx.type.toLowerCase() === "deposit";
-
                   const normalizedType = tx.type.toLowerCase();
 
                   const isCredit =
