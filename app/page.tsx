@@ -91,6 +91,7 @@ function toCatalogItem(row: PackageRow): CatalogPackage {
     name: row.name,
     icon: TYPE_ICONS[row.type] ?? "📶",
     price: formatRupiah(Number(row.price)),
+    numericPrice: Number(row.price),
     description,
     category: CATEGORY_LABELS[row.type] ?? row.type.toUpperCase(),
   };

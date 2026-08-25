@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import CheckoutModal from "./CheckoutModal";
 
 export type CatalogPackage = {
   id: number;
   name: string;
   icon: string;
   price: string;
+  numericPrice: number;
   description: string;
   category: string;
 };
@@ -21,6 +23,7 @@ type Props = {
 export default function PackageCarousel({ packages = [] }: Props) {
   const [page, setPage] = useState(0);
   const [mobile, setMobile] = useState(false);
+  const [selectedPkg, setSelectedPkg] = useState<CatalogPackage | null>(null);
 
   const touchStart = useRef<number | null>(null);
   const touchEnd = useRef<number | null>(null);
@@ -117,7 +120,7 @@ export default function PackageCarousel({ packages = [] }: Props) {
                   {slice.map((item) => (
                     <button
                       key={item.id}
-                      onClick={() => alert(`Anda memilih Paket ${item.name}`)}
+                      onClick={() => setSelectedPkg(item)}
                       className="group relative aspect-square overflow-hidden rounded-2xl border border-[#b89b5e]/15 bg-[#11110f] p-4 text-left transition-all duration-300 active:scale-95 active:border-[#b89b5e]/50"
                     >
                       <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-[#b89b5e]/5 blur-xl" />
@@ -192,7 +195,7 @@ export default function PackageCarousel({ packages = [] }: Props) {
                       </div>
 
                       <button
-                        onClick={() => alert(`Anda memilih Paket ${item.name}`)}
+                        onClick={() => setSelectedPkg(item)}
                         className="relative mt-5 w-full rounded-xl border border-[#b89b5e]/20 bg-[#b89b5e]/5 px-4 py-3 text-sm font-bold text-[#f2f0ea] transition-all duration-300 hover:border-[#b89b5e] hover:bg-[#b89b5e] hover:text-[#17130c]"
                       >
                         Pilih Paket
@@ -241,6 +244,17 @@ export default function PackageCarousel({ packages = [] }: Props) {
           →
         </button>
       </div>
+
+      {selectedPkg && (
+        <CheckoutModal
+          pkg={{
+            id: selectedPkg.id,
+            name: selectedPkg.name,
+            price: selectedPkg.numericPrice,
+          }}
+          onClose={() => setSelectedPkg(null)}
+        />
+      )}
     </div>
   );
 }
