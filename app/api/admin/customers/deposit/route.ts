@@ -15,9 +15,21 @@ export async function POST(request: Request) {
 
     try {
       body = await request.json();
-    } catch {
+    } catch (parseError) {
+      console.error("DEPOSIT JSON PARSE ERROR:", parseError);
+
       return NextResponse.json({ error: "Data tidak valid." }, { status: 400 });
     }
+
+    console.error("DEPOSIT BODY DEBUG:", {
+      type: typeof body,
+      isNull: body === null,
+      isArray: Array.isArray(body),
+      keys:
+        typeof body === "object" && body !== null && !Array.isArray(body)
+          ? Object.keys(body)
+          : null,
+    });
 
     const parsed = parseDepositInput(body);
 

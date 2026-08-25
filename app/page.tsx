@@ -2,6 +2,7 @@ import PackageCarousel, {
   type CatalogPackage,
 } from "@/components/PackageCarousel";
 import { createClient } from "@supabase/supabase-js";
+import { formatRupiah } from "@/lib/format";
 
 export const revalidate = 300;
 
@@ -35,14 +36,6 @@ const TYPE_ICONS: Record<string, string> = {
   monthly: "🏠",
   quota: "📶",
 };
-
-function formatRupiah(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
 
 function formatDurationDescription(row: PackageRow): string {
   const minutes = row.duration_minutes;

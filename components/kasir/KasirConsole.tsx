@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import CreateCustomerForm from "@/components/kasir/CreateCustomerForm";
+import { formatRupiah } from "@/lib/format";
 
 type CustomerRow = {
   id: string;
@@ -20,14 +21,6 @@ type PaginationInfo = {
 };
 
 const PAGE_SIZE = 20;
-
-function formatRupiah(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
 
 export default function KasirConsole() {
   const [customers, setCustomers] = useState<CustomerRow[]>([]);

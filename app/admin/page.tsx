@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { formatRupiah, formatDateTimeWIB } from "@/lib/format";
 import StatCard from "@/components/admin/StatCard";
 
 const JAKARTA_OFFSET_MS = 7 * 60 * 60 * 1000;
@@ -15,28 +16,6 @@ function startOfJakartaDayISO(): string {
       shifted.getUTCDate(),
     ) - JAKARTA_OFFSET_MS,
   ).toISOString();
-}
-
-function formatRupiah(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function formatDateTime(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "-";
-  }
-
-  return new Intl.DateTimeFormat("id-ID", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Asia/Jakarta",
-  }).format(date);
 }
 
 type RecentTransaction = {
@@ -366,7 +345,7 @@ export default async function AdminPage() {
                             "
                           >
                             {tx.note || "Deposit"} •{" "}
-                            {formatDateTime(tx.created_at)}
+                            {formatDateTimeWIB(tx.created_at)}
                           </p>
                         </div>
 

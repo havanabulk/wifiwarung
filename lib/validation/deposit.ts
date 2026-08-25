@@ -17,10 +17,15 @@ export type ParseDepositResult =
   { ok: true; data: DepositInputData } | { ok: false; error: string };
 
 export function parseDepositInput(body: unknown): ParseDepositResult {
-  if (typeof body !== "object" || body === null) {
+  if (typeof body !== "object" || body === null || Array.isArray(body)) {
+    console.error("PARSE_DEPOSIT: body is not an object", {
+      type: typeof body,
+      isArray: Array.isArray(body),
+    });
+
     return {
       ok: false,
-      error: "Data deposit tidak valid.",
+      error: `Data deposit tidak valid (tipe: ${typeof body}).`,
     };
   }
 

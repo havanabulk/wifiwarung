@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-
-type PackageType =
-  "hourly" | "night" | "daily" | "weekly" | "monthly" | "quota";
+import { formatRupiah, formatDuration, formatQuota } from "@/lib/format";
+import type { PackageType } from "@/lib/validation/package";
 
 type PackageItem = {
   id: number;
@@ -75,36 +74,6 @@ const defaultForm = {
   endTime: "06:00",
   active: true,
 };
-
-function formatRupiah(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function formatDuration(minutes: number | null) {
-  if (!minutes) return "-";
-
-  if (minutes % 60 === 0) {
-    const hours = minutes / 60;
-
-    return `${hours} ${hours === 1 ? "Jam" : "Jam"}`;
-  }
-
-  return `${minutes} Menit`;
-}
-
-function formatQuota(mb: number | null) {
-  if (!mb) return "-";
-
-  if (mb >= 1024 && mb % 1024 === 0) {
-    return `${mb / 1024} GB`;
-  }
-
-  return `${mb} MB`;
-}
 
 function getTypeLabel(type: PackageType) {
   return PACKAGE_TYPES.find((item) => item.value === type)?.label ?? type;

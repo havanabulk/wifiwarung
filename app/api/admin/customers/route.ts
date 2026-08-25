@@ -93,13 +93,6 @@ export async function GET(request: Request) {
 
     if (summaryRes.error) {
       console.error("CUSTOMERS SUMMARY RPC ERROR:", summaryRes.error);
-
-      return NextResponse.json(
-        {
-          error: "Gagal mengambil ringkasan pelanggan.",
-        },
-        { status: 500 },
-      );
     }
 
     const summary = (summaryRes.data ?? {}) as CustomersSummary;

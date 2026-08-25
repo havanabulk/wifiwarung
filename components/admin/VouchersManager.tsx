@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { MAX_VOUCHERS_PER_BATCH, formatVoucherValue } from "@/lib/voucher";
+import { formatDateTimeWIB } from "@/lib/format";
 
 type BatchRow = {
   id: number;
@@ -24,20 +25,6 @@ type VoucherCodeRow = {
   expires_at: string | null;
   redeemedByUsername: string | null;
 };
-
-function formatDateTimeWIB(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "-";
-  }
-
-  return new Intl.DateTimeFormat("id-ID", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Asia/Jakarta",
-  }).format(date);
-}
 
 export default function VouchersManager() {
   const [batches, setBatches] = useState<BatchRow[]>([]);

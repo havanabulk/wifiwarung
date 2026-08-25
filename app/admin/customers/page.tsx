@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { formatRupiah } from "@/lib/format";
 
 type PackageOrder = {
   id: number;
@@ -174,14 +175,6 @@ export default function CustomersPage() {
       cancelled = true;
     };
   }, []);
-
-  function formatRupiah(value: number) {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(value);
-  }
 
   function formatDate(value: string | null) {
     if (!value) {

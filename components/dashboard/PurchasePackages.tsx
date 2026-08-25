@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { formatRupiah, formatDuration, formatQuota } from "@/lib/format";
 
 export type PurchasePackageItem = {
   id: number;
@@ -14,42 +15,6 @@ export type PurchasePackageItem = {
   startTime: string | null;
   endTime: string | null;
 };
-
-function formatRupiah(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function formatDuration(minutes: number) {
-  if (minutes < 60) {
-    return `${minutes} menit`;
-  }
-
-  if (minutes % 60 === 0) {
-    const hours = minutes / 60;
-
-    if (hours % 24 === 0) {
-      const days = hours / 24;
-
-      return `${days} hari`;
-    }
-
-    return `${hours} jam`;
-  }
-
-  return `${minutes} menit`;
-}
-
-function formatQuota(mb: number) {
-  if (mb >= 1024 && mb % 1024 === 0) {
-    return `${mb / 1024} GB`;
-  }
-
-  return `${mb} MB`;
-}
 
 function formatClock(time: string) {
   return time.slice(0, 5);

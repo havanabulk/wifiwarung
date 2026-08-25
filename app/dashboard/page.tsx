@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { formatRupiah, formatDateTimeWIB } from "@/lib/format";
 import LogoutButton from "@/components/auth/LogoutButton";
 import PurchasePackages, {
   type PurchasePackageItem,
@@ -16,28 +17,6 @@ type TransactionRow = {
   note: string | null;
   created_at: string;
 };
-
-function formatDateTimeWIB(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "-";
-  }
-
-  return new Intl.DateTimeFormat("id-ID", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Asia/Jakarta",
-  }).format(date);
-}
-
-function formatRupiah(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
 
 function getTransactionLabel(type: string) {
   const normalized = type.toLowerCase();
