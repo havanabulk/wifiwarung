@@ -111,7 +111,7 @@ export async function POST(request: Request) {
       status: "active",
     };
 
-const { error: voucherError } = existing?.id
+    const { error: voucherError } = existing?.id
       ? await service
           .from("mikrotik_vouchers")
           .update(voucher)
