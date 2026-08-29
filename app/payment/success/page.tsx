@@ -95,7 +95,7 @@ function PaymentSuccessContent() {
             </h1>
 
             <p className="mt-2 text-sm text-[#a7a39a]">
-              Kami sedang menunggu konfirmasi dari Tripay. Halaman ini akan
+              Kami sedang menunggu konfirmasi dari Midtrans. Halaman ini akan
               diperbarui otomatis.
             </p>
           </>

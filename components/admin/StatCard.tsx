@@ -13,6 +13,8 @@ const accents = {
   red: "text-red-300 bg-red-500/5 border-red-500/10",
 };
 
+const accentKeys = new Set(["gold", "green", "blue", "red"]);
+
 export default function StatCard({
   label,
   value,
@@ -20,6 +22,8 @@ export default function StatCard({
   icon,
   accent = "gold",
 }: StatCardProps) {
+  const safeAccent = accentKeys.has(accent) ? accent : "gold";
+
   return (
     <div
       className="
@@ -59,7 +63,7 @@ export default function StatCard({
             rounded-xl
             border
             text-sm
-            ${accents[accent]}
+            ${accents[safeAccent]}
           `}
         >
           {icon}

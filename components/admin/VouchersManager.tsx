@@ -202,7 +202,7 @@ export default function VouchersManager() {
   }
 
   function copyAllCodes(codes: string[]) {
-    void navigator.clipboard.writeText(codes.join("\n"));
+    navigator.clipboard?.writeText(codes.join("\n")).catch(() => {});
   }
 
   return (

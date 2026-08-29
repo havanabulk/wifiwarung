@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { createClient } from "@/lib/supabase/server";
-import { createSignature, createTripayTransaction } from "@/lib/tripay";
+import { createSnapTransaction } from "@/lib/midtrans";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -30,13 +30,6 @@ export async function POST(request: Request) {
     if (!Number.isInteger(parsedPackageId) || parsedPackageId <= 0) {
       return NextResponse.json(
         { error: "ID paket tidak valid." },
-        { status: 400 },
-      );
-    }
-
-    if (typeof methodName !== "string" || methodName.trim() === "") {
-      return NextResponse.json(
-        { error: "Metode pembayaran wajib diisi." },
         { status: 400 },
       );
     }
@@ -122,9 +115,11 @@ export async function POST(request: Request) {
     const random = Math.random().toString(36).slice(2, 8).toUpperCase();
     const merchantRef = `W28-${timestamp}-${random}`;
 
-    /* ---------- CASH: langsung simpan tanpa Tripay ---------- */
+    /* ---------- CASH: langsung simpan tanpa gateway online ---------- */
 
-    const isCash = methodName.trim().toUpperCase() === "CASH";
+    const isCash =
+      typeof methodName === "string" &&
+      methodName.trim().toUpperCase() === "CASH";
 
     if (isCash) {
       const { error: insertError } = await service.from("transactions").insert({
@@ -159,37 +154,29 @@ export async function POST(request: Request) {
       });
     }
 
-    /* ---------- TRIPAY: buat transaksi online ---------- */
+    /* ---------- MIDTRANS SNAP: buat transaksi online ---------- */
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
-    const expiredTime = Math.floor(Date.now() / 1000) + 3600;
+    const amount = Math.round(pkg.price);
+    const normalizedEmail = customerEmail.trim().toLowerCase();
 
-    const tripayPayload = {
-      method: methodName.trim(),
-      merchant_ref: merchantRef,
-      amount: Math.round(pkg.price),
-      customer_name: customerName.trim(),
-      customer_email: customerEmail.trim().toLowerCase(),
-      customer_phone: customerPhone ? String(customerPhone).trim() : undefined,
-      order_items: [
-        {
-          name: pkg.name,
-          price: Math.round(pkg.price),
-          quantity: 1,
-        },
-      ],
-      callback_url: appUrl ? `${appUrl}/api/webhooks/tripay` : undefined,
-      return_url: appUrl
+    const snapRes = await createSnapTransaction({
+      orderId: merchantRef,
+      grossAmount: amount,
+      customerName: customerName.trim(),
+      customerEmail: normalizedEmail,
+      customerPhone: customerPhone ? String(customerPhone).trim() : undefined,
+      itemName: pkg.name,
+      finishUrl: appUrl
         ? `${appUrl}/payment/success?ref=${merchantRef}`
-        : undefined,
-      expired_time: expiredTime,
-      signature: createSignature(merchantRef, Math.round(pkg.price)),
-    };
+        : "",
+    });
 
-    const tripayRes = await createTripayTransaction(tripayPayload);
-
-    if (!tripayRes.success || !tripayRes.data) {
-      console.error("TRIPAY CREATE ERROR:", tripayRes.message);
+    if (!snapRes.token || !snapRes.redirect_url) {
+      console.error(
+        "MIDTRANS SNAP CREATE ERROR:",
+        snapRes.status_message ?? snapRes.error_messages,
+      );
 
       return NextResponse.json(
         { error: "Gagal membuat transaksi pembayaran. Silakan coba lagi." },
@@ -197,28 +184,27 @@ export async function POST(request: Request) {
       );
     }
 
-    const td = tripayRes.data;
-
     /* ---------- simpan transaksi ke database ---------- */
 
     const { error: insertError } = await service.from("transactions").insert({
       user_id: userId,
       package_id: parsedPackageId,
       guest_name: customerName.trim(),
-      guest_email: customerEmail.trim().toLowerCase(),
+      guest_email: normalizedEmail,
       guest_phone: customerPhone ? String(customerPhone).trim() : null,
-      tripay_ref: td.reference,
+      midtrans_order_id: merchantRef,
+      snap_token: snapRes.token,
       merchant_ref: merchantRef,
-      payment_method: td.payment_name,
-      payment_method_code: td.payment_method,
-      pay_code: td.pay_code,
-      checkout_url: td.checkout_url,
-      amount: td.amount,
-      fee_merchant: td.fee_merchant,
-      fee_customer: td.fee_customer,
-      amount_received: td.amount_received,
+      payment_method: "Midtrans",
+      payment_method_code: "MIDTRANS",
+      pay_code: null,
+      checkout_url: snapRes.redirect_url,
+      amount,
+      fee_merchant: 0,
+      fee_customer: 0,
+      amount_received: amount,
       status: "pending",
-      expired_at: new Date(td.expired_time * 1000).toISOString(),
+      expired_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
     });
 
     if (insertError) {
@@ -234,12 +220,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      checkout_url: td.checkout_url,
-      pay_code: td.pay_code,
-      reference: td.reference,
+      payment_type: "midtrans",
       merchant_ref: merchantRef,
-      payment_name: td.payment_name,
-      instructions: td.instructions,
+      redirect_url: snapRes.redirect_url,
     });
   } catch (error) {
     console.error("TRANSACTION API ERROR:", error);

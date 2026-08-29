@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { getTripayTransactionDetail } from "@/lib/tripay";
+import {
+  getMidtransTransactionStatus,
+  mapMidtransStatus,
+  midtransTimeToIso,
+} from "@/lib/midtrans";
+import { fulfillPaidTransaction } from "@/lib/transaction-fulfill";
 
 type Context = {
   params: Promise<{
@@ -23,7 +28,7 @@ export async function GET(_request: Request, context: Context) {
 
     const { data: tx, error: txError } = await service
       .from("transactions")
-      .select("*")
+      .select("*, packages(id, name, price, duration_minutes)")
       .eq("merchant_ref", merchantRef.trim())
       .single();
 
@@ -34,51 +39,57 @@ export async function GET(_request: Request, context: Context) {
       );
     }
 
-    /* ---------- sinkronkan status dari Tripay jika masih pending ---------- */
+    /* ---------- sinkronkan status dari Midtrans jika masih pending ---------- */
 
-    if (tx.status === "pending" && tx.tripay_ref) {
+    if (tx.status === "pending" && tx.midtrans_order_id) {
       try {
-        const detail = await getTripayTransactionDetail(tx.tripay_ref);
+        const detail = await getMidtransTransactionStatus(tx.midtrans_order_id);
 
-        if (detail.success && detail.data) {
-          const latestStatus = detail.data.status;
-
-          let newStatus: string | null = null;
-
-          if (latestStatus === "PAID") {
-            newStatus = "paid";
-          } else if (latestStatus === "FAILED") {
-            newStatus = "failed";
-          } else if (latestStatus === "EXPIRED") {
-            newStatus = "expired";
-          } else if (latestStatus === "REFUND") {
-            newStatus = "refunded";
-          }
+        if (detail) {
+          const newStatus = mapMidtransStatus(detail);
 
           if (newStatus && newStatus !== tx.status) {
-            const updatePayload: Record<string, unknown> = {
-              status: newStatus,
-            };
+            if (newStatus === "paid") {
+              const paidAt =
+                midtransTimeToIso(detail.settlement_time) ??
+                new Date().toISOString();
+              const amountReceived =
+                Number(detail.gross_amount) > 0
+                  ? Math.round(Number(detail.gross_amount))
+                  : tx.amount;
 
-            if (newStatus === "paid" && detail.data.paid_at) {
-              updatePayload.paid_at = new Date(
-                detail.data.paid_at * 1000,
-              ).toISOString();
-              updatePayload.amount_received = detail.data.amount_received;
-              updatePayload.fee_merchant = detail.data.fee_merchant;
-              updatePayload.fee_customer = detail.data.fee_customer;
+              const updatePayload: Record<string, unknown> = {
+                status: "paid",
+                paid_at: paidAt,
+                payment_method_code: detail.payment_type,
+                amount_received: amountReceived,
+              };
+
+              await service
+                .from("transactions")
+                .update(updatePayload)
+                .eq("id", tx.id);
+
+              tx.status = newStatus;
+
+              await fulfillPaidTransaction(service, tx, {
+                merchantRef: tx.merchant_ref,
+                amountReceived,
+                paidAt,
+                paymentType: "midtrans",
+              });
+            } else {
+              await service
+                .from("transactions")
+                .update({ status: newStatus })
+                .eq("id", tx.id);
+
+              tx.status = newStatus;
             }
-
-            await service
-              .from("transactions")
-              .update(updatePayload)
-              .eq("id", tx.id);
-
-            tx.status = newStatus;
           }
         }
-      } catch (tripayErr) {
-        console.error("TRIPAY DETAIL FETCH ERROR:", tripayErr);
+      } catch (midtransErr) {
+        console.error("MIDTRANS STATUS FETCH ERROR:", midtransErr);
       }
     }
 

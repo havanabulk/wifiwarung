@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import CheckoutModal from "./CheckoutModal";
+import dynamic from "next/dynamic";
+
+const CheckoutModal = dynamic(() => import("./CheckoutModal"), {
+  ssr: false,
+  loading: () => null,
+});
 
 export type CatalogPackage = {
   id: number;
@@ -38,7 +43,11 @@ export default function PackageCarousel({ packages = [] }: Props) {
   }, []);
 
   const perPage = mobile ? MOBILE_PER_PAGE : DESKTOP_PER_PAGE;
-  const totalPages = Math.ceil(packages.length / perPage);
+  const totalPages = Math.max(1, Math.ceil(packages.length / perPage));
+
+  useEffect(() => {
+    setPage((current) => Math.min(current, totalPages - 1));
+  }, [totalPages]);
 
   function nextPage() {
     setPage((c) => (c >= totalPages - 1 ? 0 : c + 1));
@@ -49,11 +58,11 @@ export default function PackageCarousel({ packages = [] }: Props) {
   }
 
   function swipeStart(e: React.TouchEvent<HTMLDivElement>) {
-    touchStart.current = e.changedTouches[0].screenX;
+    touchStart.current = e.changedTouches[0]?.screenX ?? null;
   }
 
   function swipeEnd(e: React.TouchEvent<HTMLDivElement>) {
-    touchEnd.current = e.changedTouches[0].screenX;
+    touchEnd.current = e.changedTouches[0]?.screenX ?? null;
 
     if (touchStart.current === null || touchEnd.current === null) {
       return;

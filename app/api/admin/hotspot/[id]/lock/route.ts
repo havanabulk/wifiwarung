@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth/admin";
+import { requireStaff } from "@/lib/auth/staff";
 import { createServiceClient } from "@/lib/supabase/service";
 
 type Context = {
@@ -8,7 +8,7 @@ type Context = {
 
 export async function PUT(_request: Request, context: Context) {
   try {
-    const auth = await requireUser();
+    const auth = await requireStaff();
 
     if (!auth.ok) {
       return auth.response;

@@ -1,4 +1,8 @@
-export function formatRupiah(value: number) {
+export function formatRupiah(value: number | null | undefined) {
+  if (value == null || !Number.isFinite(value)) {
+    return "-";
+  }
+
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
@@ -44,10 +48,20 @@ export function formatQuota(mb: number | null) {
   return `${mb} MB`;
 }
 
-export function formatDateTimeWIB(dateStr: string) {
+export function formatDateTimeWIB(dateStr: string | null | undefined) {
+  if (!dateStr) {
+    return "-";
+  }
+
+  const date = new Date(dateStr);
+
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+
   return new Intl.DateTimeFormat("id-ID", {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: "Asia/Jakarta",
-  }).format(new Date(dateStr));
+  }).format(date);
 }

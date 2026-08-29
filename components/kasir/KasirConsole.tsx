@@ -22,6 +22,17 @@ type PaginationInfo = {
 
 const PAGE_SIZE = 20;
 
+function newId() {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
+    return crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
 export default function KasirConsole() {
   const [customers, setCustomers] = useState<CustomerRow[]>([]);
 
@@ -71,8 +82,8 @@ export default function KasirConsole() {
     }
 
     return {
-      customers: (result.customers ?? []) as CustomerRow[],
-      pagination: (result.pagination ?? {
+      customers: (result?.customers ?? []) as CustomerRow[],
+      pagination: (result?.pagination ?? {
         page: 1,
         pageSize: PAGE_SIZE,
         total: 0,
@@ -166,7 +177,7 @@ export default function KasirConsole() {
         body: JSON.stringify({
           user_id: selected.id,
           amount: Number(amount),
-          idempotencyKey: crypto.randomUUID(),
+          idempotencyKey: newId(),
         }),
       });
 

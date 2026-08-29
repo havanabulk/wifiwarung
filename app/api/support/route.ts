@@ -5,6 +5,9 @@ import { getClientIp } from "@/lib/rate-limit";
 const RATE_LIMIT = 5;
 const RATE_LIMIT_WINDOW_SECONDS = 10 * 60;
 
+const GLOBAL_RATE_LIMIT = 200;
+const GLOBAL_RATE_LIMIT_WINDOW_SECONDS = 10 * 60;
+
 const MAX_NAME_LENGTH = 100;
 const MAX_PHONE_LENGTH = 20;
 const MAX_MESSAGE_LENGTH = 2000;
@@ -18,6 +21,10 @@ export async function POST(req: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     );
 
+    // Bucket per-IP: halaman publik memakai header IP, yang bisa diubah
+    // klien. Bucket global di bawah dipakai sebagai backstop agar
+    // serangan spam (rotasi header IP) tetap terbatasi di tingkat
+    // aplikasi secara keseluruhan.
     const { data: retryAfter, error: rateLimitError } = await supabase.rpc(
       "consume_rate_limit",
       {
@@ -40,6 +47,31 @@ export async function POST(req: Request) {
           status: 429,
           headers: {
             "Retry-After": String(retryAfter),
+          },
+        },
+      );
+    }
+
+    const { data: globalRetryAfter, error: globalRateLimitError } =
+      await supabase.rpc("consume_rate_limit", {
+        p_bucket: "support:global",
+        p_limit: GLOBAL_RATE_LIMIT,
+        p_window_seconds: GLOBAL_RATE_LIMIT_WINDOW_SECONDS,
+      });
+
+    if (globalRateLimitError) {
+      console.error("SUPPORT GLOBAL RATE LIMIT RPC ERROR:", globalRateLimitError);
+    }
+
+    if (Number(globalRetryAfter ?? 0) > 0) {
+      return NextResponse.json(
+        {
+          error: "Terlalu banyak pesan masuk. Silakan coba lagi nanti.",
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(globalRetryAfter),
           },
         },
       );

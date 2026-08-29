@@ -25,76 +25,76 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const normalizedUsername = username.trim().toLowerCase();
+    try {
+      const normalizedUsername = username.trim().toLowerCase();
 
-    const email = normalizedUsername.includes("@")
-      ? normalizedUsername
-      : `${normalizedUsername}@warung28.my.id`;
+      const email = normalizedUsername.includes("@")
+        ? normalizedUsername
+        : `${normalizedUsername}@warung28.my.id`;
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setLoading(false);
+      if (error) {
+        if (error.code === "email_not_confirmed") {
+          setError("Email akun belum dikonfirmasi. Hubungi admin WARUNG28.");
 
-      if (error.code === "email_not_confirmed") {
-        setError("Email akun belum dikonfirmasi. Hubungi admin WARUNG28.");
+          return;
+        }
+
+        if (error.code === "user_banned") {
+          setError("Akun ini telah diblokir.");
+
+          return;
+        }
+
+        setError("Username atau password tidak benar.");
 
         return;
       }
 
-      if (error.code === "user_banned") {
-        setError("Akun ini telah diblokir.");
+      if (!data.user) {
+        setError("Akun tidak ditemukan.");
 
         return;
       }
 
-      setError("Username atau password tidak benar.");
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role, status")
+        .eq("id", data.user.id)
+        .single();
 
-      return;
-    }
+      if (!profile) {
+        setError("Profil akun belum tersedia.");
 
-    if (!data.user) {
+        return;
+      }
+
+      if (profile.status !== "active") {
+        await supabase.auth.signOut();
+
+        setError("Akun Anda sedang dinonaktifkan.");
+
+        return;
+      }
+
+      if (profile.role === "admin") {
+        router.replace("/admin");
+      } else if (profile.role === "kasir") {
+        router.replace("/kasir");
+      } else {
+        router.replace("/dashboard");
+      }
+
+      router.refresh();
+    } catch {
+      setError("Terjadi kesalahan jaringan. Coba lagi.");
+    } finally {
       setLoading(false);
-
-      setError("Akun tidak ditemukan.");
-
-      return;
     }
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role, status")
-      .eq("id", data.user.id)
-      .single();
-
-    setLoading(false);
-
-    if (!profile) {
-      setError("Profil akun belum tersedia.");
-
-      return;
-    }
-
-    if (profile.status !== "active") {
-      await supabase.auth.signOut();
-
-      setError("Akun Anda sedang dinonaktifkan.");
-
-      return;
-    }
-
-    if (profile.role === "admin") {
-      router.replace("/admin");
-    } else if (profile.role === "kasir") {
-      router.replace("/kasir");
-    } else {
-      router.replace("/dashboard");
-    }
-
-    router.refresh();
   }
 
   return (

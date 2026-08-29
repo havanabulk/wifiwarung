@@ -15,7 +15,6 @@ begin
   if not public.is_admin() then
     raise insufficient_privilege;
   end if;
-
   return jsonb_build_object(
     'activeCustomers', (
       select count(*)

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { requireUser } from "@/lib/auth/user";
+import crypto from "crypto";
 
 export async function POST(request: Request) {
   try {
