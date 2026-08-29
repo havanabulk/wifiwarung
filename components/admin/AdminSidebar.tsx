@@ -32,11 +32,6 @@ const menus = [
     icon: "▤",
   },
   {
-    label: "Hotspot Login",
-    href: "/admin/hotspot",
-    icon: "📶",
-  },
-  {
     label: "Customer Service",
     href: "/admin/support",
     icon: "◌",
