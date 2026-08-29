@@ -16,14 +16,18 @@ function PaymentErrorContent() {
   const ref = searchParams.get("ref") ?? orderId;
   const transactionStatus = searchParams.get("transaction_status");
 
-  let message = "Pembayaran belum selesai. Silakan coba lagi atau hubungi admin.";
+  let message =
+    "Pembayaran belum selesai. Silakan coba lagi atau hubungi admin.";
 
   if (transactionStatus === "cancel") {
-    message = "Pembayaran dibatalkan. Silakan coba lagi jika masih ingin membeli paket.";
+    message =
+      "Pembayaran dibatalkan. Silakan coba lagi jika masih ingin membeli paket.";
   } else if (transactionStatus === "expire") {
-    message = "Waktu pembayaran sudah habis. Buat transaksi baru jika ingin melanjutkan.";
+    message =
+      "Waktu pembayaran sudah habis. Buat transaksi baru jika ingin melanjutkan.";
   } else if (transactionStatus === "deny") {
-    message = "Pembayaran ditolak. Silakan coba metode lain atau hubungi admin.";
+    message =
+      "Pembayaran ditolak. Silakan coba metode lain atau hubungi admin.";
   }
 
   const statusHref = ref
