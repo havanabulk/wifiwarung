@@ -100,7 +100,7 @@ function PaymentSuccessContent() {
             </p>
           </>
         )}
-{!loading && tx?.status === "paid" && (
+        {!loading && tx?.status === "paid" && (
           <>
             <div className="text-4xl">✅</div>
 
@@ -118,8 +118,8 @@ function PaymentSuccessContent() {
               </p>
             ) : (
               <p className="mt-2 text-sm text-[#a7a39a]">
-                Saldo Anda sudah bertambah dan siap dipakai untuk membeli
-                paket internet.
+                Saldo Anda sudah bertambah dan siap dipakai untuk membeli paket
+                internet.
               </p>
             )}
 

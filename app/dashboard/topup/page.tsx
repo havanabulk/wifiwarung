@@ -41,8 +41,8 @@ export default async function TopUpPage() {
           </h1>
 
           <p className="mt-3 text-sm text-[#a7a39a]">
-            Akun Anda sedang dinonaktifkan. Silakan hubungi admin WARUNG28
-            untuk mengaktifkan kembali akun Anda.
+            Akun Anda sedang dinonaktifkan. Silakan hubungi admin WARUNG28 untuk
+            mengaktifkan kembali akun Anda.
           </p>
         </div>
       </main>
