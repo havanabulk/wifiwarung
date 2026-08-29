@@ -71,8 +71,7 @@ export async function POST(request: NextRequest) {
 
     if (status === "paid") {
       const paidAt =
-        midtransTimeToIso(payload.settlement_time) ??
-        new Date().toISOString();
+        midtransTimeToIso(payload.settlement_time) ?? new Date().toISOString();
       const amountReceived =
         Number(payload.gross_amount) > 0
           ? Math.round(Number(payload.gross_amount))
@@ -99,10 +98,7 @@ export async function POST(request: NextRequest) {
       status === "expired" ||
       status === "refunded"
     ) {
-      await service
-        .from("transactions")
-        .update({ status })
-        .eq("id", tx.id);
+      await service.from("transactions").update({ status }).eq("id", tx.id);
     }
 
     return NextResponse.json({ status_code: 200, message: "OK" });

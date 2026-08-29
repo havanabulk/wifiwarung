@@ -96,11 +96,7 @@ export type MidtransStatusDetail = {
 };
 
 export type PaymentStatus =
-  | "pending"
-  | "paid"
-  | "failed"
-  | "expired"
-  | "refunded";
+  "pending" | "paid" | "failed" | "expired" | "refunded";
 
 /* ------------------------------------------------------------------ */
 /*  Signature verification                                              */
@@ -124,13 +120,19 @@ function normalizeGrossAmount(value: string): string {
 // order_id + status_code + gross_amount + ServerKey (Snap) atau
 // ServerKey + order_id + status_code + gross_amount (Core API).
 // Dicek beberapa varian agar aman terhadap perbedaan konvensi & format.
-export function verifyMidtransSignature(payload: MidtransNotification): boolean {
+export function verifyMidtransSignature(
+  payload: MidtransNotification,
+): boolean {
   if (!payload.signature_key) {
     return false;
   }
 
   const serverKey = midtransServerKey();
-  const rawParts = [payload.order_id, payload.status_code, payload.gross_amount];
+  const rawParts = [
+    payload.order_id,
+    payload.status_code,
+    payload.gross_amount,
+  ];
   const normalizedParts = [
     payload.order_id,
     payload.status_code,
@@ -152,10 +154,7 @@ export function verifyMidtransSignature(payload: MidtransNotification): boolean 
 /* ------------------------------------------------------------------ */
 
 export function mapMidtransStatus(
-  detail: Pick<
-    MidtransNotification,
-    "transaction_status" | "fraud_status"
-  >,
+  detail: Pick<MidtransNotification, "transaction_status" | "fraud_status">,
 ): PaymentStatus | null {
   const s = detail.transaction_status;
 
@@ -217,8 +216,7 @@ export async function createSnapTransaction(
   const url = `${snapBaseUrl()}/snap/v1/transactions`;
 
   const now = new Date();
-  const startTime =
-    now.toISOString().slice(0, 19).replace("T", " ") + " +0000";
+  const startTime = now.toISOString().slice(0, 19).replace("T", " ") + " +0000";
 
   const body = {
     transaction_details: {
@@ -263,7 +261,9 @@ export async function createSnapTransaction(
   if (!response.ok && !data.token) {
     throw new Error(
       `MIDTRANS SNAP ${response.status}: ${
-        data.status_message ?? data.error_messages?.join(", ") ?? response.statusText
+        data.status_message ??
+        data.error_messages?.join(", ") ??
+        response.statusText
       }`,
     );
   }

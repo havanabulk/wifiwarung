@@ -222,9 +222,7 @@ export default function CheckoutModal({ pkg, onClose }: Props) {
                   <span className="text-xl">💵</span>
 
                   <div>
-                    <div className="text-sm font-semibold">
-                      Tunai di Tempat
-                    </div>
+                    <div className="text-sm font-semibold">Tunai di Tempat</div>
 
                     <div className="mt-0.5 text-[10px] text-white/40">
                       Bayar langsung ke kasir saat datang
@@ -291,9 +289,7 @@ export default function CheckoutModal({ pkg, onClose }: Props) {
               <button
                 type="button"
                 onClick={() => {
-                  navigator.clipboard
-                    ?.writeText(merchantRef)
-                    .catch(() => {});
+                  navigator.clipboard?.writeText(merchantRef).catch(() => {});
                 }}
                 className="mt-3 rounded-lg border border-white/10 px-4 py-1.5 text-xs text-[#a7a39a] transition hover:border-[#b89b5e]/40 hover:text-[#c8ad72]"
               >

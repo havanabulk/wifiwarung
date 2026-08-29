@@ -167,9 +167,7 @@ export async function POST(request: Request) {
       customerEmail: normalizedEmail,
       customerPhone: customerPhone ? String(customerPhone).trim() : undefined,
       itemName: pkg.name,
-      finishUrl: appUrl
-        ? `${appUrl}/payment/success?ref=${merchantRef}`
-        : "",
+      finishUrl: appUrl ? `${appUrl}/payment/success?ref=${merchantRef}` : "",
     });
 
     if (!snapRes.token || !snapRes.redirect_url) {

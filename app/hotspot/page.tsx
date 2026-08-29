@@ -170,7 +170,9 @@ export default function HotspotCredentialsPage() {
             type="button"
             onClick={() =>
               navigator.clipboard
-                ?.writeText(`Username: ${hotspot.username}\nPIN: ${hotspot.pin}`)
+                ?.writeText(
+                  `Username: ${hotspot.username}\nPIN: ${hotspot.pin}`,
+                )
                 .catch(() => {})
             }
             className="mt-4 w-full rounded-xl border border-white/10 py-3 text-sm text-[#a7a39a] transition hover:border-[#b89b5e]/40 hover:text-[#c8ad72]"

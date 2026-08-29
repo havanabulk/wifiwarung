@@ -60,7 +60,10 @@ export async function POST(req: Request) {
       });
 
     if (globalRateLimitError) {
-      console.error("SUPPORT GLOBAL RATE LIMIT RPC ERROR:", globalRateLimitError);
+      console.error(
+        "SUPPORT GLOBAL RATE LIMIT RPC ERROR:",
+        globalRateLimitError,
+      );
     }
 
     if (Number(globalRetryAfter ?? 0) > 0) {

@@ -55,10 +55,7 @@ export async function fulfillPaidTransaction(
       });
 
     if (createAuthError || !authData?.user) {
-      console.error(
-        "FULFILL: gagal membuat akun guest:",
-        createAuthError,
-      );
+      console.error("FULFILL: gagal membuat akun guest:", createAuthError);
     } else {
       userId = authData.user.id;
 
@@ -98,7 +95,9 @@ export async function fulfillPaidTransaction(
     let endDate: Date;
 
     if (pkg.duration_minutes && pkg.duration_minutes > 0) {
-      endDate = new Date(startDate.getTime() + pkg.duration_minutes * 60 * 1000);
+      endDate = new Date(
+        startDate.getTime() + pkg.duration_minutes * 60 * 1000,
+      );
     } else {
       endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + 30);
@@ -181,7 +180,10 @@ export async function fulfillPaidTransaction(
         });
 
       if (hotspotError) {
-        console.error("FULFILL: gagal membuat hotspot credentials:", hotspotError);
+        console.error(
+          "FULFILL: gagal membuat hotspot credentials:",
+          hotspotError,
+        );
 
         return { hotspot: null };
       }
@@ -189,10 +191,7 @@ export async function fulfillPaidTransaction(
       return { hotspot: { username, pin } };
     }
   } catch (hotspotErr) {
-    console.error(
-      "FULFILL: error assigning hotspot credentials:",
-      hotspotErr,
-    );
+    console.error("FULFILL: error assigning hotspot credentials:", hotspotErr);
   }
 
   return { hotspot: null };
