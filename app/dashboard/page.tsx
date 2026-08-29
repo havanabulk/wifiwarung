@@ -411,21 +411,45 @@ export default async function DashboardPage({ searchParams }: SearchParams) {
                 </p>
               </div>
 
-              <span
-                className="
-                  rounded-full
-                  border
-                  border-emerald-500/30
-                  bg-emerald-500/10
-                  px-3
-                  py-1
-                  text-xs
-                  font-semibold
-                  text-emerald-300
-                "
-              >
-                Aktif
-              </span>
+              <div className="flex flex-wrap items-center gap-3">
+                <span
+                  className="
+                    rounded-full
+                    border
+                    border-emerald-500/30
+                    bg-emerald-500/10
+                    px-3
+                    py-1
+                    text-xs
+                    font-semibold
+                    text-emerald-300
+                  "
+                >
+                  Aktif
+                </span>
+
+                <Link
+                  href="/hotspot"
+                  className="
+                    inline-flex
+                    items-center
+                    gap-2
+                    rounded-xl
+                    border
+                    border-[#b89b5e]/30
+                    bg-[#b89b5e]/10
+                    px-4
+                    py-2
+                    text-xs
+                    font-bold
+                    text-[#c8ad72]
+                    transition
+                    hover:bg-[#b89b5e]/20
+                  "
+                >
+                  📡 Lihat Kredensial WiFi
+                </Link>
+              </div>
             </div>
           ) : (
             <p

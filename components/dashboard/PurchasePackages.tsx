@@ -98,7 +98,9 @@ export default function PurchasePackages({
         return;
       }
 
-      setSuccess(`Pembelian paket "${selected.name}" berhasil.`);
+      setSuccess(
+        `Pembelian paket "${selected.name}" berhasil. Kredensial WiFi tersedia di kartu "Paket Aktif" di atas.`,
+      );
 
       router.refresh();
 
