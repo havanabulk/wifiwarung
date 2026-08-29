@@ -72,12 +72,26 @@ export async function GET(_request: Request, context: Context) {
 
               tx.status = newStatus;
 
-              await fulfillPaidTransaction(service, tx, {
-                merchantRef: tx.merchant_ref,
-                amountReceived,
-                paidAt,
-                paymentType: "midtrans",
-              });
+              if (tx.package_id) {
+                await fulfillPaidTransaction(service, tx, {
+                  merchantRef: tx.merchant_ref,
+                  amountReceived,
+                  paidAt,
+                  paymentType: "midtrans",
+                });
+              } else {
+                const { error: depositError } = await service.rpc(
+                  "apply_online_deposit",
+                  { p_transaction_id: tx.id },
+                );
+
+                if (depositError) {
+                  console.error(
+                    "TRANSACTION STATUS: gagal kredit deposit:",
+                    depositError,
+                  );
+                }
+              }
             } else {
               await service
                 .from("transactions")

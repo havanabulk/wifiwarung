@@ -100,8 +100,7 @@ function PaymentSuccessContent() {
             </p>
           </>
         )}
-
-        {!loading && tx?.status === "paid" && (
+{!loading && tx?.status === "paid" && (
           <>
             <div className="text-4xl">✅</div>
 
@@ -109,22 +108,31 @@ function PaymentSuccessContent() {
               Pembayaran Berhasil!
             </h1>
 
-            <p className="mt-2 text-sm text-[#a7a39a]">
-              Paket Anda telah aktif. Silakan login dengan email{" "}
-              <span className="font-semibold text-[#f2f0ea]">
-                {tx.guest_email}
-              </span>{" "}
-              untuk mengakses layanan.
-            </p>
+            {tx.package_id ? (
+              <p className="mt-2 text-sm text-[#a7a39a]">
+                Paket Anda telah aktif. Silakan login dengan email{" "}
+                <span className="font-semibold text-[#f2f0ea]">
+                  {tx.guest_email}
+                </span>{" "}
+                untuk mengakses layanan.
+              </p>
+            ) : (
+              <p className="mt-2 text-sm text-[#a7a39a]">
+                Saldo Anda sudah bertambah dan siap dipakai untuk membeli
+                paket internet.
+              </p>
+            )}
 
             <div className="mt-4 rounded-xl border border-white/10 p-4 text-sm">
               <div className="flex justify-between">
                 <span className="text-[#a7a39a]">Status</span>
+
                 <span className="font-bold text-emerald-300">Aktif</span>
               </div>
 
               <div className="mt-2 flex justify-between">
                 <span className="text-[#a7a39a]">Ref</span>
+
                 <span className="font-mono text-xs text-[#f2f0ea]">
                   {tx.merchant_ref}
                 </span>
@@ -132,14 +140,13 @@ function PaymentSuccessContent() {
             </div>
 
             <Link
-              href="/login"
+              href={tx.package_id ? "/login" : "/dashboard"}
               className="mt-5 block w-full rounded-xl bg-[#b89b5e] py-3 text-sm font-bold text-[#17130c] transition hover:bg-[#c8ad72]"
             >
-              Login Sekarang
+              {tx.package_id ? "Login Sekarang" : "Ke Dashboard"}
             </Link>
           </>
         )}
-
         {!loading && error && (
           <>
             <div className="text-4xl">⏳</div>

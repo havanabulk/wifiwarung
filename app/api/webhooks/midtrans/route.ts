@@ -87,12 +87,26 @@ export async function POST(request: NextRequest) {
         })
         .eq("id", tx.id);
 
-      await fulfillPaidTransaction(service, tx, {
-        merchantRef,
-        amountReceived,
-        paidAt,
-        paymentType: "midtrans",
-      });
+      if (tx.package_id) {
+        await fulfillPaidTransaction(service, tx, {
+          merchantRef,
+          amountReceived,
+          paidAt,
+          paymentType: "midtrans",
+        });
+      } else {
+        const { error: depositError } = await service.rpc(
+          "apply_online_deposit",
+          { p_transaction_id: tx.id },
+        );
+
+        if (depositError) {
+          console.error(
+            "MIDTRANS NOTIFICATION: gagal kredit deposit:",
+            depositError,
+          );
+        }
+      }
     } else if (
       status === "failed" ||
       status === "expired" ||

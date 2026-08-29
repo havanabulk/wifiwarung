@@ -325,7 +325,7 @@ export default async function DashboardPage({ searchParams }: SearchParams) {
           </h2>
 
           <Link
-            href="/contact"
+            href="/dashboard/topup"
             className="
               mt-6
               inline-block
