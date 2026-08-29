@@ -160,7 +160,9 @@ export async function DELETE(_request: Request, context: Context) {
 
     if (tx.status !== "pending") {
       return NextResponse.json(
-        { error: `Transaksi sudah ${statusLabel(tx.status)}, tidak dapat dibatalkan.` },
+        {
+          error: `Transaksi sudah ${statusLabel(tx.status)}, tidak dapat dibatalkan.`,
+        },
         { status: 400 },
       );
     }
@@ -199,7 +201,10 @@ export async function DELETE(_request: Request, context: Context) {
 
     /* ---------- tandai gagal di database ---------- */
 
-    await service.from("transactions").update({ status: "failed" }).eq("id", tx.id);
+    await service
+      .from("transactions")
+      .update({ status: "failed" })
+      .eq("id", tx.id);
 
     return NextResponse.json({ success: true, status: "failed" });
   } catch (error) {

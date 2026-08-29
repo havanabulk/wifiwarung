@@ -332,7 +332,9 @@ export async function cancelMidtransTransaction(
     body: JSON.stringify({}),
   });
 
-  const data = (await response.json().catch(() => null)) as MidtransCancelResponse | null;
+  const data = (await response
+    .json()
+    .catch(() => null)) as MidtransCancelResponse | null;
 
   const ok =
     response.ok ||

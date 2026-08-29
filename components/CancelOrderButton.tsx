@@ -13,7 +13,11 @@ export default function CancelOrderButton({ orderRef }: Props) {
   const [done, setDone] = useState(false);
 
   async function handleCancel() {
-    if (!window.confirm("Batalkan pesanan ini? Pembayaran yang belum selesai akan dibatalkan.")) {
+    if (
+      !window.confirm(
+        "Batalkan pesanan ini? Pembayaran yang belum selesai akan dibatalkan.",
+      )
+    ) {
       return;
     }
 
@@ -21,9 +25,12 @@ export default function CancelOrderButton({ orderRef }: Props) {
     setError(null);
 
     try {
-      const res = await fetch(`/api/transactions/${encodeURIComponent(orderRef)}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `/api/transactions/${encodeURIComponent(orderRef)}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       const data = await res.json().catch(() => ({}));
 
