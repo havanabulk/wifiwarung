@@ -39,7 +39,7 @@ function snapBaseUrl(): string {
 function apiBaseUrl(): string {
   return isMidtransProduction()
     ? "https://api.midtrans.com"
-    : "https://api.sandbox.veritrans.co.id";
+    : "https://api.sandbox.midtrans.com";
 }
 
 function basicAuth(): string {
