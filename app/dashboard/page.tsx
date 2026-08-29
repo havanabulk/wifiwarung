@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { formatRupiah, formatDateTimeWIB } from "@/lib/format";
 import LogoutButton from "@/components/auth/LogoutButton";
 import PurchasePackages, {
@@ -198,9 +199,14 @@ export default async function DashboardPage({ searchParams }: SearchParams) {
     .maybeSingle();
 
   type ActiveOrderView = {
+    id: string;
     packageName: string;
     startAt: string;
     endAt: string | null;
+    voucher: {
+      username: string;
+      password: string;
+    } | null;
   };
 
   let activeOrder: ActiveOrderView | null = null;
@@ -210,12 +216,22 @@ export default async function DashboardPage({ searchParams }: SearchParams) {
       !activeOrderRow.end_at || new Date(activeOrderRow.end_at) > new Date();
 
     if (notYetEnded) {
+      const service = createServiceClient();
+
+      const { data: voucher } = await service
+        .from("mikrotik_vouchers")
+        .select("username, password")
+        .eq("package_order_id", activeOrderRow.id)
+        .maybeSingle();
+
       activeOrder = {
+        id: activeOrderRow.id,
         packageName:
           (activeOrderRow.packages as { name?: string }[] | undefined)?.[0]
             ?.name ?? "Paket",
         startAt: activeOrderRow.start_at,
         endAt: activeOrderRow.end_at,
+        voucher: voucher ?? null,
       };
     }
   }
@@ -375,6 +391,7 @@ export default async function DashboardPage({ searchParams }: SearchParams) {
           "
         >
           {activeOrder ? (
+            <>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <p
@@ -451,6 +468,34 @@ export default async function DashboardPage({ searchParams }: SearchParams) {
                 </Link>
               </div>
             </div>
+
+            {activeOrder.voucher ? (
+              <div className="mt-5 space-y-2 rounded-2xl border border-[#b89b5e]/15 bg-[#0d0d0b] p-4">
+                <p className="text-xs text-[#a7a39a]">Kredensial WiFi</p>
+
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm font-bold text-[#f2f0ea]">
+                    {activeOrder.voucher.username}
+                  </p>
+
+                  <details className="group">
+                    <summary className="cursor-pointer list-none rounded-lg border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-[#c8ad72] transition hover:bg-white/10">
+                      Lihat PIN
+                    </summary>
+
+                    <p className="mt-2 rounded-lg bg-black/60 px-3 py-2 text-sm font-bold tracking-widest text-[#f2f0ea]">
+                      {activeOrder.voucher.password}
+                    </p>
+                  </details>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-4 text-xs text-[#a7a39a]">
+                Kredensial WiFi sedang disiapkan dan akan dikirim ke WhatsApp
+                Anda otomatis.
+              </p>
+            )}
+            </>
           ) : (
             <p
               className="
