@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import CancelOrderButton from "@/components/CancelOrderButton";
 
 // Halaman arahan balik dari Midtrans saat pembayaran error / dibatalkan /
 // tidak selesai (Error & Unfinish redirect URL).
@@ -68,6 +69,8 @@ function PaymentErrorContent() {
         >
           Kembali ke Beranda
         </Link>
+
+        {ref && <CancelOrderButton orderRef={ref} />}
       </div>
     </main>
   );

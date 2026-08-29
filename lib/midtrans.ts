@@ -303,3 +303,50 @@ export async function getMidtransTransactionStatus(
 
   return data;
 }
+
+export type MidtransCancelResponse = {
+  status_code: string;
+  status_message: string;
+};
+
+export type MidtransCancelResult = {
+  ok: boolean;
+  response: MidtransCancelResponse | null;
+};
+
+// Membatalkan transaksi di Midtrans yang masih pending.
+// Sukses: status_code "200"/"201". Order tidak dikenal di gateway
+// (status_code "404") dianggap berhasil karena tidak ada yang perlu dibatalkan.
+export async function cancelMidtransTransaction(
+  orderId: string,
+): Promise<MidtransCancelResult> {
+  const url = `${apiBaseUrl()}/v2/${encodeURIComponent(orderId)}/cancel`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: basicAuth(),
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({}),
+  });
+
+  const data = (await response.json().catch(() => null)) as MidtransCancelResponse | null;
+
+  const ok =
+    response.ok ||
+    data?.status_code === "200" ||
+    data?.status_code === "201" ||
+    data?.status_code === "404";
+
+  if (!ok) {
+    console.error(
+      "MIDTRANS CANCEL ERROR:",
+      response.status,
+      data?.status_message,
+    );
+  }
+
+  return { ok, response: data };
+}

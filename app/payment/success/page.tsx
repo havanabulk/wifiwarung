@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import CancelOrderButton from "@/components/CancelOrderButton";
 
 type Transaction = {
   id: string;
@@ -163,6 +164,8 @@ function PaymentSuccessContent() {
             >
               Kembali ke Beranda
             </Link>
+
+            <CancelOrderButton orderRef={ref} />
           </>
         )}
 

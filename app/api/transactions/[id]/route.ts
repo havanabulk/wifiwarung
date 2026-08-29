@@ -4,6 +4,7 @@ import {
   getMidtransTransactionStatus,
   mapMidtransStatus,
   midtransTimeToIso,
+  cancelMidtransTransaction,
 } from "@/lib/midtrans";
 import { fulfillPaidTransaction } from "@/lib/transaction-fulfill";
 
@@ -110,6 +111,99 @@ export async function GET(_request: Request, context: Context) {
     return NextResponse.json({ transaction: tx });
   } catch (error) {
     console.error("TRANSACTION STATUS API ERROR:", error);
+
+    return NextResponse.json(
+      { error: "Terjadi kesalahan server." },
+      { status: 500 },
+    );
+  }
+}
+
+function statusLabel(status: string): string {
+  const labels: Record<string, string> = {
+    paid: "sudah dibayar",
+    failed: "gagal",
+    expired: "kadaluarsa",
+    refunded: "referensi refund",
+  };
+
+  return labels[status] ?? status;
+}
+
+// Batalkan pesanan yang masih pending (belum dibayar).
+// DELETE /api/transactions/:merchantRef
+export async function DELETE(_request: Request, context: Context) {
+  try {
+    const { id: merchantRef } = await context.params;
+
+    if (typeof merchantRef !== "string" || merchantRef.trim() === "") {
+      return NextResponse.json(
+        { error: "Referensi transaksi tidak valid." },
+        { status: 400 },
+      );
+    }
+
+    const service = createServiceClient();
+
+    const { data: tx, error: txError } = await service
+      .from("transactions")
+      .select("*, packages(id, name, price, duration_minutes)")
+      .eq("merchant_ref", merchantRef.trim())
+      .single();
+
+    if (txError || !tx) {
+      return NextResponse.json(
+        { error: "Transaksi tidak ditemukan." },
+        { status: 404 },
+      );
+    }
+
+    if (tx.status !== "pending") {
+      return NextResponse.json(
+        { error: `Transaksi sudah ${statusLabel(tx.status)}, tidak dapat dibatalkan.` },
+        { status: 400 },
+      );
+    }
+
+    /* ---------- batalkan di gateway Midtrans (jika transaksi online) ---------- */
+
+    let gatewayOk = true;
+
+    if (tx.midtrans_order_id) {
+      try {
+        const cancelResult = await cancelMidtransTransaction(
+          tx.midtrans_order_id,
+        );
+
+        gatewayOk = cancelResult.ok;
+
+        if (!gatewayOk) {
+          // gagal dibatalkan — bisa jadi sudah lunas/settled. Cek status aktual.
+          const detail = await getMidtransTransactionStatus(
+            tx.midtrans_order_id,
+          );
+
+          const actual = detail ? mapMidtransStatus(detail) : null;
+
+          if (actual === "paid") {
+            return NextResponse.json(
+              { error: "Pembayaran sudah selesai, tidak dapat dibatalkan." },
+              { status: 400 },
+            );
+          }
+        }
+      } catch (gatewayErr) {
+        console.error("MIDTRANS CANCEL API ERROR:", gatewayErr);
+      }
+    }
+
+    /* ---------- tandai gagal di database ---------- */
+
+    await service.from("transactions").update({ status: "failed" }).eq("id", tx.id);
+
+    return NextResponse.json({ success: true, status: "failed" });
+  } catch (error) {
+    console.error("TRANSACTION CANCEL API ERROR:", error);
 
     return NextResponse.json(
       { error: "Terjadi kesalahan server." },
