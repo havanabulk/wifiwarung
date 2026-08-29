@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { notifyOrderFulfilled } from "@/lib/n8n";
 
 // Aktivasi transaksi yang sudah lunas (paid): buat akun guest bila perlu dan
 // catat package_order. Kredensial WiFi (W28-...) lalu diterbitkan oleh
@@ -91,6 +92,8 @@ export async function fulfillPaidTransaction(
 
   let orderId: string | null = existingOrder?.id ?? null;
 
+  const created = !orderId;
+
   if (!orderId) {
     const startDate = new Date();
     let endDate: Date;
@@ -138,7 +141,32 @@ export async function fulfillPaidTransaction(
     })
     .eq("id", tx.id);
 
-  // Kredensial WiFi (W28-...) diterbitkan oleh sinkronisasi MikroTik eksternal
-  // yang memproses package_orders dengan mikrotik_status = 'pending'.
+  /* ---------- beri tahu n8n untuk buat voucher di MikroTik ---------- */
+
+  if (created) {
+    await notifyOrderFulfilled({
+      event: "order.fulfilled",
+      merchant_ref: options.merchantRef,
+      package_order_id: orderId,
+      user_id: userId,
+      package: {
+        id: pkg.id,
+        name: pkg.name,
+        price: options.amountReceived,
+      },
+      customer: {
+        name: tx.guest_name,
+        email: tx.guest_email,
+        phone: tx.guest_phone,
+      },
+      transaction: {
+        amount_received: options.amountReceived,
+        paid_at: options.paidAt,
+        payment_type: options.paymentType,
+      },
+      source: options.paymentType === "cash" ? "cash" : "midtrans_webhook",
+    });
+  }
+
   return { hotspot: null };
 }

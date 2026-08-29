@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { requireUser } from "@/lib/auth/user";
+import { notifyOrderFulfilled } from "@/lib/n8n";
 
 export async function POST(request: Request) {
   try {
@@ -90,6 +92,48 @@ export async function POST(request: Request) {
         },
         { status: 500 },
       );
+    }
+
+    const result = data as {
+      replay?: boolean;
+      order?: {
+        id?: string;
+        package_id?: number;
+        ref_key?: string;
+        price?: number;
+      } | null;
+    };
+
+    if (!result.replay && result.order?.id) {
+      const service = createServiceClient();
+
+      const [{ data: profile }, { data: pkg }] = await Promise.all([
+        service.from("profiles").select("full_name, phone").eq("id", auth.context.userId).maybeSingle(),
+        service.from("packages").select("id, name").eq("id", result.order.package_id ?? 0).maybeSingle(),
+      ]);
+
+      await notifyOrderFulfilled({
+        event: "order.fulfilled",
+        merchant_ref: result.order.ref_key ?? idempotencyKey.trim(),
+        package_order_id: result.order.id,
+        user_id: auth.context.userId,
+        package: {
+          id: result.order.package_id ?? 0,
+          name: pkg?.name ?? "Paket",
+          price: result.order.price ?? 0,
+        },
+        customer: {
+          name: profile?.full_name ?? null,
+          email: null,
+          phone: profile?.phone ?? null,
+        },
+        transaction: {
+          amount_received: result.order.price ?? 0,
+          paid_at: new Date().toISOString(),
+          payment_type: "wallet",
+        },
+        source: "wallet",
+      });
     }
 
     return NextResponse.json(

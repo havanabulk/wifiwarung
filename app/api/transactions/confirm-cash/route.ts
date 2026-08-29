@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { requireUser } from "@/lib/auth/user";
+import { notifyOrderFulfilled } from "@/lib/n8n";
 import crypto from "crypto";
 
 export async function POST(request: Request) {
@@ -151,6 +152,29 @@ export async function POST(request: Request) {
             user_id: userId,
           })
           .eq("id", tx.id);
+
+        await notifyOrderFulfilled({
+          event: "order.fulfilled",
+          merchant_ref: tx.merchant_ref,
+          package_order_id: orderData.id,
+          user_id: userId,
+          package: {
+            id: pkg.id,
+            name: pkg.name,
+            price: pkg.price,
+          },
+          customer: {
+            name: tx.guest_name,
+            email: tx.guest_email,
+            phone: tx.guest_phone,
+          },
+          transaction: {
+            amount_received: tx.amount,
+            paid_at: now,
+            payment_type: "cash",
+          },
+          source: "cash",
+        });
       }
     }
 
