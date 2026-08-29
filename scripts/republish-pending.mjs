@@ -43,6 +43,9 @@ const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
 const n8nUrl = env.N8N_ORDER_FULFILLED_URL;
 const n8nToken = env.N8N_WEBHOOK_TOKEN || "";
 
+// Opsional: republish hanya satu order, mis. node scripts/republish-pending.mjs 4
+const onlyOrderId = process.argv[2] ? String(process.argv[2]).trim() : null;
+
 if (!url || !serviceKey) {
   console.error("Missing SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY.");
   process.exit(1);
@@ -83,7 +86,9 @@ if (error) {
 }
 
 const pending = (orders ?? []).filter(
-  (o) => !o.mikrotik_vouchers || o.mikrotik_vouchers.length === 0,
+  (o) =>
+    (!o.mikrotik_vouchers || o.mikrotik_vouchers.length === 0) &&
+    (!onlyOrderId || String(o.id) === onlyOrderId),
 );
 
 console.log(

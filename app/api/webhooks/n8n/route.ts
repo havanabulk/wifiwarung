@@ -98,23 +98,36 @@ export async function POST(request: Request) {
       .eq("package_order_id", orderId)
       .maybeSingle();
 
+    // Kolom mikrotik_profile NOT NULL di DB; bila n8n tidak mengirim,
+    // pakai "default" supaya tersimpan (profile asli dikirim n8n saat
+    // workflow MikroTik sesungguhnya berjalan).
     const voucher = {
       package_order_id: orderId,
       user_id: order.user_id,
       username,
       password,
-      mikrotik_profile: body.mikrotik_profile ?? null,
+      mikrotik_profile: body.mikrotik_profile ?? "default",
       limit_uptime: body.limit_uptime ?? null,
       status: "active",
     };
 
-    if (existing?.id) {
-      await service
-        .from("mikrotik_vouchers")
-        .update(voucher)
-        .eq("id", existing.id);
-    } else {
-      await service.from("mikrotik_vouchers").insert(voucher);
+const { error: voucherError } = existing?.id
+      ? await service
+          .from("mikrotik_vouchers")
+          .update(voucher)
+          .eq("id", existing.id)
+      : await service.from("mikrotik_vouchers").insert(voucher);
+
+    if (voucherError) {
+      console.error(
+        `N8N: gagal menyimpan voucher untuk order ${orderId}:`,
+        voucherError,
+      );
+
+      return NextResponse.json(
+        { ok: false, error: `Gagal menyimpan voucher (${voucherError.code}).` },
+        { status: 500 },
+      );
     }
 
     await service
