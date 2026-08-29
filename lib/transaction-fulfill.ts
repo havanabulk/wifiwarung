@@ -1,13 +1,14 @@
 import crypto from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-// Aktivasi transaksi yang sudah lunas (paid): buat akun guest bila perlu,
-// catat package_order, dan auto-assign kredensial hotspot.
+// Aktivasi transaksi yang sudah lunas (paid): buat akun guest bila perlu dan
+// catat package_order. Kredensial WiFi (W28-...) lalu diterbitkan oleh
+// sinkronisasi MikroTik eksternal — kode ini tidak membuat voucher sendiri.
 //
-// Dipakai bersama oleh webhook Midtrans, sinkronisasi status, dan
-// konfirmasi tunai (confirm-cash). Idempoten:
+// Dipakai bersama oleh webhook Midtrans dan sinkronisasi status. Idempoten:
 // - package_order dicek lewat ref_key (unique index ada di migrasi purchase_package)
-// - hotspot_users dicek lewat package_order_id
+// - kredensial WiFi (W28-...) diterbitkan oleh sinkronisasi MikroTik eksternal
+//   dari package_orders yang mikrotik_status = 'pending'
 
 export type TransactionForFulfill = {
   id: string | number;
@@ -137,62 +138,7 @@ export async function fulfillPaidTransaction(
     })
     .eq("id", tx.id);
 
-  /* ---------- auto-assign hotspot credentials ---------- */
-
-  const { data: existingHotspot } = await service
-    .from("hotspot_users")
-    .select("id")
-    .eq("package_order_id", orderId)
-    .maybeSingle();
-
-  if (existingHotspot) {
-    return { hotspot: null };
-  }
-
-  try {
-    const pin = String(Math.floor(100 + Math.random() * 900));
-
-    let username: string | null = null;
-
-    for (let attempt = 0; attempt < 50; attempt++) {
-      const candidate = String(Math.floor(1000 + Math.random() * 9000));
-
-      const { data: existing } = await service
-        .from("hotspot_users")
-        .select("username")
-        .eq("username", candidate)
-        .maybeSingle();
-
-      if (!existing) {
-        username = candidate;
-        break;
-      }
-    }
-
-    if (username) {
-      const { error: hotspotError } = await service
-        .from("hotspot_users")
-        .insert({
-          username,
-          pin,
-          user_id: userId,
-          package_order_id: orderId,
-        });
-
-      if (hotspotError) {
-        console.error(
-          "FULFILL: gagal membuat hotspot credentials:",
-          hotspotError,
-        );
-
-        return { hotspot: null };
-      }
-
-      return { hotspot: { username, pin } };
-    }
-  } catch (hotspotErr) {
-    console.error("FULFILL: error assigning hotspot credentials:", hotspotErr);
-  }
-
+  // Kredensial WiFi (W28-...) diterbitkan oleh sinkronisasi MikroTik eksternal
+  // yang memproses package_orders dengan mikrotik_status = 'pending'.
   return { hotspot: null };
 }

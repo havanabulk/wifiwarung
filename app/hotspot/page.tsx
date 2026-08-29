@@ -5,10 +5,8 @@ import { useEffect, useState } from "react";
 type HotspotUser = {
   id: number;
   username: string;
-  pin: string;
-  active: boolean;
-  locked: boolean;
-  last_login_at: string | null;
+  password: string;
+  status: string;
   created_at: string;
   package_orders?: {
     id: number;
@@ -23,6 +21,7 @@ type HotspotUser = {
 export default function HotspotCredentialsPage() {
   const [hotspot, setHotspot] = useState<HotspotUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pendingSync, setPendingSync] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPin, setShowPin] = useState(false);
 
@@ -41,6 +40,7 @@ export default function HotspotCredentialsPage() {
         const data = await res.json();
 
         setHotspot(data.hotspot);
+        setPendingSync(Boolean(data.pendingSync));
       } catch {
         setError("Terjadi kesalahan jaringan.");
       } finally {
@@ -70,6 +70,25 @@ export default function HotspotCredentialsPage() {
           </h1>
 
           <p className="mt-2 text-sm text-[#a7a39a]">{error}</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (pendingSync) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#080808] px-4">
+        <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#11110f] p-8 text-center">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-[#b89b5e] border-t-transparent" />
+
+          <h1 className="mt-4 text-lg font-bold text-[#f2f0ea]">
+            Sedang Memproses
+          </h1>
+
+          <p className="mt-2 text-sm text-[#a7a39a]">
+            Kredensial WiFi sedang disiapkan. Sinkronisasi biasanya butuh
+            beberapa menit — cek kembali halaman ini sebentar lagi.
+          </p>
         </div>
       </main>
     );
@@ -115,18 +134,16 @@ export default function HotspotCredentialsPage() {
           <div className="mt-3 flex items-center justify-center gap-2">
             <span
               className={`inline-flex rounded-full border px-3 py-1 text-xs ${
-                hotspot.active && !hotspot.locked && !isExpired
+                hotspot.status === "active" && !isExpired
                   ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
                   : "border-red-500/20 bg-red-500/10 text-red-300"
               }`}
             >
-              {hotspot.active && !hotspot.locked && !isExpired
+              {hotspot.status === "active" && !isExpired
                 ? "Aktif"
                 : isExpired
                   ? "Paket Habis"
-                  : hotspot.locked
-                    ? "Dikunci"
-                    : "Tidak Aktif"}
+                  : "Tidak Aktif"}
             </span>
           </div>
 
@@ -151,7 +168,7 @@ export default function HotspotCredentialsPage() {
 
               <div className="mt-1 flex items-center justify-center gap-3">
                 <div className="text-3xl font-black tracking-[0.3em] text-[#f2f0ea]">
-                  {showPin ? hotspot.pin : "•••"}
+                  {showPin ? hotspot.password : "•••"}
                 </div>
 
                 <button
@@ -171,7 +188,7 @@ export default function HotspotCredentialsPage() {
             onClick={() =>
               navigator.clipboard
                 ?.writeText(
-                  `Username: ${hotspot.username}\nPIN: ${hotspot.pin}`,
+                  `Username: ${hotspot.username}\nPIN: ${hotspot.password}`,
                 )
                 .catch(() => {})
             }

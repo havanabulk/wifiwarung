@@ -151,61 +151,6 @@ export async function POST(request: Request) {
             user_id: userId,
           })
           .eq("id", tx.id);
-
-        /* ---------- auto-assign hotspot credentials ---------- */
-
-        try {
-          const pin = String(Math.floor(100 + Math.random() * 900));
-
-          let hotspotUsername: string | null = null;
-
-          for (let attempt = 0; attempt < 50; attempt++) {
-            const candidate = String(Math.floor(1000 + Math.random() * 9000));
-
-            const { data: existing } = await service
-              .from("hotspot_users")
-              .select("username")
-              .eq("username", candidate)
-              .maybeSingle();
-
-            if (!existing) {
-              hotspotUsername = candidate;
-              break;
-            }
-          }
-
-          if (hotspotUsername) {
-            const { error: hotspotError } = await service
-              .from("hotspot_users")
-              .insert({
-                username: hotspotUsername,
-                pin,
-                user_id: userId,
-                package_order_id: orderData.id,
-              });
-
-            if (hotspotError) {
-              console.error(
-                "CASH CONFIRM: gagal membuat hotspot credentials:",
-                hotspotError,
-              );
-            } else {
-              return NextResponse.json({
-                success: true,
-                message: "Pembayaran tunai berhasil dikonfirmasi.",
-                hotspot: {
-                  username: hotspotUsername,
-                  pin,
-                },
-              });
-            }
-          }
-        } catch (hotspotErr) {
-          console.error(
-            "CASH CONFIRM: error assigning hotspot credentials:",
-            hotspotErr,
-          );
-        }
       }
     }
 

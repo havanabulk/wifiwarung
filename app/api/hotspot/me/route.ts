@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 
 export async function GET() {
   try {
@@ -14,16 +15,16 @@ export async function GET() {
       );
     }
 
-    const { data: hotspot, error } = await supabase
-      .from("hotspot_users")
+    const service = createServiceClient();
+
+    const { data: hotspot, error } = await service
+      .from("mikrotik_vouchers")
       .select(
         `
         id,
         username,
-        pin,
-        active,
-        locked,
-        last_login_at,
+        password,
+        status,
         created_at,
         package_orders:package_order_id (
           id,
@@ -50,13 +51,27 @@ export async function GET() {
     }
 
     if (!hotspot) {
+      // Belum ada voucher — laporkan jika user punya paket aktif yang sedang
+      // menunggu sinkronisasi MikroTik eksternal.
+      const { data: activeOrder } = await service
+        .from("package_orders")
+        .select("id")
+        .eq("user_id", authData.user.id)
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle();
+
+      if (activeOrder) {
+        return NextResponse.json({ hotspot: null, pendingSync: true });
+      }
+
       return NextResponse.json(
         { error: "Belum ada kredensial hotspot. Beli paket terlebih dahulu." },
         { status: 404 },
       );
     }
 
-    return NextResponse.json({ hotspot });
+    return NextResponse.json({ hotspot, pendingSync: false });
   } catch (error) {
     console.error("HOTSPOT ME API ERROR:", error);
 
