@@ -125,10 +125,8 @@ export default function TopUpForm({ balance }: Props) {
       {/* info */}
       <div className="mt-4 rounded-xl border border-white/6 bg-[#11110f] p-4 text-[11px] leading-5 text-[#a7a39a]">
         <p>
-          Pembayaran diproses via{" "}
-          <strong className="text-[#f2f0ea]">Midtrans</strong> (QRIS / Virtual
-          Account / E-Wallet). Saldo masuk otomatis setelah pembayaran
-          terverifikasi.
+          Pembayaran diproses secara online. Saldo masuk otomatis setelah
+          pembayaran terverifikasi.
         </p>
 
         <p className="mt-1 text-white/30">
