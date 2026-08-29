@@ -31,7 +31,10 @@ export async function POST(request: Request) {
   const incoming = request.headers.get("x-n8n-token");
 
   if (!incoming || incoming !== secret.trim()) {
-    return NextResponse.json({ ok: false, error: "Unauthorized." }, { status: 401 });
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized." },
+      { status: 401 },
+    );
   }
 
   let body: {
@@ -47,7 +50,10 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "Body bukan JSON." }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "Body bukan JSON." },
+      { status: 400 },
+    );
   }
 
   const orderId = String(body.package_order_id ?? "").trim();
@@ -103,7 +109,10 @@ export async function POST(request: Request) {
     };
 
     if (existing?.id) {
-      await service.from("mikrotik_vouchers").update(voucher).eq("id", existing.id);
+      await service
+        .from("mikrotik_vouchers")
+        .update(voucher)
+        .eq("id", existing.id);
     } else {
       await service.from("mikrotik_vouchers").insert(voucher);
     }
@@ -118,7 +127,10 @@ export async function POST(request: Request) {
       .update({ mikrotik_status: "failed" })
       .eq("id", orderId);
 
-    console.error(`N8N: gagal membuat voucher untuk order ${orderId}:`, body.error);
+    console.error(
+      `N8N: gagal membuat voucher untuk order ${orderId}:`,
+      body.error,
+    );
   }
 
   return NextResponse.json({ ok: true });

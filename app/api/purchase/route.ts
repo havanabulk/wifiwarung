@@ -108,8 +108,16 @@ export async function POST(request: Request) {
       const service = createServiceClient();
 
       const [{ data: profile }, { data: pkg }] = await Promise.all([
-        service.from("profiles").select("full_name, phone").eq("id", auth.context.userId).maybeSingle(),
-        service.from("packages").select("id, name").eq("id", result.order.package_id ?? 0).maybeSingle(),
+        service
+          .from("profiles")
+          .select("full_name, phone")
+          .eq("id", auth.context.userId)
+          .maybeSingle(),
+        service
+          .from("packages")
+          .select("id, name")
+          .eq("id", result.order.package_id ?? 0)
+          .maybeSingle(),
       ]);
 
       await notifyOrderFulfilled({
