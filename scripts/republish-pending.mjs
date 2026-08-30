@@ -74,7 +74,7 @@ const { data: orders, error } = await service
       end_at,
       mikrotik_status,
       packages ( id, name ),
-      profiles ( full_name, phone ),
+      profiles ( full_name, phone, device_mac ),
       mikrotik_vouchers ( id )
     `,
   )
@@ -110,6 +110,7 @@ for (const order of pending) {
       name: order.profiles?.full_name ?? null,
       phone: order.profiles?.phone ?? null,
       email: null,
+      device_mac: order.profiles?.device_mac ?? null,
     },
     transaction: {
       amount_received: order.price ?? 0,

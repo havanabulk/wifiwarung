@@ -22,6 +22,9 @@ export type OrderFulfilledPayload = {
     name: string | null;
     email: string | null;
     phone: string | null;
+    // MAC perangkat (auto-unlock walled-garden) dari redirect MikroTik,
+    // diambil dari ?hotspot_mac= (atau ?mac=) saat user login web.
+    device_mac?: string | null;
   };
   transaction: {
     amount_received: number;

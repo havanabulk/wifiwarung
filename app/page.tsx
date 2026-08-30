@@ -385,9 +385,186 @@ export default async function HomePage() {
             sm:grid-cols-3
           "
         >
-          <Status label="Harga Mulai" value="Rp 2.000" />{" "}
+          <Status label="Harga Mulai" value="Setelah Login" />{" "}
           <Status label="Voucher" value="Otomatis" />{" "}
           <Status label="Layanan" value="24 Jam" />
+        </div>
+      </section>
+
+      {/* =========================
+          LAYANAN (PORTAL CARDS)
+      ========================= */}
+
+      <section className="px-4 py-12 sm:py-14">
+        <div className="mx-auto max-w-6xl">
+          <div
+            className="
+              mb-7
+              flex
+              items-end
+              justify-between
+              gap-4
+            "
+          >
+            <div>
+              <div
+                className="
+                  text-[11px]
+                  font-bold
+                  tracking-[0.2em]
+                  text-[#b89b5e]
+                "
+              >
+                WARUNG28 SERVICES
+              </div>
+
+              <h2
+                className="
+                  mt-2
+                  text-3xl
+                  font-black
+                  tracking-tight
+                  text-[#f2f0ea]
+                "
+              >
+                Mau apa hari ini?
+              </h2>
+            </div>
+
+            <p
+              className="
+                hidden
+                max-w-sm
+                text-sm
+                leading-6
+                text-[#a7a39a]
+                sm:block
+              "
+            >
+              Satu portal untuk semua kebutuhan: internet, pulsa, top-up game,
+              sampai tagihan listrik.
+            </p>
+          </div>
+
+          <div
+            className="
+              grid
+              grid-cols-2
+              gap-3
+              sm:grid-cols-3
+              lg:grid-cols-5
+            "
+          >
+            <a
+              href="#packages"
+              className="
+                group
+                rounded-3xl
+                border
+                border-[#b89b5e]/20
+                bg-[#11110f]
+                p-5
+                transition
+                hover:border-[#b89b5e]/40
+                hover:bg-[#16150f]
+              "
+            >
+              <div
+                className="
+                  flex
+                  h-12
+                  w-12
+                  items-center
+                  justify-center
+                  rounded-2xl
+                  bg-[#b89b5e]/10
+                  text-2xl
+                "
+              >
+                📡
+              </div>
+
+              <div className="mt-4 text-base font-bold text-[#f2f0ea]">
+                Voucher WiFi
+              </div>
+
+              <div className="mt-1 text-xs text-[#a7a39a]">
+                Paket internet instan.
+              </div>
+
+              <span
+                className="
+                  mt-3
+                  inline-block
+                  rounded-full
+                  bg-emerald-500/10
+                  px-2.5
+                  py-0.5
+                  text-[10px]
+                  font-bold
+                  text-emerald-300
+                "
+              >
+                Tersedia
+              </span>
+            </a>
+
+            {[
+              ["🛒", "Shopping", "Belanja produk digital."],
+              ["🎮", "TopUp Game", "Diamond, skin & voucher."],
+              ["📱", "Pulsa", "Pulsa semua operator."],
+              ["💡", "PLN", "Token & tagihan listrik."],
+            ].map(([icon, title, desc]) => (
+              <div
+                key={title}
+                className="
+                  rounded-3xl
+                  border
+                  border-white/[0.06]
+                  bg-[#11110f]
+                  p-5
+                  opacity-60
+                "
+              >
+                <div
+                  className="
+                    flex
+                    h-12
+                    w-12
+                    items-center
+                    justify-center
+                    rounded-2xl
+                    bg-white/[0.05]
+                    text-2xl
+                  "
+                >
+                  {icon}
+                </div>
+
+                <div className="mt-4 text-base font-bold text-[#f2f0ea]">
+                  {title}
+                </div>
+
+                <div className="mt-1 text-xs text-[#a7a39a]">{desc}</div>
+
+                <span
+                  className="
+                    mt-3
+                    inline-block
+                    rounded-full
+                    bg-white/[0.06]
+                    px-2.5
+                    py-0.5
+                    text-[10px]
+                    font-bold
+                    text-[#a7a39a]
+                  "
+                >
+                  Segera Hadir
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -447,7 +624,7 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <PackageCarousel packages={catalogPackages} />
+          <PackageCarousel packages={catalogPackages} showPrices={false} />
         </div>
       </section>
 

@@ -54,7 +54,7 @@ export default async function DashboardPage({ searchParams }: SearchParams) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("username, full_name, role, status")
+    .select("username, full_name, role, status, device_mac")
     .eq("id", user.id)
     .single();
 
@@ -236,6 +236,44 @@ export default async function DashboardPage({ searchParams }: SearchParams) {
     }
   }
 
+  /* ---------- tangkap MAC perangkat dari redirect portal MikroTik ---------- */
+
+  const MAC_RE = /^([0-9a-f]{2}:){5}[0-9a-f]{2}$/;
+
+  const rawMac =
+    typeof resolvedSearchParams.mac === "string"
+      ? resolvedSearchParams.mac.trim().toLowerCase()
+      : null;
+
+  const hotspotMac =
+    rawMac && rawMac.length <= 17 && MAC_RE.test(rawMac) ? rawMac : null;
+
+  let deviceMac: string | null = (profile as { device_mac?: string | null })
+    .device_mac ?? null;
+
+  if (hotspotMac && hotspotMac !== deviceMac) {
+    const service = createServiceClient();
+
+    const { error: macError } = await service
+      .from("profiles")
+      .update({ device_mac: hotspotMac })
+      .eq("id", user.id);
+
+    if (!macError) {
+      deviceMac = hotspotMac;
+    }
+  }
+
+  const isRandomizedMac = (mac: string | null) => {
+    if (!mac) return false;
+
+    const firstOctet = parseInt(mac.slice(0, 2), 16);
+
+    return (firstOctet & 0x02) !== 0;
+  };
+
+  const randomMacDetected = isRandomizedMac(deviceMac);
+
   return (
     <main className="min-h-screen bg-[#080808] px-4 py-8">
       <div className="mx-auto max-w-5xl">
@@ -307,6 +345,88 @@ export default async function DashboardPage({ searchParams }: SearchParams) {
             />
           </div>
         </header>
+
+        {/* STATUS PERANGKAT (auto-unlock walled-garden) */}
+
+        <section
+          className="
+            mt-5
+            rounded-2xl
+            border
+            border-white/6
+            bg-[#0d0d0b]
+            p-5
+          "
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs text-[#a7a39a]">
+                Akses Internet Perangkat Ini
+              </p>
+
+              <p className="mt-1 text-sm font-bold text-[#f2f0ea]">
+                {deviceMac
+                  ? `MAC ${deviceMac}`
+                  : "Belum terhubung lewat portal WiFi warung."}
+              </p>
+            </div>
+
+            {deviceMac ? (
+              randomMacDetected ? (
+                <span
+                  className="
+                    shrink-0
+                    rounded-full
+                    border
+                    border-amber-500/30
+                    bg-amber-500/10
+                    px-3
+                    py-1
+                    text-[11px]
+                    font-bold
+                    text-amber-300
+                  "
+                >
+                  ⚠️ MAC Acak
+                </span>
+              ) : (
+                <span
+                  className="
+                    shrink-0
+                    rounded-full
+                    border
+                    border-emerald-500/30
+                    bg-emerald-500/10
+                    px-3
+                    py-1
+                    text-[11px]
+                    font-bold
+                    text-emerald-300
+                  "
+                >
+                  Auto-Unlock Aktif
+                </span>
+              )
+            ) : null}
+          </div>
+
+          {deviceMac && randomMacDetected ? (
+            <p className="mt-3 text-xs leading-5 text-[#a7a39a]">
+              Perangkat memakai alamat MAC acak — internet otomatis akan
+              terputus setiap HP ganti koneksi. Matikan "MAC acak" di pengaturan
+              Wi-Fi (Android: Use random MAC = Off; iOS: Private Wi-Fi Address =
+              Off).
+            </p>
+          ) : null}
+
+          {!deviceMac ? (
+            <p className="mt-3 text-xs leading-5 text-[#a7a39a]">
+              Sambungkan HP ke Wi-Fi warung lalu buka warung28.my.id dari HP itu
+              — setelah beli paket, internet langsung terbuka tanpa perlu
+              username/password.
+            </p>
+          ) : null}
+        </section>
 
         {/* SALDO */}
 

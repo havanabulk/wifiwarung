@@ -153,6 +153,12 @@ export async function POST(request: Request) {
           })
           .eq("id", tx.id);
 
+        const { data: customerProfile } = await service
+          .from("profiles")
+          .select("device_mac")
+          .eq("id", userId)
+          .maybeSingle();
+
         await notifyOrderFulfilled({
           event: "order.fulfilled",
           merchant_ref: tx.merchant_ref,
@@ -167,6 +173,7 @@ export async function POST(request: Request) {
             name: tx.guest_name,
             email: tx.guest_email,
             phone: tx.guest_phone,
+            device_mac: customerProfile?.device_mac ?? null,
           },
           transaction: {
             amount_received: tx.amount,

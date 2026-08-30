@@ -110,7 +110,7 @@ export async function POST(request: Request) {
       const [{ data: profile }, { data: pkg }] = await Promise.all([
         service
           .from("profiles")
-          .select("full_name, phone")
+          .select("full_name, phone, device_mac")
           .eq("id", auth.context.userId)
           .maybeSingle(),
         service
@@ -134,6 +134,7 @@ export async function POST(request: Request) {
           name: profile?.full_name ?? null,
           email: null,
           phone: profile?.phone ?? null,
+          device_mac: profile?.device_mac ?? null,
         },
         transaction: {
           amount_received: result.order.price ?? 0,

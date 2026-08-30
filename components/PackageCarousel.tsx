@@ -23,12 +23,26 @@ const MOBILE_PER_PAGE = 4;
 
 type Props = {
   packages?: CatalogPackage[];
+  // Saat false, harga disembunyikan dan CTA mengarah ke /login
+  // (depan hanya menampilkan produk, harga hanya di area user).
+  showPrices?: boolean;
 };
 
-export default function PackageCarousel({ packages = [] }: Props) {
+export default function PackageCarousel({
+  packages = [],
+  showPrices = true,
+}: Props) {
   const [page, setPage] = useState(0);
   const [mobile, setMobile] = useState(false);
   const [selectedPkg, setSelectedPkg] = useState<CatalogPackage | null>(null);
+
+  function openOrLogin(item: CatalogPackage) {
+    if (showPrices) {
+      setSelectedPkg(item);
+    } else {
+      window.location.href = "/login";
+    }
+  }
 
   const touchStart = useRef<number | null>(null);
   const touchEnd = useRef<number | null>(null);
@@ -129,7 +143,7 @@ export default function PackageCarousel({ packages = [] }: Props) {
                   {slice.map((item) => (
                     <button
                       key={item.id}
-                      onClick={() => setSelectedPkg(item)}
+                      onClick={() => openOrLogin(item)}
                       className="group relative aspect-square overflow-hidden rounded-2xl border border-[#b89b5e]/15 bg-[#11110f] p-4 text-left transition-all duration-300 active:scale-95 active:border-[#b89b5e]/50"
                     >
                       <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-[#b89b5e]/5 blur-xl" />
@@ -146,9 +160,15 @@ export default function PackageCarousel({ packages = [] }: Props) {
                         {item.description}
                       </div>
 
-                      <div className="relative mt-auto pt-2 text-base font-extrabold text-[#c8ad72]">
-                        {item.price}
-                      </div>
+                      {showPrices ? (
+                        <div className="relative mt-auto pt-2 text-base font-extrabold text-[#c8ad72]">
+                          {item.price}
+                        </div>
+                      ) : (
+                        <div className="relative mt-auto pt-2 text-[11px] font-bold text-[#a7a39a]">
+                          🔒 Masuk untuk lihat harga
+                        </div>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -177,7 +197,8 @@ export default function PackageCarousel({ packages = [] }: Props) {
                   {slice.map((item) => (
                     <article
                       key={item.id}
-                      className="group relative min-h-[285px] overflow-hidden rounded-3xl border border-[#b89b5e]/15 bg-[#11110f] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#b89b5e]/45"
+                      onClick={() => openOrLogin(item)}
+                      className="group relative min-h-[285px] cursor-pointer overflow-hidden rounded-3xl border border-[#b89b5e]/15 bg-[#11110f] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#b89b5e]/45"
                     >
                       <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#b89b5e]/5 blur-2xl" />
 
@@ -199,15 +220,21 @@ export default function PackageCarousel({ packages = [] }: Props) {
                         {item.description}
                       </p>
 
-                      <div className="relative mt-5 text-2xl font-extrabold tracking-tight text-[#c8ad72]">
-                        {item.price}
-                      </div>
+                      {showPrices ? (
+                        <div className="relative mt-5 text-2xl font-extrabold tracking-tight text-[#c8ad72]">
+                          {item.price}
+                        </div>
+                      ) : (
+                        <div className="relative mt-5 text-sm font-bold text-[#a7a39a]">
+                          🔒 Harga lihat setelah login
+                        </div>
+                      )}
 
                       <button
-                        onClick={() => setSelectedPkg(item)}
+                        onClick={() => openOrLogin(item)}
                         className="relative mt-5 w-full rounded-xl border border-[#b89b5e]/20 bg-[#b89b5e]/5 px-4 py-3 text-sm font-bold text-[#f2f0ea] transition-all duration-300 hover:border-[#b89b5e] hover:bg-[#b89b5e] hover:text-[#17130c]"
                       >
-                        Pilih Paket
+                        {showPrices ? "Pilih Paket" : "Masuk untuk Lihat Harga"}
                       </button>
                     </article>
                   ))}
