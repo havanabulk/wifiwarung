@@ -248,8 +248,8 @@ export default async function DashboardPage({ searchParams }: SearchParams) {
   const hotspotMac =
     rawMac && rawMac.length <= 17 && MAC_RE.test(rawMac) ? rawMac : null;
 
-  let deviceMac: string | null = (profile as { device_mac?: string | null })
-    .device_mac ?? null;
+  let deviceMac: string | null =
+    (profile as { device_mac?: string | null }).device_mac ?? null;
 
   if (hotspotMac && hotspotMac !== deviceMac) {
     const service = createServiceClient();
